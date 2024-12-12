@@ -1,11 +1,11 @@
 import React from 'react'
+import MyDDJJ from '../components/MyDDJJ';
 import PendingApproval from '../components/PendingApproval';
 import { useAuth } from '../context/AuthProvider'
 import Taxpayers from './Taxpayers';
 
 const Home = () => {
-  const { user } = useAuth();
-
+  const { user } = useAuth(); 
   return (
     <>
       {
@@ -15,7 +15,7 @@ const Home = () => {
           <>
             {
               user.estado == true ? (
-                <h1>Pagina de contri</h1>
+                <MyDDJJ id={user?.id}/>
 
               ) : (
                 <PendingApproval/>

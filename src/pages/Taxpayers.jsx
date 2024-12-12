@@ -8,16 +8,16 @@ import useFetch from '../helpers/hooks/UseFetch';
 const Taxpayers = () => {
     const URL = import.meta.env.VITE_API_URL;
     const { data, loading, error, refetch } = useFetch(`${URL}/api/taxpayer`);
-    const [buscarCuil, setBuscarCuil] = useState('');
+    const [buscarCuit, setBuscarCuit] = useState('');
     const [buscarApellido, serBuscarApellido] = useState('');
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [selectedEstado, setSelectedEstado] = useState(null); // Datos del contribuyente seleccionado
     // const [newEstado, setNewEstado] = useState(null); // Nuevo estado a aplicar
 
     const filtros = data?.response?.filter((c) => {
-        const cuil = c.cuil.toString().includes(buscarCuil);
+        const cuit = c.cuit.toString().includes(buscarCuit);
         const apellido = c.apellido.toLowerCase().includes(buscarApellido.toLowerCase());
-        return apellido && cuil;
+        return apellido && cuit;
     });
 
     // console.log(newEstado)
@@ -29,7 +29,9 @@ const Taxpayers = () => {
     };
     const handleEstadoChange = async () => {       
         try {
-            const response = await axios.put(`${URL}/api/taxpayer/${selectedEstado.id}`);
+            const response = await axios.put(`${URL}/api/taxpayer/${selectedEstado.id_contribuyente}`,{
+                withCredentials: true, // Incluye las cookies
+            });
             if (response.status === 200) {
                 refetch(); // Refresca los datos
             }
@@ -52,7 +54,7 @@ const Taxpayers = () => {
                             <div className="card-body p-4">
                                 <h5 className="card-title text-center text-primary mb-4">Filtros</h5>
                                 <Filter search={buscarApellido} setSearch={serBuscarApellido} name="Apellido" type="text"/>
-                                <Filter search={buscarCuil} setSearch={setBuscarCuil} name="CUIL" type="number"/>
+                                <Filter search={buscarCuit} setSearch={setBuscarCuit} name="CUIT" type="number"/>
                             </div>
                         </div>
                     </div>
@@ -69,7 +71,7 @@ const Taxpayers = () => {
                                     <tr className="text-uppercase text-light">
                                         <th scope="col">#</th>
                                         <th scope="col">NOMBRE Y APELLIDO</th>
-                                        <th scope="col">CUIL</th>
+                                        <th scope="col">CUIT</th>
                                         <th scope="col">EMAIL</th>
                                         <th scope="col">ACTIVAR</th>
                                     </tr>
@@ -95,12 +97,12 @@ const Taxpayers = () => {
                                         </tr>
                                     ) : (
                                         filtros.map((c, index) => (
-                                            <tr key={c.id}>
+                                            <tr key={c.id_contribuyente}>
                                                 <th className="text-secondary">{index + 1}</th>
                                                 <td className="fw-bold">
                                                     {c.nombre} {c.apellido}
                                                 </td>
-                                                <td className="fw-bold">{c.cuil}</td>
+                                                <td className="fw-bold">{c.cuit}</td>
                                                 <td className="fw-bold">{c.email}</td>
                                                 <td className="fw-bold">
                                                     <button
