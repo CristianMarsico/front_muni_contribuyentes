@@ -56,14 +56,14 @@ const MyDDJJ = ({ id }) => {
                 const responseData = response.data.response;
                 if (responseData.length > 0) {
                     setTableData(responseData);
-                    setTableError(null); // Limpia cualquier error previo
+                    setTableError(null);
                 } else {
-                    setTableData([]); // Limpia los datos previos
+                    setTableData([]);
                     setTableError("No hay declaraciones juradas para los criterios seleccionados.");
                 }
             }
         } catch (error) {           
-            setTableData([]); // Limpia los datos previos
+            setTableData([]);
             setTableError(error.response.data.error);
         }
     };
@@ -148,18 +148,13 @@ const MyDDJJ = ({ id }) => {
                         </div>
                     </form>
                 </div>
-            </div>
-
-            {/* Tabla de resultados */}
-            <div class="mt-4">
-               
+            </div>          
+            <div class="mt-4">               
                 {tableError && (
                     <div class="alert alert-danger text-center" role="alert">
                         {tableError}
                     </div>
-                )}
-
-              
+                )}              
                 {tableData.length > 0 && (
                     <div class="card shadow-sm">
                         <div class="card-header bg-primary text-white text-center">
