@@ -48,12 +48,10 @@ const MyDDJJ = ({ id }) => {
         if (selectedBimestre) {
             _url += `/${selectedBimestre}`;
         }
-
         try {
             const response = await axios.get(_url, {
                 withCredentials: true,
             });
-
             if (response.status === 200) {
                 const responseData = response.data.response;
                 if (responseData.length > 0) {
@@ -200,7 +198,6 @@ const MyDDJJ = ({ id }) => {
                     </div>
                 )}
             </div>
-
         </div>
     );
 };
