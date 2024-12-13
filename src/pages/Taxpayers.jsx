@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { io } from 'socket.io-client';
 import ErrorResponse from '../components/ErrorResponse';
 import Filter from '../components/Filter';
 import Loading from '../components/Loading';
@@ -12,21 +13,36 @@ const Taxpayers = () => {
     const [buscarApellido, serBuscarApellido] = useState('');
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [selectedEstado, setSelectedEstado] = useState(null); // Datos del contribuyente seleccionado
-    // const [newEstado, setNewEstado] = useState(null); // Nuevo estado a aplicar
+    const [taxpayers, setTaxpayers] = useState(data?.response || []); // Estado local para los contribuyentes
+
+    useEffect(() => {
+        // Conectar con el servidor WebSocket
+        const socket = io(URL);
+        // Escuchar el evento de nuevos contribuyentes registrados
+        socket.on('nuevo-contribuyente', (nuevoContribuyente) => {
+            refetch();          
+            // Actualizar el estado de contribuyentes cuando se reciba el nuevo registro
+            setTaxpayers((prevTaxpayers) => [...prevTaxpayers, nuevoContribuyente]);
+        });
+        // Limpiar la conexión al cerrar el componente
+        return () => {
+            socket.disconnect();
+        };
+    }, []);
 
     const filtros = data?.response?.filter((c) => {
         const cuit = c.cuit.toString().includes(buscarCuit);
         const apellido = c.apellido.toLowerCase().includes(buscarApellido.toLowerCase());
         return apellido && cuit;
-    });
-
-    // console.log(newEstado)
+    });  
 
     const handleEditEstado = (c) => {
-        setSelectedEstado(c);
-        // setNewEstado(c.activo ? false : true); // Calcula el nuevo estado como booleano
+        setSelectedEstado(c);  
         setShowConfirmModal(true);
     };
+
+
+
     const handleEstadoChange = async () => {       
         try {
             const response = await axios.put(`${URL}/api/taxpayer/${selectedEstado.id_contribuyente}`,{
@@ -40,9 +56,7 @@ const Taxpayers = () => {
         } finally {
             setShowConfirmModal(false);
         }
-    };
-
-    // const nombreEstado = (estado) => (estado ? 'Activo' : 'Inactivo');
+    }; 
 
     return (
         <>
