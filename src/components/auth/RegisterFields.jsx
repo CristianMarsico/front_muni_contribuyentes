@@ -20,6 +20,7 @@ const RegisterFields = ({ registroData, setRegistroData }) => {
         email: null,
         direccion: null,
         telefono: null,
+        razon_social: null,
         cuit: {
             prefijoCuit: null,
             numeroCuit: null,
@@ -67,6 +68,13 @@ const RegisterFields = ({ registroData, setRegistroData }) => {
             setErrors({
                 ...errors,
                 telefono: value.trim() === "" ? "*Teléfono o celular obligatorio" : null,
+            });
+        }
+
+        if (name === "razon_social") {
+            setErrors({
+                ...errors,
+                razon_social: value.trim() === "" ? "*Razón social obligatoria" : null,
             });
         }
     };
@@ -157,6 +165,10 @@ const RegisterFields = ({ registroData, setRegistroData }) => {
             newErrors.telefono = "*Teléfono o celular obligatorio";
         }
 
+        if (!registroData.razon_social || registroData.razon_social.trim() === "") {
+            newErrors.razon_social = "*Razón social obligatoria";
+        }
+
         // Validar CUIT
         if (!registroData.cuit.prefijoCuit || registroData.cuit.prefijoCuit.length !== 2) {
             newErrors.cuit.prefijoCuit = "Sólo 2 dígitos";
@@ -176,6 +188,7 @@ const RegisterFields = ({ registroData, setRegistroData }) => {
             newErrors.email ||
             newErrors.direccion ||
             newErrors.telefono ||
+            newErrors.razon_social ||
             newErrors.cuit.prefijoCuit ||
             newErrors.cuit.numeroCuit ||
             newErrors.cuit.verificadorCuit
@@ -251,6 +264,13 @@ const RegisterFields = ({ registroData, setRegistroData }) => {
                         error={errors.telefono}
                         placeholder="Ingrese teléfono" />
 
+                    <InputField label="Razón Social"
+                        name="razon_social"
+                        value={registroData.razon_social}
+                        type="text"
+                        onChange={handleRegistroChange}
+                        error={errors.razon_social}
+                        placeholder="Ingrese razón social" />
                 </div>
             )}
 

@@ -27,14 +27,39 @@ const Navbar = () => {
                 <div className="collapse navbar-collapse" id="navbarNav">
                     {/* Enlaces de navegación */}
 
-                    <ul className="navbar-nav mx-auto">                       
+                    <ul className="navbar-nav mx-auto">
                         {user?.rol && (
                             <>
-                                <li className="nav-item">
-                                    <Link className="nav-link text-uppercase" to="/home">
-                                        Home
-                                    </Link>
-                                </li>
+                                {
+                                    user?.rol === "admin" ? (
+                                        <li className="nav-item">
+                                            <Link className="nav-link text-uppercase" to="/home">
+                                                Contribuyentes
+                                            </Link>
+                                        </li>
+
+                                    ) : (
+                                        <>
+                                            {
+                                                user?.estado && (
+                                                    <>
+                                                        <li className="nav-item">
+                                                            <Link className="nav-link text-uppercase" to="/home">
+                                                                Mis DDJJs
+                                                            </Link>
+                                                        </li>
+                                                        <li className="nav-item">
+                                                            <Link className="nav-link text-uppercase" to="/newDdjj">
+                                                                Cargar DDJJ
+                                                            </Link>
+                                                        </li>
+                                                    </>
+                                                )
+                                            }
+                                        </>
+                                    )
+                                }
+
                                 <li className="nav-item">
                                     <Link className="nav-link text-uppercase" onClick={() => logout()}>
                                         Cerrar Sesión

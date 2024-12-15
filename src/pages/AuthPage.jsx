@@ -54,6 +54,7 @@ const AuthPage = () => {
         direccion: '',
         telefono: '',
         password: '',
+        razon_social: '',
         misComercios: [], // Arreglo de comercios
     });
 

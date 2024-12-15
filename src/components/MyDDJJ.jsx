@@ -12,17 +12,12 @@ const MyDDJJ = ({ id }) => {
 
     const [selectedComercio, setSelectedComercio] = useState("");
     const [selectedAnio, setSelectedAnio] = useState(currentYear);
-    const [selectedBimestre, setSelectedBimestre] = useState("");
+    const [selectedMes, setSelectedMes] = useState("");
     const [tableData, setTableData] = useState([]); // Estado para datos de la tabla
     const [tableError, setTableError] = useState(null); // Estado para errores
 
-    const bimestres = [
-        "Enero-Febrero",
-        "Marzo-Abril",
-        "Mayo-Junio",
-        "Julio-Agosto",
-        "Septiembre-Octubre",
-        "Noviembre-Diciembre",
+    const meses = [
+        "Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre",
     ];
 
     useEffect(() => {
@@ -40,13 +35,13 @@ const MyDDJJ = ({ id }) => {
     };
 
     const handleBimestreChange = (e) => {
-        setSelectedBimestre(e.target.value);
+        setSelectedMes(e.target.value);
     };
 
     const handleButtonClick = async () => {
         let _url = `${URL}/api/ddjj/${id}/${selectedComercio}/${selectedAnio}`;
-        if (selectedBimestre) {
-            _url += `/${selectedBimestre}`;
+        if (selectedMes) {
+            _url += `/${selectedMes}`;
         }
         try {
             const response = await axios.get(_url, {
@@ -73,8 +68,8 @@ const MyDDJJ = ({ id }) => {
             <h1>Declaraciones Juradas</h1>
             <div className="card">
                 <div className="card-body">
-                    <form className="row g-3 align-items-center">
-                        <div className="col-md-6">
+                    <form className="row g-3">
+                        <div className="col-md-4">
                             <label htmlFor="comercio" className="form-label">
                                 Comercio:
                             </label>
@@ -100,7 +95,7 @@ const MyDDJJ = ({ id }) => {
                             </select>
                         </div>
 
-                        <div className="col-md-3">
+                        <div className="col-md-4">
                             <label htmlFor="anio" className="form-label">
                                 Año:
                             </label>
@@ -118,29 +113,30 @@ const MyDDJJ = ({ id }) => {
                             </select>
                         </div>
 
-                        <div className="col-md-3">
-                            <label htmlFor="bimestre" className="form-label">
-                                Bimestre:
+                        <div className="col-md-4">
+                            <label htmlFor="mes" className="form-label">
+                               Seleccione Mes:
                             </label>
                             <select
-                                id="bimestre"
+                                id="mes"
                                 className="form-select"
-                                value={selectedBimestre}
+                                value={selectedMes}
                                 onChange={handleBimestreChange}
                             >
-                                <option value="">Seleccionar Bimestre</option>
-                                {bimestres.map((bimestre, index) => (
-                                    <option key={index} value={bimestre}>
-                                        {bimestre}
+                                <option value="">Ver todas</option>
+                                {meses.map((mes, index) => (
+                                    
+                                    <option key={index} value={index+1}>
+                                        {mes}
                                     </option>
                                 ))}
                             </select>
                         </div>
 
-                        <div className="col-md-3 d-flex align-items-end">
+                        <div className="col-12 d-flex justify-content-center">
                             <button
                                 type="button"
-                                className="btn btn-primary w-100"
+                                className="btn btn-primary col-4"
                                 onClick={handleButtonClick}
                             >
                                 Ver DDJJs
@@ -148,23 +144,24 @@ const MyDDJJ = ({ id }) => {
                         </div>
                     </form>
                 </div>
-            </div>          
-            <div class="mt-4">               
+            </div>
+
+            <div className="mt-4 mb-4">
                 {tableError && (
-                    <div class="alert alert-danger text-center" role="alert">
+                    <div className="alert alert-danger text-center" role="alert">
                         {tableError}
                     </div>
                 )}              
                 {tableData.length > 0 && (
-                    <div class="card shadow-sm">
-                        <div class="card-header bg-primary text-white text-center">
-                            <h5 class="mb-0">Resultados de Declaraciones Juradas</h5>
+                    <div className="card shadow-sm">
+                        <div className="card-header bg-primary text-white text-center">
+                            <h5 className="mb-0">Resultados de Declaraciones Juradas</h5>
                         </div>
-                        <div class="card-body">
+                        <div className="card-body">
                            
-                            <div class="table-responsive">
-                                <table class="table table-striped table-bordered">
-                                    <thead class="thead-dark">
+                            <div className="table-responsive">
+                                <table className="table table-striped table-bordered">
+                                    <thead className="thead-dark">
                                         <tr>
                                             <th scope="col">ID Contribuyente</th>
                                             <th scope="col">ID Comercio</th>
@@ -187,7 +184,7 @@ const MyDDJJ = ({ id }) => {
                                 </table>
                             </div>
                         </div>
-                        <div class="card-footer text-muted text-center">
+                        <div className="card-footer text-muted text-center">
                             Total resultados: {tableData.length}
                         </div>
                     </div>
