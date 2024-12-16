@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useState, useEffect } from "react";
-import useFetch from "../helpers/hooks/UseFetch";
+import useFetch from "../helpers/hooks/useFetch";
 
 const MyDDJJ = ({ id }) => {
     const URL = import.meta.env.VITE_API_URL;

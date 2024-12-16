@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import SuccessModal from '../components/SuccessModal';
 import ConfirmAddTradeModal from '../components/ConfirmAddTradeModal';
 import ConfirmAddTaxpayerModal from '../components/ConfirmAddTaxpayerModal';
-import useFetch from '../helpers/hooks/UseFetch';
+import useFetch from '../helpers/hooks/useFetch';
 import axios from 'axios';
 
 const DetailsTaxpayer = () => {
