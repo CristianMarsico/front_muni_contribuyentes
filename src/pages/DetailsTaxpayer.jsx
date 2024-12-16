@@ -5,6 +5,7 @@ import SuccessModal from '../components/SuccessModal';
 import ConfirmAddTradeModal from '../components/ConfirmAddTradeModal';
 import ConfirmAddTaxpayerModal from '../components/ConfirmAddTaxpayerModal';
 import useFetch from '../helpers/hooks/UseFetch';
+import axios from 'axios';
 
 const DetailsTaxpayer = () => {
     const URL = import.meta.env.VITE_API_URL;
@@ -26,9 +27,7 @@ const DetailsTaxpayer = () => {
         return () => {
             socket.disconnect();
         };
-    }, []);
-
-    console.log(info)
+    }, []);    
 
     const handleTradeState = (c) => {
         setSelectedEstado(c);
