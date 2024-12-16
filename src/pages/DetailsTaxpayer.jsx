@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react'
 import { io } from 'socket.io-client';
 import { useParams } from 'react-router-dom';
 import SuccessModal from '../components/SuccessModal';
-import useFetch from '../helpers/hooks/UseFetch';
 import ConfirmAddTradeModal from '../components/ConfirmAddTradeModal';
 import ConfirmAddTaxpayerModal from '../components/ConfirmAddTaxpayerModal';
+import useFetch from '../helpers/hooks/UseFetch';
 
 const DetailsTaxpayer = () => {
     const URL = import.meta.env.VITE_API_URL;
