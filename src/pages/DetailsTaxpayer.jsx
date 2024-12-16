@@ -1,4 +1,4 @@
-import axios from 'axios';
+import React from 'react'
 import React, { useEffect, useState } from 'react'
 import { io } from 'socket.io-client';
 import { useParams } from 'react-router-dom';
@@ -16,7 +16,7 @@ const DetailsTaxpayer = () => {
     const [selectedEstado, setSelectedEstado] = useState(null); // Datos del contribuyente seleccionado
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [trades, setTrades] = useState(data?.response || []);
-    let info = data?.response[0];   
+    let info = data?.response[0];
 
     useEffect(() => {
         const socket = io(URL);
@@ -31,17 +31,17 @@ const DetailsTaxpayer = () => {
 
     console.log(info)
 
-    const handleTradeState = (c) => {        
+    const handleTradeState = (c) => {
         setSelectedEstado(c);
         setShowConfirmTradeModal(true);
     };
 
-    const handleTaxpayerState = (c) => {       
+    const handleTaxpayerState = (c) => {
         setSelectedEstado(c);
         setShowConfirmTaxpayerModal(true);
     };
 
-    const handleTradeStateChange = async () => {   
+    const handleTradeStateChange = async () => {
         try {
             const response = await axios.put(`${URL}/api/trade/${selectedEstado.id_comercio}`, {
                 withCredentials: true,
@@ -58,11 +58,11 @@ const DetailsTaxpayer = () => {
         }
     };
 
-    const handleTaxpayerStateChange = async () => {      
+    const handleTaxpayerStateChange = async () => {
         try {
-            const response = await axios.put(`${URL}/api/taxpayer/${id}`,{
+            const response = await axios.put(`${URL}/api/taxpayer/${id}`, {
                 withCredentials: true,
-            });          
+            });
             if (response.status === 200) {
                 setShowSuccessModal(false); // Reinicia el estado
                 setTimeout(() => setShowSuccessModal(true), 0);
@@ -74,9 +74,6 @@ const DetailsTaxpayer = () => {
             setShowConfirmTaxpayerModal(false);
         }
     };
-
-
-
 
     const allComerciosHabilitados = data?.response?.every((comercio) => comercio.estado);
     return (
@@ -140,7 +137,7 @@ const DetailsTaxpayer = () => {
                             )}
                         </div> */}
 
-                        
+
                         <div className="d-flex justify-content-center gap-5 align-items-center">
                             <p className="mb-0">
                                 <strong className="text-muted">Estado:</strong>{" "}
@@ -150,29 +147,18 @@ const DetailsTaxpayer = () => {
                                     {allComerciosHabilitados ? "Habilitado" : "Inhabilitado"}
                                 </span>
                             </p>
-                        {allComerciosHabilitados && (
-                            <button
-                                className="btn btn-primary px-4 py-2"
-                                onClick={() => handleTaxpayerState(info)}
-                            >
-                                <i className="bi bi-check-circle me-2"></i>
-                                Dar de alta
-                            </button>
-                        )}
+                            {allComerciosHabilitados && (
+                                <button
+                                    className="btn btn-primary px-4 py-2"
+                                    onClick={() => handleTaxpayerState(info)}
+                                >
+                                    <i className="bi bi-check-circle me-2"></i>
+                                    Dar de alta
+                                </button>
+                            )}
                         </div>
-
-
-
-
-
-
-
-
-
-
                     </div>
                 </div>
-
                 {/* Lista de Comercios */}
                 <div className="card shadow-lg border-0 rounded-4">
                     <div className="card-header bg-secondary text-white rounded-top-4">
@@ -228,10 +214,7 @@ const DetailsTaxpayer = () => {
                     handleEstadoChange={handleTradeStateChange}
                     setShowConfirmModal={setShowConfirmTradeModal}
                 />
-
-
-
-            )}
+             )}
 
             {showConfirmTaxpayerModal && (
                 <ConfirmAddTaxpayerModal
@@ -248,5 +231,4 @@ const DetailsTaxpayer = () => {
         </>
     );
 }
-
-export default DetailsTaxpayer;
+export default DetailsTaxpayer
