@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import WelcomeModal from '../components/WelcomeModal';
+import WelcomeModal from '../components/modalsComponents/WelcomeModal';
 import { useAuth } from '../context/AuthProvider';
 import LoginAdmin from '../components/auth/LoginAdmin';
 import RegisterFields from '../components/auth/RegisterFields';
@@ -206,16 +206,16 @@ const AuthPage = () => {
                                             {
                                                 userType !== "contribuyente" ? (
                                                     <LoginAdmin
-                                                        userType={userType}
-                                                        setUserType={setUserType}
+                                                        // userType={userType}
+                                                        // setUserType={setUserType}
                                                         loginAdmin={loginAdmin}
                                                         handleLoginAdminChange={handleLoginAdminChange}
                                                         errorsAdmin={errorsAdmin}
                                                     />
                                                 ) : (
                                                     <LoginTaxpayer
-                                                        userType={userType}
-                                                        setUserType={setUserType}
+                                                        // userType={userType}
+                                                        // setUserType={setUserType}
                                                         loginTaxpayer={loginTaxpayer}
                                                         handleLoginTaxpayerChange={handleLoginTaxpayerChange}
                                                         handleCuitChange={handleCuitChange}

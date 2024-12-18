@@ -32,12 +32,18 @@ const Navbar = () => {
                             <>
                                 {
                                     user?.rol === "admin" ? (
-                                        <li className="nav-item">
-                                            <Link className="nav-link text-uppercase" to="/home">
-                                                Contribuyentes
-                                            </Link>
-                                        </li>
-
+                                        <>
+                                            <li className="nav-item">
+                                                <Link className="nav-link text-uppercase" to="/home">
+                                                    Contribuyentes
+                                                </Link>
+                                            </li>
+                                            <li className="nav-item">
+                                                <Link className="nav-link text-uppercase" to="/config">
+                                                    Configuración
+                                                </Link>
+                                            </li>
+                                        </>
                                     ) : (
                                         <>
                                             {
@@ -49,8 +55,13 @@ const Navbar = () => {
                                                             </Link>
                                                         </li>
                                                         <li className="nav-item">
-                                                            <Link className="nav-link text-uppercase" to="/newDdjj">
+                                                            <Link className="nav-link text-uppercase" to="/cargarDDJJ">
                                                                 Cargar DDJJ
+                                                            </Link>
+                                                        </li>
+                                                        <li className="nav-item">
+                                                            <Link className="nav-link text-uppercase" to="/vencimientos">
+                                                                Vencimientos
                                                             </Link>
                                                         </li>
                                                     </>

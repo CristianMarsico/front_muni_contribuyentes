@@ -12,6 +12,8 @@ import FormAddDdjj from "./pages/FormAddDdjj";
 import DetailsTaxpayer from "./pages/DetailsTaxpayer";
 import { AuthProvider } from "./context/AuthProvider";
 import PrivateRoutes from "./routes/PrivateRoutes";
+import Quotas from './pages/Quotas';
+import Configuration from './pages/Configuration';
 
 function App() {
   return (
@@ -23,8 +25,10 @@ function App() {
             <Routes>
               <Route path="/" element={<AuthPage />} />
               <Route path="/home" element={<PrivateRoutes><Home /></PrivateRoutes>} />
-              <Route path="/newDdjj" element={<PrivateRoutes><FormAddDdjj /></PrivateRoutes>} />
+              <Route path="/cargarDDJJ" element={<PrivateRoutes><FormAddDdjj /></PrivateRoutes>} />
               <Route path="/contribuyente/:id" element={<PrivateRoutes><DetailsTaxpayer /></PrivateRoutes>} />
+              <Route path="/vencimientos" element={<PrivateRoutes><Quotas /></PrivateRoutes>} />
+              <Route path="/config" element={<PrivateRoutes><Configuration /></PrivateRoutes>} />
               <Route path="*" element={<Error />} />
             </Routes>
           </div>

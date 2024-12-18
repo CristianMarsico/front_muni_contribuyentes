@@ -15,13 +15,10 @@ const Taxpayers = () => {
     const [taxpayers, setTaxpayers] = useState([]);
 
 
-    useEffect(() => {
-        console.log("Datos recibidos del API:", data);
-
+    useEffect(() => {      
         if (data?.response) {
             setTaxpayers(data.response);
-        } else {
-            console.warn("Los datos no son un array válido:", data);
+        } else {           
             setTaxpayers([]);
         }
     }, [data]);
@@ -121,7 +118,7 @@ const Taxpayers = () => {
                                                     </td>
                                                 </tr>
                                             ) : (
-                                                filtros.map((c) => (
+                                                filtros.map((c) => (                                                    
                                                     <tr key={c?.id_contribuyente || Math.random()}>
                                                         <td>{c?.nombre} {c?.apellido}</td>
                                                         <td>{c?.cuit}</td>

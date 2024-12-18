@@ -4,7 +4,6 @@ import useFetch from "../helpers/hooks/useFetch";
 
 const MyDDJJ = ({ id }) => {
     const URL = import.meta.env.VITE_API_URL;
-
     const currentYear = new Date().getFullYear();
     const years = Array.from({ length: 12 }, (_, i) => currentYear - i);
 

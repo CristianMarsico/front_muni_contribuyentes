@@ -2,7 +2,7 @@ import React from 'react'
 import CuitField from './CuitField';
 import InputField from './InputField';
 
-const LoginTaxpayer = ({ loginTaxpayer, handleLoginTaxpayerChange, handleCuitChange, errorTaxpayer }) => {
+const LoginTaxpayer = ({ loginTaxpayer, handleLoginTaxpayerChange, handleCuitChange, errorTaxpayer }) => { 
     return (
         <>
             <div>
