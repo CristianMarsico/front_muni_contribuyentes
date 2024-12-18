@@ -1,59 +1,57 @@
 import React, { useState } from 'react'
 import DataTableConfig from '../components/configurationComponents/DataTableConfig';
-
-
+import Quotas from './Quotas';
 
 const Configuration = () => {
-   
     // Estado para controlar la sección activa
     const [activeSection, setActiveSection] = useState('general');
 
-    console.log("Configuración renderizada, sección activa:", activeSection);
-
     return (
-        <div className="container mt-4">
-            {/* Barra de Navegación */}
-            <nav className="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
-                <div className="container-fluid ">
-                    <div>
-                        <ul className="navbar-nav">
-                            <li className="nav-item">
-                                <button
-                                    className={`nav-link btn ${activeSection === 'general' ? 'active' : ''}`}
-                                    onClick={() => setActiveSection('general')}
-                                >
-                                    Configuración General
-                                </button>
-                            </li>
-                            <li className="nav-item">
-                                <button
-                                    className={`nav-link btn ${activeSection === 'vencimientos' ? 'active' : ''}`}
-                                    onClick={() => setActiveSection('vencimientos')}
-                                >
-                                    Configuración de vencimientos
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </nav>
-
-            {/* Contenido de las Secciones */}
-            <div className="card">
-                <div className="card-body">
-                    {activeSection === 'general' && (
-                        <DataTableConfig />
-                    )}             
-
-                    {activeSection === 'vencimientos' && (
-                        <div>
-                            <h3 className="card-title">Configuración de Vencimientos</h3>
-                            <h1>Aca van a estar las fechas de vencimientos</h1>
+        <>
+            <div className="container mt-4">
+                {/* Barra de Navegación */}
+                <nav className="navbar navbar-expand-lg bg-primary mb-4">
+                    <div className="container d-flex flex-column align-items-center">
+                        <div className="d-flex flex-column flex-md-row justify-content-center align-items-center w-100 gap-3">
+                            <button
+                                className={`btn px-4 py-2 text-white ${activeSection === 'general' ? 'btn-primary border border-light' : ''}`}
+                                onClick={() => setActiveSection('general')}
+                            >
+                                CONFIGURACIÓN DE VALORES
+                            </button>
+                            <button
+                                className={`btn px-4 py-2 text-white ${activeSection === 'vencimientos' ? 'btn-primary border border-light' : ''}`}
+                                onClick={() => setActiveSection('vencimientos')}
+                            >
+                                CONFIGURACIÓN DE VENCIMINETOS
+                            </button>
                         </div>
-                    )}
-                </div>
+                    </div>
+                </nav>
+                {/* Contenido de las Secciones */}
+                {activeSection === 'general' ? (
+                    <>
+                        <div className="card-body container d-flex flex-column align-items-center">
+                            <DataTableConfig />
+                        </div>
+                    </>
+                ) : (
+                    <>
+                        <div className="card">
+                            <div className="card-body container d-flex flex-column align-items-center">
+                                {activeSection === 'vencimientos' && (
+                                    <div>
+                                        {/* <h3 className="card-title">Configuración de Vencimientos</h3> */}
+                                        <Quotas />
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </>
+                )
+                }
             </div>
-        </div>
+        </>
     );
 };
 

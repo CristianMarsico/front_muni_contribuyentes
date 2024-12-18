@@ -132,7 +132,7 @@ const Taxpayers = () => {
                                                                 className="btn btn-warning btn-sm fw-bold"
                                                                 onClick={() => navigate(`/contribuyente/${c?.id_contribuyente}`)}
                                                             >
-                                                                Detalles
+                                                                Ver Detalles
                                                             </button>
                                                         </td>
                                                     </tr>

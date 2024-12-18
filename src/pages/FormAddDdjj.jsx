@@ -2,6 +2,7 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react'
 import InputField from '../components/auth/InputField';
 import ErrorNotification from '../components/ErrorNotification';
+import ConfirmModal from '../components/modalsComponents/ConfirmModal';
 import SuccessModal from '../components/modalsComponents/SuccessModal';
 import { useAuth } from '../context/AuthProvider';
 import useFetch from '../helpers/hooks/useFetch';
@@ -21,6 +22,7 @@ const FormAddDdjj = () => {
   const [errorsDDJJ, setErrorsDDJJ] = useState({
     monto: null
   });
+  const [showConfirmModal, setShowConfirmModal] = useState(false); // Cambié el valor inicial a false
 
   useEffect(() => {
     if (data?.response?.length > 0) {
@@ -41,8 +43,7 @@ const FormAddDdjj = () => {
     setRegistroDDJJ({ ...registroDDJJ, [name]: value });
 
     if (name === "monto") {
-      // Validación del monto
-      const decimalRegex = /^\d+(\.\d{1,2})?$/; // Número con hasta 2 decimales
+      const decimalRegex = /^\d+(\.\d{1,2})?$/;
       let errorMessage = null;
 
       if (value.trim() === "") {
@@ -61,7 +62,6 @@ const FormAddDdjj = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validación final antes de enviar
     const decimalRegex = /^\d+(\.\d{1,2})?$/;
     let errorMessage = null;
 
@@ -73,26 +73,39 @@ const FormAddDdjj = () => {
 
     if (errorMessage) {
       setErrorsDDJJ({ ...errorsDDJJ, monto: errorMessage });
-      return; // Evita continuar si hay errores
+      return;
     }
 
+    setShowConfirmModal(true); // Muestra el modal de confirmación solo al enviar
+  };
+
+  const handleConfirmChange = (confirm) => {
+    if (confirm) {
+      submitForm();
+    } else {
+      setShowConfirmModal(false); // Cierra el modal si el usuario cancela
+    }
+  };
+
+  const submitForm = async () => {
     const data = {
       id_contribuyente: user.id,
       id_comercio: selectedComercio,
-      monto: parseFloat(registroDDJJ?.monto).toFixed(2), // Asegura que sea decimal de 2 cifras
+      monto: parseFloat(registroDDJJ?.monto).toFixed(2),
       descripcion: registroDDJJ?.descripcion || null
     };
 
     try {
       const response = await axios.post(`${URL}/api/ddjj`, data, { withCredentials: true });
       if (response.status === 200) {
-        setShowSuccessModal(false); // Reinicia el estado
-        setTimeout(() => setShowSuccessModal(true), 0);
+        setShowSuccessModal(true); // Muestra el modal de éxito
         refetch();
-        setRegistroDDJJ({ monto: '', descripcion: '' }); // Limpia los campos después del éxito
-        setErrorsDDJJ({ monto: null }); // Limpia los errores
+        setRegistroDDJJ({ monto: '', descripcion: '' });
+        setErrorsDDJJ({ monto: null });
+        setShowConfirmModal(false); // Cierra el modal de confirmación después del envío
       }
     } catch (error) {
+      setShowConfirmModal(false);
       if (error.response) {
         if (error.response.status === 404) {
           setError(error.response.data.error);
@@ -172,6 +185,14 @@ const FormAddDdjj = () => {
           </div>
         </div>
       </div>
+
+      {showConfirmModal && (
+        <ConfirmModal
+          msj="¿Continuar con la carga de la DDJJ?"
+          setShowConfirmModal={setShowConfirmModal}
+          handleEstadoChange={handleConfirmChange}
+        />
+      )}
 
       <SuccessModal
         show={showSuccessModal}

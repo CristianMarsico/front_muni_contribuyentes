@@ -1,27 +1,46 @@
-import axios from 'axios';
 import React, { useEffect, useState } from 'react'
+import axios from 'axios';
+import { io } from 'socket.io-client';
 import useFetch from '../../helpers/hooks/useFetch';
 import InputField from '../auth/InputField';
 import ErrorNotification from '../ErrorNotification';
+import ConfirmModal from '../modalsComponents/ConfirmModal';
 import SuccessModal from '../modalsComponents/SuccessModal';
 
 const DataTableConfig = () => {
     const URL = import.meta.env.VITE_API_URL;
     const { data, refetch } = useFetch(`${URL}/api/configuration`);
-
-    // Estado de configuraciones
     const [configuracionGeneral, setConfiguracionGeneral] = useState({
         fecha_limite_ddjj: '',
         monto_ddjj_defecto: '',
         tasa_actual: '',
         tasa_default: '',
     });
-
+    const [initialConfig, setInitialConfig] = useState(null); // Valores iniciales
+    const [isModified, setIsModified] = useState(false); // Indica si se modificó algún valor
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [errorMessage, setErrorMessage] = useState(null);
     const [errorsConfig, setErrorsConfig] = useState({});
+    const [values, setValues] = useState([]);
 
-    // Mensajes de error personalizados para cada campo
+    useEffect(() => {
+        if (data?.response) {
+            setValues(data?.response);
+        } else {
+            setValues([]);
+        }
+    }, [data]);
+
+    useEffect(() => {
+        const socket = io(URL);
+        socket.on('nuevos-valores', (nuevoValor) => {
+            setValues((prev) => [...prev, nuevoValor]);
+            refetch();
+        });
+        return () => socket.disconnect();
+    }, [URL, refetch]);
+
     const errorMessages = {
         fecha_limite_ddjj: "*Especifique el día límite para cargar DDJJ.",
         tasa_actual: "*La tasa actual es obligatoria y debe ser un número decimal válido.",
@@ -29,55 +48,48 @@ const DataTableConfig = () => {
         tasa_default: "*La tasa por defecto es obligatoria y debe ser un número decimal válido."
     };
 
-    // Usar useEffect para inicializar el estado con los datos de la API
     useEffect(() => {
         if (data?.response[0]) {
-            setConfiguracionGeneral({
+            const initialData = {
                 fecha_limite_ddjj: data.response[0].fecha_limite_ddjj || '',
                 tasa_actual: data.response[0].tasa_actual || '',
                 monto_ddjj_defecto: data.response[0].monto_defecto || '',
                 tasa_default: data.response[0].tasa_default || '',
-            });
+            };
+            setConfiguracionGeneral(initialData);
+            setInitialConfig(initialData); // Guardamos los valores iniciales
         }
     }, [data]);
 
-    const setError = (message) => {
-        setErrorMessage(message);
-    };
-
-    // Función de validación común para todos los campos
     const validateField = (name, value) => {
-        const decimalRegex = /^\d+(\.\d{1,2})?$/; // Número con hasta 2 decimales
+        const decimalRegex = /^\d+(\.\d{1,2})?$/;
         let errorMessage = null;
 
-        // Validación si el campo está vacío
         if (value.trim() === "") {
             errorMessage = errorMessages[name] || "*Este campo es obligatorio.";
-        }
-        // Validación de formato decimal
-        else if (!decimalRegex.test(value)) {
+        } else if (!decimalRegex.test(value)) {
             errorMessage = "*El valor debe ser un número decimal válido con hasta 2 decimales.";
         }
 
         return errorMessage;
     };
 
-    // Manejo de cambios en los campos del formulario
     const handleConfigChange = (e) => {
         const { name, value } = e.target;
         setConfiguracionGeneral({ ...configuracionGeneral, [name]: value });
 
-        // Validamos el campo
         const errorMessage = validateField(name, value);
-
-        // Actualizamos los errores en el estado
         setErrorsConfig((prevErrors) => ({
             ...prevErrors,
             [name]: errorMessage,
         }));
+
+        // Compara valores iniciales y actuales para determinar si se modificó algo
+        setIsModified(
+            JSON.stringify({ ...configuracionGeneral, [name]: value }) !== JSON.stringify(initialConfig)
+        );
     };
 
-    // Verificamos si hay algún error en el formulario
     const isFormValid = Object.values(errorsConfig).every((error) => error === null);
 
     const handleConfigData = async () => {
@@ -85,29 +97,31 @@ const DataTableConfig = () => {
         try {
             const response = await axios.put(`${URL}/api/configuration/${id}`, configuracionGeneral, {
                 withCredentials: true,
-            });          
-            if (response.status === 200) {              
+            });
+            if (response.status === 200) {
                 setShowSuccessModal(false);
-                setTimeout(() => setShowSuccessModal(true), 100); // Delay corto para re-renderizar
+                setTimeout(() => setShowSuccessModal(true), 100);
+                setShowConfirmModal(false);
                 refetch();
             }
-        } catch (error) {            
+        } catch (error) {
+            setShowConfirmModal(false);
             if (error.response) {
                 if (error.response.status === 404) {
-                    setError(error.response.data.error);
+                    setErrorMessage(error.response.data.error);
                 } else {
-                    setError("Ocurrió un error en el servidor. Por favor, intente más tarde.");
+                    setErrorMessage("Ocurrió un error en el servidor. Por favor, intente más tarde.");
                 }
             } else {
-                setError("Error de conexión. Verifique su red e intente nuevamente.");
-            } 
+                setErrorMessage("Error de conexión. Verifique su red e intente nuevamente.");
+            }
         }
     };
 
     return (
         <>
-            <div>
-                <h3 className="card-title">Configuración General</h3>
+            <div className='col-5'>
+                {/* <h3 className="card-title">Configuración General</h3> */}
                 <form>
                     <InputField
                         label="Tasa actual"
@@ -120,7 +134,7 @@ const DataTableConfig = () => {
                         min="0"
                     />
                     <InputField
-                        label="N° de dia limite para cargar DDJJ"
+                        label="N° de día límite para cargar DDJJ"
                         name="fecha_limite_ddjj"
                         value={configuracionGeneral.fecha_limite_ddjj}
                         type="number"
@@ -149,17 +163,25 @@ const DataTableConfig = () => {
                     />
                 </form>
                 <button
-                    className="btn btn-success mt-3"
-                    onClick={handleConfigData}
-                    disabled={!isFormValid}  // El botón se desactiva si hay errores
+                    className="btn btn-primary w-100"
+                    onClick={() => setShowConfirmModal(true)}
+                    disabled={!isModified || !isFormValid} // Deshabilitado hasta que se modifique algo y sea válido
                 >
-                    Mostrar Datos en Consola
+                    Cambiar Valores
                 </button>
             </div>
 
+            {showConfirmModal && (
+                <ConfirmModal
+                    msj="¿Seguro desea cambiar la configuración?"
+                    handleEstadoChange={handleConfigData}
+                    setShowConfirmModal={setShowConfirmModal}
+                />
+            )}
+
             <SuccessModal
                 show={showSuccessModal}
-                message="Configuracíon modificada."
+                message="Configuración modificada."
                 duration={3000}
             />
 
@@ -170,4 +192,5 @@ const DataTableConfig = () => {
         </>
     );
 };
+
 export default DataTableConfig;

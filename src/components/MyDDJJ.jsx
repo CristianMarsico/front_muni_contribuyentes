@@ -16,7 +16,7 @@ const MyDDJJ = ({ id }) => {
     const [tableError, setTableError] = useState(null); // Estado para errores
 
     const meses = [
-        "Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre",
+        "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
     ];
 
     useEffect(() => {
@@ -56,7 +56,7 @@ const MyDDJJ = ({ id }) => {
                     setTableError("No hay declaraciones juradas para los criterios seleccionados.");
                 }
             }
-        } catch (error) {           
+        } catch (error) {
             setTableData([]);
             setTableError(error.response.data.error);
         }
@@ -114,7 +114,7 @@ const MyDDJJ = ({ id }) => {
 
                         <div className="col-md-4">
                             <label htmlFor="mes" className="form-label">
-                               Seleccione Mes:
+                                Seleccione Mes:
                             </label>
                             <select
                                 id="mes"
@@ -124,8 +124,8 @@ const MyDDJJ = ({ id }) => {
                             >
                                 <option value="">Ver todas</option>
                                 {meses.map((mes, index) => (
-                                    
-                                    <option key={index} value={index+1}>
+
+                                    <option key={index} value={index + 1}>
                                         {mes}
                                     </option>
                                 ))}
@@ -150,14 +150,14 @@ const MyDDJJ = ({ id }) => {
                     <div className="alert alert-danger text-center" role="alert">
                         {tableError}
                     </div>
-                )}              
+                )}
                 {tableData.length > 0 && (
                     <div className="card shadow-sm">
                         <div className="card-header bg-primary text-white text-center">
                             <h5 className="mb-0">Resultados de Declaraciones Juradas</h5>
                         </div>
                         <div className="card-body">
-                           
+
                             <div className="table-responsive">
                                 <table className="table table-striped table-bordered">
                                     <thead className="thead-dark">
