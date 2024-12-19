@@ -6,15 +6,13 @@ const MyDDJJ = ({ id }) => {
     const URL = import.meta.env.VITE_API_URL;
     const currentYear = new Date().getFullYear();
     const years = Array.from({ length: 12 }, (_, i) => currentYear - i);
-
     const { data, loading, error } = useFetch(`${URL}/api/trade/${id}`);
-
     const [selectedComercio, setSelectedComercio] = useState("");
     const [selectedAnio, setSelectedAnio] = useState(currentYear);
     const [selectedMes, setSelectedMes] = useState("");
     const [tableData, setTableData] = useState([]); // Estado para datos de la tabla
     const [tableError, setTableError] = useState(null); // Estado para errores
-
+    
     const meses = [
         "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
     ];
@@ -159,24 +157,42 @@ const MyDDJJ = ({ id }) => {
                         <div className="card-body">
 
                             <div className="table-responsive">
-                                <table className="table table-striped table-bordered">
+                                <table className="table table-striped table-bordered text-center">
                                     <thead className="thead-dark">
                                         <tr>
-                                            <th scope="col">ID Contribuyente</th>
-                                            <th scope="col">ID Comercio</th>
+                                            <th scope="col">Cuit</th>
+                                            <th scope="col">N° Comercio</th>
                                             <th scope="col">Fecha</th>
                                             <th scope="col">Monto</th>
+                                            <th scope="col">Tasa Calculada</th>
                                             <th scope="col">Descripción</th>
+                                            <th scope="col">En Fecha</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {tableData.map((item, index) => (
+                                        {tableData?.map((item, index) => (
                                             <tr key={index}>
-                                                <td>{item.id_contribuyente}</td>
-                                                <td>{item.id_comercio}</td>
+                                                <td>{item.cuit}</td>
+                                                <td>{item.cod_comercio}</td>
                                                 <td>{new Date(item.fecha).toLocaleDateString()}</td>
                                                 <td>${item.monto.toLocaleString()}</td>
-                                                <td>{item.descripcion}</td>
+                                                <td>${item.tasa_calculada}</td>
+                                                <td>
+                                                    {item.descripcion ? (
+                                                        item.descripcion
+                                                    ) : (
+                                                        <span className="bg-warning px-1 rounded">
+                                                            Sin especificar
+                                                        </span>
+                                                    )}
+                                                </td>
+                                                <td>
+                                                    {item.cargada_en_tiempo ? (
+                                                        <i className="bi bi-check-circle text-success"> Sí</i>                                                         
+                                                    ) : (
+                                                        <i className="bi bi-x-circle text-danger"> No</i>
+                                                    )}
+                                                </td>
                                             </tr>
                                         ))}
                                     </tbody>

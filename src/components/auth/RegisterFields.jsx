@@ -4,7 +4,7 @@ import InputField from "./InputField";
 
 import TradeCodes from "./TradeCodes";
 
-const RegisterFields = ({ registroData, setRegistroData }) => {
+const RegisterFields = ({ registroData, setRegistroData, setError }) => {
     const [currentStep, setCurrentStep] = useState(1);
     const [nuevoComercio, setNuevoComercio] = useState({
         codigo: "",
@@ -117,6 +117,17 @@ const RegisterFields = ({ registroData, setRegistroData }) => {
 
     const handleRegistrarComercio = () => {
         if (nuevoComercio.codigo && nuevoComercio.direccion && nuevoComercio.nombre) {
+            // Verificar si el código ya existe en la lista de comercios
+            const codigoDuplicado = registroData.misComercios.some(
+                comercio => comercio.codigo === nuevoComercio.codigo
+            );
+
+            if (codigoDuplicado) {
+                setError(`El código ${nuevoComercio.codigo} ya está registrado. Por favor, usa un código diferente.`);
+                return;
+            }
+
+            // Si no está duplicado, agregar el nuevo comercio
             setRegistroData({
                 ...registroData,
                 misComercios: [...registroData.misComercios, nuevoComercio],
@@ -124,7 +135,7 @@ const RegisterFields = ({ registroData, setRegistroData }) => {
             setNuevoComercio({ codigo: "", direccion: "", nombre: "" });
             setShowComercioForm(false);
         } else {
-            alert("Por favor completa todos los campos del comercio.");
+            setError("Por favor completa todos los campos del comercio.");
         }
     };
 

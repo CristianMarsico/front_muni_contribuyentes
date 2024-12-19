@@ -130,12 +130,14 @@ const AuthPage = () => {
            
             try {
                 const response = await axios.post(endpoint, data, { withCredentials: true });
+               
                 if (response.status === 200) {
                     login(response.data);
                     setModalType('login'); // Modal para login
                     setModalShow(true); // Muestra modal
                 }
             } catch (error) {
+                
                 if (error.response) {
                     if (error.response.status === 404) {
                         setError(error.response.data.error);
@@ -160,13 +162,13 @@ const AuthPage = () => {
                     setModalType('register');
                     setModalShow(true);
                 }
-            } catch (error) {
+            } catch (error) {               
                 if (error.response) {
                     if (error.response.status === 404){
                         setError(error.response.data.error);
                     
                     }  else{
-                        setError("Error de servidor. Por favor, intente más tarde.");
+                        setError(error.response.data.error);
                     } 
                 } else{
                     setError("Error de conexión. Verifique su red e intente nuevamente.");
@@ -219,7 +221,7 @@ const AuthPage = () => {
                                                         loginTaxpayer={loginTaxpayer}
                                                         handleLoginTaxpayerChange={handleLoginTaxpayerChange}
                                                         handleCuitChange={handleCuitChange}
-                                                        errorTaxpayer={errorTaxpayer}
+                                                        errorTaxpayer={errorTaxpayer}                                                      
                                                     />
                                                 )
                                             }
@@ -229,6 +231,7 @@ const AuthPage = () => {
                                         <RegisterFields
                                             registroData={registroData}
                                             setRegistroData={setRegistroData}
+                                            setError={setError}
                                         />
                                     )}
 

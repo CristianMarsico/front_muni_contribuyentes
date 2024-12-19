@@ -37,9 +37,9 @@ const TradeCodes = ({
                 <div>
                     <h5 className="text-success">Lista de Comercios</h5>
                     <div className="list-group mt-3">
-                        {codigos.map((comercio) => (
+                        {codigos.map((comercio, index) => (
                             <div
-                                key={comercio.codigo}
+                                key={index}
                                 className="list-group-item d-flex justify-content-between align-items-center shadow-sm p-3 mb-3 bg-white rounded"
                             >
                                 <div>
@@ -133,25 +133,24 @@ const TradeCodes = ({
                     </div>
 
                     {/* Botones */}
-                    <div className="d-flex justify-content-between">
-                        <div className="d-flex justify-content-center w-100">
+                    <div className="d-flex justify-content-center gap-3">
+                        <div className="d-flex flex-column flex-sm-row justify-content-center align-items-center gap-2">
                             <button
                                 type="button"
-                                className="btn btn-success"
+                                className="btn btn-primary w-sm-auto rounded-3"
                                 onClick={handleSubmit}
                             >
-                                Registrar Comercio
+                                <i className="bi bi-plus-circle me-2"></i> Cargar Comercio
                             </button>
                         </div>
-                        <div className="d-flex justify-content-center w-100">
-                            <button
-                                type="button"
-                                className="btn btn-secondary"
-                                onClick={() => setShowComercioForm(false)}
-                            >
-                                Cancelar
-                            </button>
-                        </div>
+
+                        <button
+                            type="button"
+                            className="btn btn-secondary w-sm-auto"
+                            onClick={() => setShowComercioForm(false)}
+                        >
+                            Cancelar
+                        </button>
                     </div>
                 </div>
             )}
@@ -164,7 +163,7 @@ const TradeCodes = ({
                         className="btn btn-success"
                         onClick={() => setShowComercioForm(true)}
                     >
-                        Agregar Nuevo Comercio
+                        <i className="bi bi-plus-circle me-2"></i>Agregar Nuevo Comercio
                     </button>
                 </div>
             )}
