@@ -14,9 +14,12 @@ import { AuthProvider } from "./context/AuthProvider";
 import PrivateRoutes from "./routes/PrivateRoutes";
 import Quotas from './pages/Quotas';
 import Configuration from './pages/Configuration';
+import DdjjTaxpayer from './pages/DdjjTaxpayer';
 
 function App() {
   return (
+    //  AuthProvider Proveedor de contexto para la autenticación, 
+    // que hará disponible el estado de autenticación en toda la aplicación.
     <AuthProvider>
       <div className="d-flex flex-column min-vh-100">
         <Router>
@@ -24,12 +27,17 @@ function App() {
           <div className="flex-grow-1 m-0">
             <Routes>
               <Route path="/" element={<AuthPage />} />
+              
+              {/* Rutas privadas (requieren que el usuario esté autenticado). Usamos el componente PrivateRoutes para protegerlas. */}
               <Route path="/home" element={<PrivateRoutes><Home /></PrivateRoutes>} />
               <Route path="/cargarDDJJ" element={<PrivateRoutes><FormAddDdjj /></PrivateRoutes>} />
               <Route path="/contribuyente/:id" element={<PrivateRoutes><DetailsTaxpayer /></PrivateRoutes>} />
+              <Route path="/ddjjContribuyente/:id_contribuyente/:id_comercio/:cod_comercio" element={<PrivateRoutes><DdjjTaxpayer /></PrivateRoutes>} />
               <Route path="/vencimientos" element={<PrivateRoutes><Quotas /></PrivateRoutes>} />
               <Route path="/config" element={<PrivateRoutes><Configuration /></PrivateRoutes>} />
-              <Route path="*" element={<Error />} />
+              
+              {/* Ruta para la página de error cuando la URL no coincide con ninguna de las anteriores. */}
+              <Route path="*" element={<Error />} />             
             </Routes>
           </div>
         </Router>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import DataTableConfig from '../components/configurationComponents/DataTableConfig';
 import Quotas from './Quotas';
+import Users from './Users';
 
 const Configuration = () => {
     // Estado para controlar la sección activa
@@ -25,31 +26,38 @@ const Configuration = () => {
                             >
                                 CONFIGURACIÓN DE VENCIMINETOS
                             </button>
+                            <button
+                                className={`btn px-4 py-2 text-white ${activeSection === 'usuarios' ? 'btn-primary border border-light' : ''}`}
+                                onClick={() => setActiveSection('usuarios')}
+                            >
+                                ALTA DE USUARIOS
+                            </button>
                         </div>
                     </div>
                 </nav>
                 {/* Contenido de las Secciones */}
-                {activeSection === 'general' ? (
-                    <>
+                {/* Contenido de las Secciones */}
+                {activeSection === 'general' && (
+                    <div className="card-body container d-flex flex-column align-items-center">
+                        <DataTableConfig />
+                    </div>
+                )}
+
+                {activeSection === 'vencimientos' && (
+                    <div className="card">
                         <div className="card-body container d-flex flex-column align-items-center">
-                            <DataTableConfig />
+                            <Quotas />
                         </div>
-                    </>
-                ) : (
-                    <>
-                        <div className="card">
-                            <div className="card-body container d-flex flex-column align-items-center">
-                                {activeSection === 'vencimientos' && (
-                                    <div>
-                                        {/* <h3 className="card-title">Configuración de Vencimientos</h3> */}
-                                        <Quotas />
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </>
-                )
-                }
+                    </div>
+                )}
+
+                {activeSection === 'usuarios' && (
+
+                    <div className="card-body container d-flex flex-column align-items-center">
+                        <Users/>
+                    </div>
+
+                )}
             </div>
         </>
     );

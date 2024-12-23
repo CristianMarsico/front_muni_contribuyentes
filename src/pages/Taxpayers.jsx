@@ -14,11 +14,10 @@ const Taxpayers = () => {
     const [buscarApellido, setBuscarApellido] = useState('');
     const [taxpayers, setTaxpayers] = useState([]);
 
-
-    useEffect(() => {      
+    useEffect(() => {
         if (data?.response) {
             setTaxpayers(data.response);
-        } else {           
+        } else {
             setTaxpayers([]);
         }
     }, [data]);
@@ -118,13 +117,18 @@ const Taxpayers = () => {
                                                     </td>
                                                 </tr>
                                             ) : (
-                                                filtros.map((c) => (                                                    
+                                                filtros.map((c) => (
                                                     <tr key={c?.id_contribuyente || Math.random()}>
                                                         <td>{c?.nombre} {c?.apellido}</td>
                                                         <td>{c?.cuit}</td>
                                                         <td>{c?.email}</td>
-                                                        <td className={`badge ${c?.estado ? 'bg-success' : 'bg-danger'} rounded-pill mt-2 py-2 fs-6 text-white`}>
-                                                            {c?.estado ? 'Habilitado' : 'Sin habilitar'}
+                                                        <td>
+                                                            {/* {c?.estado ? 'Habilitado' : 'Sin habilitar'} */}
+                                                            {c?.estado ? (
+                                                                <strong className="bi bi-check-circle text-success"> Habilitado</strong>
+                                                            ) : (
+                                                                <strong className="bi bi-x-circle text-danger"> Sin habilitar</strong>
+                                                            )}
                                                         </td>
                                                         <td>
                                                             <button

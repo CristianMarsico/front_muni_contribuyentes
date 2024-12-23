@@ -1,16 +1,33 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthProvider'
+import Logo from '../../dist/logo_municipalidad_loberia2-removebg-preview.png'
 
 
 const Navbar = () => {
     const { logout, user } = useAuth();
+    const location = useLocation(); // Obtener la ubicación actual
+
+    // Función para determinar si un enlace está activo
+    const isActive = (path) => location.pathname === path;
+
     return (
-
-        <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+        <nav className="navbar navbar-expand-lg navbar-dark bg-dark shadow">
             <div className="container">
+                {/* Logo y nombre */}
+                <Link to="/" className="navbar-brand d-flex align-items-center">
+                    <img
+                        src={Logo}
+                        alt="Logo"
+                        className="img-fluid me-2"
+                        style={{ maxHeight: '80px' }}
+                    />
+                    {/* <span className="d-none d-md-inline text-uppercase fw-bold text-white">
+                        Municipalidad de Lobería
+                    </span> */}
+                </Link>
 
-                {/* Botón hamburguesa para móviles */}
+                {/* Botón hamburguesa */}
                 <button
                     className="navbar-toggler"
                     type="button"
@@ -23,88 +40,109 @@ const Navbar = () => {
                     <span className="navbar-toggler-icon"></span>
                 </button>
 
-                {/* Contenido del Navbar */}
+                {/* Menú de navegación */}
                 <div className="collapse navbar-collapse" id="navbarNav">
-                    {/* Enlaces de navegación */}
-
-                    <ul className="navbar-nav mx-auto">
+                    <ul className="navbar-nav ms-auto text-center">
                         {user?.rol && (
                             <>
-                                {
-                                    user?.rol === "admin" ? (
+                                {user?.rol === 'admin' ? (
+                                    <>
+                                        <li className="nav-item">
+                                            <Link
+                                                className={`btn btn-dark text-uppercase me-2 ${isActive('/home')
+                                                    && 'btn-outline-light'
+                                                    }`}
+                                                to="/home"
+                                            >
+                                                Contribuyentes
+                                            </Link>
+                                        </li>
+                                        <li className="nav-item">
+                                            <Link
+                                                className={`btn btn-dark text-uppercase me-2 ${isActive('/config')
+                                                    && 'btn-outline-light'
+                                                    }`}
+                                                to="/config"
+                                            >
+                                                Configuración
+                                            </Link>
+                                        </li>
+                                    </>
+                                ) : (
+                                    user?.estado && (
                                         <>
                                             <li className="nav-item">
-                                                <Link className="nav-link text-uppercase" to="/home">
-                                                    Contribuyentes
+                                                <Link
+                                                    className={`btn btn-dark text-uppercase me-2 ${isActive('/home')
+                                                        && 'btn-outline-light'
+                                                        }`}
+                                                    to="/home"
+                                                >
+                                                    Mis DDJJs
                                                 </Link>
                                             </li>
                                             <li className="nav-item">
-                                                <Link className="nav-link text-uppercase" to="/config">
-                                                    Configuración
+                                                <Link
+                                                    className={`btn btn-dark text-uppercase me-2 ${isActive('/cargarDDJJ')
+                                                        && 'btn-outline-light'
+                                                        }`}
+                                                    to="/cargarDDJJ"
+                                                >
+                                                    Cargar DDJJ
                                                 </Link>
                                             </li>
-                                        </>
-                                    ) : (
-                                        <>
-                                            {
-                                                user?.estado && (
-                                                    <>
-                                                        <li className="nav-item">
-                                                            <Link className="nav-link text-uppercase" to="/home">
-                                                                Mis DDJJs
-                                                            </Link>
-                                                        </li>
-                                                        <li className="nav-item">
-                                                            <Link className="nav-link text-uppercase" to="/cargarDDJJ">
-                                                                Cargar DDJJ
-                                                            </Link>
-                                                        </li>
-                                                        <li className="nav-item">
-                                                            <Link className="nav-link text-uppercase" to="/vencimientos">
-                                                                Vencimientos
-                                                            </Link>
-                                                        </li>
-                                                    </>
-                                                )
-                                            }
+                                            <li className="nav-item">
+                                                <Link
+                                                    className={`btn btn-dark text-uppercase me-2 ${isActive('/vencimientos')
+                                                        && 'btn-outline-light'
+                                                        }`}
+                                                    to="/vencimientos"
+                                                >
+                                                    Vencimientos
+                                                </Link>
+                                            </li>
                                         </>
                                     )
-                                }
-
+                                )}
                                 <li className="nav-item">
-                                    <Link className="nav-link text-uppercase" onClick={() => logout()}>
-                                        Cerrar Sesión
+                                    <Link
+                                        className={`btn btn-dark text-uppercase me-2 ${isActive('/')
+                                            && 'btn-outline-light'
+                                            }`}
+                                        onClick={logout}
+                                    >
+                                        Cerrar Sesion
                                     </Link>
                                 </li>
                             </>
                         )}
-
                     </ul>
+
                     {/* Redes sociales */}
-                    <div className="d-flex">
+                    <div className="d-flex justify-content-center mt-3 mt-lg-0">
                         <a
-                            href="https://facebook.com"
+                            href="https://www.facebook.com/municipalidadloberia"
                             className="text-white me-3"
                             target="_blank"
                             rel="noopener noreferrer"
                             aria-label="Facebook"
                         >
-                            <span className="bi bi-facebook" style={{ fontSize: "1.5rem" }}></span>
+                            <i className="bi bi-facebook fs-4"></i>
                         </a>
                         <a
-                            href="https://instagram.com"
+                            href="https://www.instagram.com/muniloberia"
                             className="text-white"
                             target="_blank"
                             rel="noopener noreferrer"
                             aria-label="Instagram"
                         >
-                            <span className="bi bi-instagram" style={{ fontSize: "1.5rem" }}></span>
+                            <i className="bi bi-instagram fs-4"></i>
                         </a>
                     </div>
                 </div>
             </div>
         </nav>
-    )
-}
+    );
+};
 
-export default Navbar
+export default Navbar;

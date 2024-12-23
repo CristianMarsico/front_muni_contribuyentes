@@ -6,12 +6,15 @@ import ConfirmModal from '../components/modalsComponents/ConfirmModal';
 import SuccessModal from '../components/modalsComponents/SuccessModal';
 import { useAuth } from '../context/AuthProvider';
 import useFetch from '../helpers/hooks/useFetch';
+import { useNavigate } from 'react-router-dom';
 
 
 const Quotas = () => {
     const URL = import.meta.env.VITE_API_URL;
     const { data, refetch } = useFetch(`${URL}/api/expirationDates`);
     const { user } = useAuth();
+    const navigate = useNavigate();
+
     const [editingCell, setEditingCell] = useState(null);
     const [editedValue, setEditedValue] = useState('');
     const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -77,7 +80,8 @@ const Quotas = () => {
             };
 
             // Realizar la solicitud POST
-            const response = await axios.put(`${URL}/api/expirationDates/${data.id_vencimiento}/${data.fecha}`, { withCredentials: true });
+            const response = await axios.put(`${URL}/api/expirationDates/${data.id_vencimiento}/${data.fecha}`,null, { withCredentials: true });
+            console.log(response)
             if (response.status === 200) {
                 setShowSuccessModal(false);
                 setTimeout(() => setShowSuccessModal(true), 100); // Delay corto para re-renderizar
@@ -86,11 +90,15 @@ const Quotas = () => {
                 setIsEditing(false);
                 refetch();
             }
-        } catch (error) {
-            setShowConfirmModal(false);
-            setIsEditing(false);
+        } catch (error) {            
             if (error.response) {
-                if (error.response.status === 404) {
+                if (error.response.status === 401) {
+                    setError(error.response.data.error);
+                    setTimeout(() => {
+                        navigate("/");
+                    }, 3000);
+                }
+                else if (error.response.status === 404) {
                     setError(error.response.data.error);
                 } else {
                     setError("Ocurrió un error en el servidor. Por favor, intente más tarde.");
@@ -99,6 +107,9 @@ const Quotas = () => {
                 setError("Error de conexión. Verifique su red e intente nuevamente.");
             }
 
+        } finally {
+            setShowConfirmModal(false);
+            setIsEditing(false);
         }
     };
 

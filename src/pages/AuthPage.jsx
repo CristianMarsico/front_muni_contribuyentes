@@ -54,6 +54,7 @@ const AuthPage = () => {
         direccion: '',
         telefono: '',
         password: '',
+        rePassword: '',
         razon_social: '',
         misComercios: [], // Arreglo de comercios
     });
@@ -182,9 +183,9 @@ const AuthPage = () => {
             <div className="container mt-5">
                 <div className="row justify-content-center">
                     <div className="col-md-6 col-lg-5">
-                        <div className="card shadow">
+                        <div className="card shadow p-3">
                             <div className="card-body">
-                                <h2 className="text-center mb-4">{isLogin ? 'Login' : 'Registro'}</h2>
+                                <h2 className="text-center mb-4">{isLogin ? 'Inicio de sesión' : 'Registro'}</h2>
 
                                 <form onSubmit={handleSubmit}>
                                     {isLogin ? (
@@ -196,7 +197,7 @@ const AuthPage = () => {
                                                 <select
                                                     id="userType"
                                                     name="userType"
-                                                    className="form-select"
+                                                    className="form-select text-center"
                                                     value={userType}
                                                     onChange={(e) => setUserType(e.target.value)}
                                                     required
@@ -207,17 +208,13 @@ const AuthPage = () => {
                                             </div>
                                             {
                                                 userType !== "contribuyente" ? (
-                                                    <LoginAdmin
-                                                        // userType={userType}
-                                                        // setUserType={setUserType}
+                                                    <LoginAdmin                                                        
                                                         loginAdmin={loginAdmin}
                                                         handleLoginAdminChange={handleLoginAdminChange}
                                                         errorsAdmin={errorsAdmin}
                                                     />
                                                 ) : (
-                                                    <LoginTaxpayer
-                                                        // userType={userType}
-                                                        // setUserType={setUserType}
+                                                    <LoginTaxpayer                                                        
                                                         loginTaxpayer={loginTaxpayer}
                                                         handleLoginTaxpayerChange={handleLoginTaxpayerChange}
                                                         handleCuitChange={handleCuitChange}
@@ -245,7 +242,28 @@ const AuthPage = () => {
                                 </form>
                                 <button
                                     className="btn btn-link w-100 mt-3"
-                                    onClick={() => setIsLogin(!isLogin)}
+                                    onClick={() => {
+                                        setIsLogin(!isLogin); // Cambiar entre login y registro
+                                        // Limpiar los campos de registro cuando vuelves a Login
+                                        if (isLogin) {
+                                            setRegistroData({
+                                                nombre: '',
+                                                apellido: '',
+                                                cuit: {
+                                                    prefijoCuit: '',
+                                                    numeroCuit: '',
+                                                    verificadorCuit: '',
+                                                },
+                                                email: '',
+                                                direccion: '',
+                                                telefono: '',
+                                                password: '',
+                                                rePassword: '',
+                                                razon_social: '',
+                                                misComercios: [], // Arreglo de comercios
+                                            });
+                                        }
+                                    }}
                                 >
                                     {isLogin ? '¿No tienes cuenta? Regístrate' : '¿Ya tienes cuenta? Inicia sesión'}
                                 </button>

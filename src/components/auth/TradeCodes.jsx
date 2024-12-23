@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 
+// Componente TradeCodes que maneja la lista de comercios y la adición/eliminación de nuevos comercios
 const TradeCodes = ({
     codigos,
     handleEliminarComercio,
@@ -9,9 +10,11 @@ const TradeCodes = ({
     handleNuevoComercioChange,
     handleRegistrarComercio,
 }) => {
-    const [errors, setErrors] = useState({}); // Manejo de errores
 
-    // Validar campos antes de registrar el comercio
+    // Estado para almacenar los errores de validación
+    const [errors, setErrors] = useState({});
+
+   // Función para validar los campos del formulario antes de registrar el comercio
     const validateFields = () => {
         const newErrors = {};
         if (!nuevoComercio.codigo) newErrors.codigo = "El código del comercio es obligatorio";
@@ -22,12 +25,14 @@ const TradeCodes = ({
         return Object.keys(newErrors).length === 0; // Devuelve true si no hay errores
     };
 
+    // Función que maneja el envío del formulario
     const handleSubmit = () => {
         if (validateFields()) {
             handleRegistrarComercio(); // Si no hay errores, registra el comercio
         }
     };
 
+     // Determina si se debe mostrar el formulario de comercio o no
     const mostrarFormulario = codigos.length === 0 || showComercioForm;
 
     return (
@@ -132,13 +137,13 @@ const TradeCodes = ({
                         )}
                     </div>
 
-                    {/* Botones */}
+                    {/* Botones para registrar o cancelar */}
                     <div className="d-flex justify-content-center gap-3">
                         <div className="d-flex flex-column flex-sm-row justify-content-center align-items-center gap-2">
                             <button
                                 type="button"
                                 className="btn btn-primary w-sm-auto rounded-3"
-                                onClick={handleSubmit}
+                                onClick={handleSubmit} // Llama a handleSubmit cuando se hace click
                             >
                                 <i className="bi bi-plus-circle me-2"></i> Cargar Comercio
                             </button>
@@ -147,7 +152,7 @@ const TradeCodes = ({
                         <button
                             type="button"
                             className="btn btn-secondary w-sm-auto"
-                            onClick={() => setShowComercioForm(false)}
+                            onClick={() => setShowComercioForm(false)}// Cierra el formulario cuando se hace click
                         >
                             Cancelar
                         </button>
@@ -155,13 +160,13 @@ const TradeCodes = ({
                 </div>
             )}
 
-            {/* Botón para agregar comercio */}
+            {/* Botón para mostrar el formulario de nuevo comercio */}           
             {!mostrarFormulario && (
                 <div className="mt-3 d-flex justify-content-center">
                     <button
                         type="button"
                         className="btn btn-success"
-                        onClick={() => setShowComercioForm(true)}
+                        onClick={() => setShowComercioForm(true)}// Muestra el formulario al hacer click
                     >
                         <i className="bi bi-plus-circle me-2"></i>Agregar Nuevo Comercio
                     </button>
