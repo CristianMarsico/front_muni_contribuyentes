@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthProvider'
-import Logo from '../../dist/logo_municipalidad_loberia2-removebg-preview.png'
+import Logo from "../../public/img/logo_municipalidad_loberia2-removebg-preview.png"
 
 
 const Navbar = () => {
