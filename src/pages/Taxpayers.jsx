@@ -61,11 +61,11 @@ const Taxpayers = () => {
     });
 
     return (
-        <>
+        <>          
             {/* Filtros */}
             <div className="container mt-4">
                 <div className="row justify-content-center">
-                    <div className="col-12 col-md-6 col-lg-4">
+                    <div className="col-12 col-sm-8 col-md-6 col-lg-5">
                         <div className="card shadow-lg rounded-4 border-0">
                             <div className="card-body p-4">
                                 <h5 className="card-title text-center text-primary mb-4">Filtros</h5>
@@ -78,16 +78,16 @@ const Taxpayers = () => {
             </div>
 
             {/* Tabla */}
-            <div className="container mt-4">
+            <div className="container mt-4 col-12">
                 <div className="mt-4 mb-4">
-                    <div className="card shadow-sm">
+                    <div className="card shadow">
                         <div className="card-header bg-primary text-white text-center">
                             <h5 className="mb-0">Contribuyentes en espera para ser aprobados</h5>
                         </div>
                         <div className="row justify-content-center">
                             <div className="card-body">
                                 <div className="table-responsive">
-                                    <table className="table table-striped table-bordered responsive text-center p-0 m-0">
+                                    <table className="table table-striped table-bordered text-center w-100" style={{ textAlign: "center", verticalAlign: "middle" }}>
                                         <thead className="thead-dark">
                                             <tr>
                                                 <th scope="col">Nombre y Apellido</th>
@@ -108,7 +108,7 @@ const Taxpayers = () => {
                                                 </tr>
                                             ) : error || filtros?.length === 0 ? (
                                                 <tr>
-                                                    <td colSpan="6">
+                                                    <td colSpan="5">
                                                         <div className="text-danger">
                                                             <ErrorResponse
                                                                 message={error?.message || 'No hay coincidencias'}
@@ -130,10 +130,10 @@ const Taxpayers = () => {
                                                                 <strong className="bi bi-x-circle text-danger"> Sin habilitar</strong>
                                                             )}
                                                         </td>
-                                                        <td>
+                                                        <td className="text-center">
                                                             <button
                                                                 type="button"
-                                                                className="btn btn-warning btn-sm fw-bold"
+                                                               className="btn btn-warning fw-bold"
                                                                 onClick={() => navigate(`/contribuyente/${c?.id_contribuyente}`)}
                                                             >
                                                                 Ver Detalles

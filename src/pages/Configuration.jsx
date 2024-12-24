@@ -35,7 +35,7 @@ const Configuration = () => {
                         </div>
                     </div>
                 </nav>
-                {/* Contenido de las Secciones */}
+               
                 {/* Contenido de las Secciones */}
                 {activeSection === 'general' && (
                     <div className="card-body container d-flex flex-column align-items-center">

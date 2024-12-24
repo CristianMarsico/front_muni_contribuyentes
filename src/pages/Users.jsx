@@ -55,7 +55,7 @@ const Users = () => {
     //     }
     // }, [data]);
 
-    const validateField = (name, value) => {        
+    const validateField = (name, value) => {
         let errorMessage = null;
 
         if (value.trim() === "") {
@@ -94,7 +94,7 @@ const Users = () => {
 
     const isFormValid = Object.values(errorsConfig).every((error) => error === null);
 
-    const handleConfigData = async () => {       
+    const handleConfigData = async () => {
         try {
             const response = await axios.post(`${URL}/api/user`, configuracionUsuario, {
                 withCredentials: true,
@@ -102,7 +102,7 @@ const Users = () => {
             if (response.status === 200) {
                 setShowSuccessModal(false);
                 setTimeout(() => setShowSuccessModal(true), 100);
-                setShowConfirmModal(false);                
+                setShowConfirmModal(false);
             }
         } catch (error) {
             console.log(error)
@@ -121,47 +121,54 @@ const Users = () => {
 
     return (
         <>
-            <div className='col-4 border p-3 rounded'>
-                {/* <h3 className="card-title">Configuración General</h3> */}
-                <form>
-                    <InputField
-                        label="Usuario"
-                        name="usuario"
-                        value={configuracionUsuario.usuario}
-                        type="text"
-                        onChange={handleConfigChange}
-                        placeholder="Ingrese usuario"
-                        error={errorsConfig.usuario}
-                    />
-                    <InputField
-                        label="Contraseña"
-                        name="password"
-                        value={configuracionUsuario.password}
-                        type="password"
-                        onChange={handleConfigChange}
-                        placeholder="Ingrese contraseña"
-                        error={errorsConfig.password}
-                    />
-                    <InputField
-                        label="Verificar Contraseña"
-                        name="rePassword"
-                        value={configuracionUsuario.rePassword}
-                        type="password"
-                        onChange={handleConfigChange}
-                        placeholder="Confirme contraseña"
-                        error={errorsConfig.rePassword}
+            <div className="container mt-2">
+                <div className="row justify-content-center">
+                    <div className="col-12 col-sm-8 col-md-6 col-lg-5">
+                        <div className="card shadow p-3">
+                            <div className="card-body">
+                                {/* <h3 className="card-title">Configuración General</h3> */}
+                                <form>
+                                    <InputField
+                                        label="Usuario"
+                                        name="usuario"
+                                        value={configuracionUsuario.usuario}
+                                        type="text"
+                                        onChange={handleConfigChange}
+                                        placeholder="Ingrese usuario"
+                                        error={errorsConfig.usuario}
+                                    />
+                                    <InputField
+                                        label="Contraseña"
+                                        name="password"
+                                        value={configuracionUsuario.password}
+                                        type="password"
+                                        onChange={handleConfigChange}
+                                        placeholder="Ingrese contraseña"
+                                        error={errorsConfig.password}
+                                    />
+                                    <InputField
+                                        label="Verificar Contraseña"
+                                        name="rePassword"
+                                        value={configuracionUsuario.rePassword}
+                                        type="password"
+                                        onChange={handleConfigChange}
+                                        placeholder="Confirme contraseña"
+                                        error={errorsConfig.rePassword}
 
-                    />
-                </form>
-                <button
-                    className="btn btn-primary w-100"
-                    onClick={() => setShowConfirmModal(true)}
-                    disabled={!isModified || !isFormValid} // Deshabilitado hasta que se modifique algo y sea válido
-                >
-                    Agregar Usuario
-                </button>
+                                    />
+                                </form>
+                                <button
+                                    className="btn btn-primary w-100"
+                                    onClick={() => setShowConfirmModal(true)}
+                                    disabled={!isModified || !isFormValid} // Deshabilitado hasta que se modifique algo y sea válido
+                                >
+                                    Agregar Usuario
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-
             {showConfirmModal && (
                 <ConfirmModal
                     msj={"¿Seguro desea dar de alta a " + configuracionUsuario.usuario + "?"}

@@ -128,27 +128,27 @@ const AuthPage = () => {
                 ? `${URL}/api/auth/login/admin`
                 : `${URL}/api/auth/login/taxpayer`;
             let data = userType === 'administrador' ? loginAdmin : loginTaxpayer
-           
+
             try {
                 const response = await axios.post(endpoint, data, { withCredentials: true });
-               
+
                 if (response.status === 200) {
                     login(response.data);
                     setModalType('login'); // Modal para login
                     setModalShow(true); // Muestra modal
                 }
             } catch (error) {
-                
+
                 if (error.response) {
                     if (error.response.status === 404) {
                         setError(error.response.data.error);
                     } else {
                         setError("Ocurrió un error en el servidor. Por favor, intente más tarde.");
                     }
-                }else{
+                } else {
                     setError("Error de conexión. Verifique su red e intente nuevamente.");
-                } 
-                
+                }
+
             }
         } else {
             const codigosComercioFinales = [...registroData.misComercios];
@@ -163,17 +163,17 @@ const AuthPage = () => {
                     setModalType('register');
                     setModalShow(true);
                 }
-            } catch (error) {               
+            } catch (error) {
                 if (error.response) {
-                    if (error.response.status === 404){
+                    if (error.response.status === 404) {
                         setError(error.response.data.error);
-                    
-                    }  else{
+
+                    } else {
                         setError(error.response.data.error);
-                    } 
-                } else{
+                    }
+                } else {
                     setError("Error de conexión. Verifique su red e intente nuevamente.");
-                } 
+                }
             }
         }
     };
@@ -182,7 +182,7 @@ const AuthPage = () => {
         <>
             <div className="container mt-5">
                 <div className="row justify-content-center">
-                    <div className="col-md-6 col-lg-5">
+                    <div className="col-12 col-sm-8 col-md-6 col-lg-5">
                         <div className="card shadow p-3">
                             <div className="card-body">
                                 <h2 className="text-center mb-4">{isLogin ? 'Inicio de sesión' : 'Registro'}</h2>
@@ -208,17 +208,17 @@ const AuthPage = () => {
                                             </div>
                                             {
                                                 userType !== "contribuyente" ? (
-                                                    <LoginAdmin                                                        
+                                                    <LoginAdmin
                                                         loginAdmin={loginAdmin}
                                                         handleLoginAdminChange={handleLoginAdminChange}
                                                         errorsAdmin={errorsAdmin}
                                                     />
                                                 ) : (
-                                                    <LoginTaxpayer                                                        
+                                                    <LoginTaxpayer
                                                         loginTaxpayer={loginTaxpayer}
                                                         handleLoginTaxpayerChange={handleLoginTaxpayerChange}
                                                         handleCuitChange={handleCuitChange}
-                                                        errorTaxpayer={errorTaxpayer}                                                      
+                                                        errorTaxpayer={errorTaxpayer}
                                                     />
                                                 )
                                             }

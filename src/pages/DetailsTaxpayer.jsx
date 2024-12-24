@@ -144,6 +144,7 @@ const DetailsTaxpayer = () => {
                     setSelectedEstado(comercio);
                     toggleModal('confirmTrade', true);
                 }}
+                isTaxpayerEnabled={isTaxpayerEnabled}
                
             />
             {/* Modales */}

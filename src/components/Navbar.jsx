@@ -1,8 +1,6 @@
 import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthProvider'
-import Logo from "../../public/img/logo_municipalidad_loberia2-removebg-preview.png"
-
 
 const Navbar = () => {
     const { logout, user } = useAuth();
@@ -17,7 +15,7 @@ const Navbar = () => {
                 {/* Logo y nombre */}
                 <Link to="/" className="navbar-brand d-flex align-items-center">
                     <img
-                        src={Logo}
+                        src='/img/logo_municipalidad_loberia2-removebg-preview.png'
                         alt="Logo"
                         className="img-fluid me-2"
                         style={{ maxHeight: '80px' }}

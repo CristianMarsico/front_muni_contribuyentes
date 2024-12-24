@@ -153,56 +153,63 @@ const DataTableConfig = () => {
 
     return (
         <>
-            <div className='col-4 border p-3 rounded'>
-                {/* <h3 className="card-title">Configuración General</h3> */}
-                <form>
-                    <InputField
-                        label="Tasa actual"
-                        name="tasa_actual"
-                        value={configuracionGeneral.tasa_actual}
-                        type="number"
-                        onChange={handleConfigChange}
-                        error={errorsConfig.tasa_actual}
-                        step="0.01"
-                        min="0"
-                    />
-                    <InputField
-                        label="N° de día límite para cargar DDJJ"
-                        name="fecha_limite_ddjj"
-                        value={configuracionGeneral.fecha_limite_ddjj}
-                        type="number"
-                        onChange={handleConfigChange}
-                        error={errorsConfig.fecha_limite_ddjj}
-                    />
-                    <InputField
-                        label="Monto DDJJ por Defecto"
-                        name="monto_ddjj_defecto"
-                        value={configuracionGeneral.monto_ddjj_defecto}
-                        type="number"
-                        onChange={handleConfigChange}
-                        error={errorsConfig.monto_ddjj_defecto}
-                        step="0.01"
-                        min="0"
-                    />
-                    <InputField
-                        label="Tasa Default (%)"
-                        name="tasa_default"
-                        value={configuracionGeneral.tasa_default}
-                        type="number"
-                        onChange={handleConfigChange}
-                        error={errorsConfig.tasa_default}
-                        step="0.01"
-                        min="0"
-                    />
-                </form>
-                {/* Botón para confirmar cambios */}
-                <button
-                    className="btn btn-primary w-100"
-                    onClick={() => setShowConfirmModal(true)}
-                    disabled={!isModified || !isFormValid} // Deshabilitado hasta que se modifique algo y sea válido
-                >
-                    Cambiar Valores
-                </button>
+            <div className="container mt-2">
+                <div className="row justify-content-center">
+                    <div className="col-12 col-sm-8 col-md-6 col-lg-5">
+                        <div className="card shadow p-3">
+                            <div className="card-body">
+                                <form>
+                                    <InputField
+                                        label="Tasa actual"
+                                        name="tasa_actual"
+                                        value={configuracionGeneral.tasa_actual}
+                                        type="number"
+                                        onChange={handleConfigChange}
+                                        error={errorsConfig.tasa_actual}
+                                        step="0.01"
+                                        min="0"
+                                    />
+                                    <InputField
+                                        label="N° de día límite para cargar DDJJ"
+                                        name="fecha_limite_ddjj"
+                                        value={configuracionGeneral.fecha_limite_ddjj}
+                                        type="number"
+                                        onChange={handleConfigChange}
+                                        error={errorsConfig.fecha_limite_ddjj}
+                                    />
+                                    <InputField
+                                        label="Monto DDJJ por Defecto"
+                                        name="monto_ddjj_defecto"
+                                        value={configuracionGeneral.monto_ddjj_defecto}
+                                        type="number"
+                                        onChange={handleConfigChange}
+                                        error={errorsConfig.monto_ddjj_defecto}
+                                        step="0.01"
+                                        min="0"
+                                    />
+                                    <InputField
+                                        label="Tasa Default (%)"
+                                        name="tasa_default"
+                                        value={configuracionGeneral.tasa_default}
+                                        type="number"
+                                        onChange={handleConfigChange}
+                                        error={errorsConfig.tasa_default}
+                                        step="0.01"
+                                        min="0"
+                                    />
+                                </form>
+                                {/* Botón para confirmar cambios */}
+                                <button
+                                    className="btn btn-primary w-100"
+                                    onClick={() => setShowConfirmModal(true)}
+                                    disabled={!isModified || !isFormValid} // Deshabilitado hasta que se modifique algo y sea válido
+                                >
+                                    Cambiar Valores
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             {/* Modales */}
