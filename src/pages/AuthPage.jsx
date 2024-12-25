@@ -92,7 +92,7 @@ const AuthPage = () => {
         }
     };
 
-    // // Validación y actualización de CUIT
+    // Validación y actualización de CUIT
     const handleCuitChange = (e) => {
         const { name, value } = e.target;
         // Actualizar valores del CUIT
@@ -115,11 +115,13 @@ const AuthPage = () => {
         });
     };
 
+    // Redirección y cierre automático del modal
     const handleAutoHideModal = () => {
         setModalShow(false);
         navigate("/home"); // Redirige después de que el modal desaparezca
     };
 
+    // Manejo del envío del formulario
     const handleSubmit = async (e) => {
         e.preventDefault();
 

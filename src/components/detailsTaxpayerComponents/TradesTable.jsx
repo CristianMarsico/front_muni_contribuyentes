@@ -1,12 +1,9 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom';
 
-const TradesTable = ({ id_contribuyente, trades, onTradeStateChange, isTaxpayerEnabled }) => {
+const TradesTable = ({ id_contribuyente, trades, onTradeStateChange, existeHabilitado }) => {
 
     const navigate = useNavigate();
-
-
-    // className = "card-header bg-secondary text-white rounded-top-4"
     return (
         <div className="container mt-4 col-12">
             <div className="mt-4 mb-4">
@@ -25,12 +22,7 @@ const TradesTable = ({ id_contribuyente, trades, onTradeStateChange, isTaxpayerE
                                                 <th>Nombre de Comercio</th>
                                                 <th>Dirección de Comercio</th>
                                                 <th>Acciones</th>
-                                                {
-                                                    isTaxpayerEnabled && (
-                                                        <th>DDJJs</th>
-
-                                                    )
-                                                }
+                                                <th>DDJJs</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -52,9 +44,9 @@ const TradesTable = ({ id_contribuyente, trades, onTradeStateChange, isTaxpayerE
                                                         )}
                                                     </td>
 
-                                                    {
-                                                        isTaxpayerEnabled && (
-                                                            <td className="text-center">
+                                                    <td className="text-center">
+                                                        {
+                                                            comercio?.estado ? (
                                                                 <button
                                                                     type="button"
                                                                     className="btn btn-warning fw-bold"
@@ -62,10 +54,12 @@ const TradesTable = ({ id_contribuyente, trades, onTradeStateChange, isTaxpayerE
                                                                 >
                                                                     Ver DDJJs
                                                                 </button>
-                                                            </td>
-                                                        )
-                                                    }
-                                                   
+                                                            ) : (
+                                                                <strong className="bi bi-x-circle text-danger"> Sin habilitar</strong>
+                                                            )
+                                                        }
+                                                    </td>
+
                                                 </tr>
                                             ))}
                                         </tbody>
@@ -83,3 +77,5 @@ const TradesTable = ({ id_contribuyente, trades, onTradeStateChange, isTaxpayerE
 }
 
 export default TradesTable
+
+

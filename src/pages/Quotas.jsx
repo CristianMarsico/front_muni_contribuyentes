@@ -6,15 +6,12 @@ import ConfirmModal from '../components/modalsComponents/ConfirmModal';
 import SuccessModal from '../components/modalsComponents/SuccessModal';
 import { useAuth } from '../context/AuthProvider';
 import useFetch from '../helpers/hooks/useFetch';
-import { useNavigate } from 'react-router-dom';
 
 
 const Quotas = () => {
     const URL = import.meta.env.VITE_API_URL;
     const { data, refetch } = useFetch(`${URL}/api/expirationDates`);
-    const { user } = useAuth();
-    const navigate = useNavigate();
-
+    const { user, logout } = useAuth();
     const [editingCell, setEditingCell] = useState(null);
     const [editedValue, setEditedValue] = useState('');
     const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -95,7 +92,7 @@ const Quotas = () => {
                 if (error.response.status === 401) {
                     setError(error.response.data.error);
                     setTimeout(() => {
-                        navigate("/");
+                        logout();
                     }, 3000);
                 }
                 else if (error.response.status === 404) {
@@ -122,7 +119,7 @@ const Quotas = () => {
         <>
             <div className="container mt-3">
                 <div className="text-center bg-light p-2 mb-2 border">
-                    <strong>T. P/SERV A LA ACTIV COMER INDUST PROFES Y SER • PLAZAS A.V. (13)</strong>
+                    <strong>TASA POR SERVICIOS A LA ACTIVIDAD COMERCIAL, INDUSTRIAL, PROFESIONAL Y DE SERVICIOS</strong>
                 </div>
                 <div className="table-responsive">
                     <table className="table table-bordered text-center">

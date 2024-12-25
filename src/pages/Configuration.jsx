@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import DataTableConfig from '../components/configurationComponents/DataTableConfig';
+import DataTableConfig from './DataTableConfig';
 import Quotas from './Quotas';
 import Users from './Users';
 

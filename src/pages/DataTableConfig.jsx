@@ -1,17 +1,18 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios';
 import { io } from 'socket.io-client';
-import useFetch from '../../helpers/hooks/useFetch';
-import InputField from '../auth/InputField';
-import ErrorNotification from '../ErrorNotification';
-import ConfirmModal from '../modalsComponents/ConfirmModal';
-import SuccessModal from '../modalsComponents/SuccessModal';
-import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthProvider';
+import useFetch from '../helpers/hooks/useFetch';
+import InputField from '../components/auth/InputField';
+import ConfirmModal from '../components/modalsComponents/ConfirmModal';
+import SuccessModal from '../components/modalsComponents/SuccessModal';
+import ErrorNotification from '../components/ErrorNotification';
+
 
 const DataTableConfig = () => {
     const URL = import.meta.env.VITE_API_URL;// URL de la API desde las variables de entorno
     const { data, refetch } = useFetch(`${URL}/api/configuration`);// Hook personalizado para obtener los datos de configuración
-    const navigate = useNavigate();// Hook de navegación para redirigir al usuario
+    const { logout } = useAuth();
 
     // Estado que almacena la configuración general
     const [configuracionGeneral, setConfiguracionGeneral] = useState({
@@ -127,6 +128,7 @@ const DataTableConfig = () => {
                 setTimeout(() => setShowSuccessModal(true), 100);// Muestra el modal de éxito después de un pequeño retraso
                 setShowConfirmModal(false);// Cierra el modal de confirmación
                 refetch();// Refresca los datos de configuración
+                setIsModified(false)
             }
             // Maneja errores de la solicitud
         } catch (error) {
@@ -135,7 +137,7 @@ const DataTableConfig = () => {
                     setErrorMessage(error.response.data.error);// Muestra el error de autenticación
                     // Redirige al usuario a la página de inicio si está no autorizado
                     setTimeout(() => {
-                        navigate("/");
+                        logout();
                     }, 3000);
                 }
                 else if (error.response.status === 404) {
@@ -188,7 +190,7 @@ const DataTableConfig = () => {
                                         min="0"
                                     />
                                     <InputField
-                                        label="Tasa Default (%)"
+                                        label="Tasa POST vencimiento"
                                         name="tasa_default"
                                         value={configuracionGeneral.tasa_default}
                                         type="number"

@@ -1,23 +1,27 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-// import { io } from 'socket.io-client';
+import { useAuth } from "../context/AuthProvider";
+import Loading from "../components/Loading";
+import ErrorResponse from "../components/ErrorResponse";
 import useFetch from "../helpers/hooks/useFetch";
-import ErrorResponse from "./ErrorResponse";
-import Loading from "./Loading";
-import { useNavigate } from "react-router-dom";
+import { io } from 'socket.io-client';
+
 
 const MyDDJJ = ({ id }) => {
     const URL = import.meta.env.VITE_API_URL;
+    const { logout } = useAuth();
+
     const currentYear = new Date().getFullYear();
     const years = Array.from({ length: 12 }, (_, i) => currentYear - i);
-    const { data, loading, error } = useFetch(`${URL}/api/trade/${id}`);
+
+    const { data, loading, error, refetch } = useFetch(`${URL}/api/trade/${id}`);
+
     const [selectedTrade, setSelectedTrade] = useState("");
     const [selectedYear, setSelectedYear] = useState(currentYear);
     const [selectedMonth, setSelectedMonth] = useState("");
     const [tableData, setTableData] = useState([]); // Estado para datos de la tabla
     const [tableError, setTableError] = useState(null); // Estado para errores
-    // const [newDDJJ, setNewDDJJ] = useState([]);
-    const navigate = useNavigate();
+
     const meses = [
         "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
     ];
@@ -28,19 +32,16 @@ const MyDDJJ = ({ id }) => {
         }
     }, [data]);
 
-    // useEffect(() => {
-    //     const socket = io(URL);
-    //     socket.on('nueva-ddjj', (nuevaDDJJ) => {      
-    //         setTableData((prevTableData) => {
-    //             const nuevaDDJJConDescripcion = {
-    //                 ...nuevaDDJJ,
-    //                 descripcion: nuevaDDJJ.descripcion || "Sin especificar", // Maneja la descripción nula
-    //             };
-    //             return [...prevTableData, nuevaDDJJConDescripcion];
-    //         });      
-    //     });
-    //     return () => socket.disconnect();
-    // }, [URL]);
+    useEffect(() => {
+        const socket = io(URL);
+        socket.on('comercio-nuevo', (nuevoComercio) => {
+            const id_comercio = nuevoComercio;      
+            setSelectedTrade(id_comercio); // Actualiza el estado con un valor único
+            refetch();
+        });
+       
+        return () => socket.disconnect();
+    }, [URL], refetch);
 
     const handleComercioChange = (e) => {
         setSelectedTrade(e.target.value);
@@ -78,7 +79,7 @@ const MyDDJJ = ({ id }) => {
                 if (error.response.status === 401) {
                     setTableError(error.response.data.error);
                     setTimeout(() => {
-                        navigate("/");
+                        logout();
                     }, 3000);
                 }
                 else if (error.response.status === 404) {
@@ -116,11 +117,13 @@ const MyDDJJ = ({ id }) => {
                                 ) : data?.response?.length === 0 ? (
                                     <option>No hay comercios disponibles</option>
                                 ) : (
-                                    data?.response.map((c) => (
-                                        <option key={c.cod_comercio} value={c.id_comercio}>
-                                            {c.nombre_comercio} (N° {c.cod_comercio})
-                                        </option>
-                                    ))
+                                    data?.response
+                                        .filter(c => c.estado) // Filtra solo los comercios con estado true
+                                        .map(c => (
+                                            <option key={c.cod_comercio} value={c.id_comercio}>
+                                                {c.nombre_comercio} (N° {c.cod_comercio})
+                                            </option>
+                                        ))
                                 )}
                             </select>
                         </div>

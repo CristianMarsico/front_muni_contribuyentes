@@ -1,59 +1,33 @@
 import axios from 'axios';
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import InputField from '../components/auth/InputField';
 import ErrorNotification from '../components/ErrorNotification';
 import ConfirmModal from '../components/modalsComponents/ConfirmModal';
 import SuccessModal from '../components/modalsComponents/SuccessModal';
+import { useAuth } from '../context/AuthProvider';
 
 const Users = () => {
-    const URL = import.meta.env.VITE_API_URL;
-    // const { data, refetch } = useFetch(`${URL}/api/configuration`);
+    const URL = import.meta.env.VITE_API_URL;  
+    const {logout} = useAuth();
+    
     const [configuracionUsuario, setConfiguracionUsuario] = useState({
         usuario: '',
         password: '',
         rePassword: ''
     });
+
     const [initialConfig, setInitialConfig] = useState(null); // Valores iniciales
     const [isModified, setIsModified] = useState(false); // Indica si se modificó algún valor
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [errorMessage, setErrorMessage] = useState(null);
-    const [errorsConfig, setErrorsConfig] = useState({});
-    const [values, setValues] = useState([]);
-
-    // useEffect(() => {
-    //     if (data?.response) {
-    //         setValues(data?.response);
-    //     } else {
-    //         setValues([]);
-    //     }
-    // }, [data]);
-
-    // useEffect(() => {
-    //     const socket = io(URL);
-    //     socket.on('nuevos-valores', (nuevoValor) => {
-    //         setValues((prev) => [...prev, nuevoValor]);
-    //         refetch();
-    //     });
-    //     return () => socket.disconnect();
-    // }, [URL, refetch]);
+    const [errorsConfig, setErrorsConfig] = useState({});   
 
     const errorMessages = {
         usuario: "*Campo obligatorio.",
         password: "*Campo obligatorio.",
         rePassword: "*Campo obligatorio.",
-    };
-
-    // useEffect(() => {
-    //     if (data?.response[0]) {
-    //         const initialData = {
-    //             usuario: data.response[0].usuario || '',
-    //             contraseña: data.response[0].contraseña || ''
-    //         };
-    //         setConfiguracionGeneral(initialData);
-    //         setInitialConfig(initialData); // Guardamos los valores iniciales
-    //     }
-    // }, [data]);
+    };  
 
     const validateField = (name, value) => {
         let errorMessage = null;
@@ -103,12 +77,27 @@ const Users = () => {
                 setShowSuccessModal(false);
                 setTimeout(() => setShowSuccessModal(true), 100);
                 setShowConfirmModal(false);
+                // Restablecer los campos del formulario a vacío
+                setConfiguracionUsuario({
+                    usuario: '',
+                    password: '',
+                    rePassword: ''
+                });
+
+                // Restablecer los errores y el estado de modificación
+                setErrorsConfig({});
+                setIsModified(false)
             }
-        } catch (error) {
-            console.log(error)
-            setShowConfirmModal(false);
+        } catch (error) {          
+            setShowConfirmModal(false);           
             if (error.response) {
-                if (error.response.status === 404) {
+                if (error.response.status === 401) {
+                    setErrorMessage(error.response.data.error);
+                    setTimeout(() => {
+                        logout();
+                    }, 3000);
+                }
+                else if (error.response.status === 404) {
                     setErrorMessage(error.response.data.error);
                 } else {
                     setErrorMessage("Ocurrió un error en el servidor. Por favor, intente más tarde.");
@@ -116,6 +105,16 @@ const Users = () => {
             } else {
                 setErrorMessage("Error de conexión. Verifique su red e intente nuevamente.");
             }
+        } finally {
+            setConfiguracionUsuario({
+                usuario: '',
+                password: '',
+                rePassword: ''
+            });
+
+            // Restablecer los errores y el estado de modificación
+            setErrorsConfig({});
+            setIsModified(false)
         }
     };
 

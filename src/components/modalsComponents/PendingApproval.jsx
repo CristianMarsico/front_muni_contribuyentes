@@ -1,3 +1,11 @@
+/**
+ * Componente que muestra un mensaje informativo cuando el estado del usuario está pendiente de aprobación.
+ *
+ * El mensaje comunica el tiempo estimado de revisión y los pasos a seguir en caso de problemas.
+ *
+ * @component
+ * @returns {JSX.Element} Mensaje de revisión en proceso.
+ */
 import React from 'react'
 
 const PendingApproval = () => {

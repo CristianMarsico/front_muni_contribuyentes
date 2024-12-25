@@ -1,3 +1,17 @@
+/**
+ * Componente para gestionar y visualizar contribuyentes en espera de aprobación.
+ *
+ * Características principales:
+ * - Obtiene la lista de contribuyentes desde una API.
+ * - Escucha eventos en tiempo real mediante Socket.IO para:
+ *   - Agregar nuevos contribuyentes.
+ *   - Actualizar el estado de contribuyentes existentes.
+ * - Permite filtrar contribuyentes por CUIT y apellido.
+ * - Muestra una tabla interactiva con la información y un botón para acceder a los detalles.
+ *
+ * @component
+ * @returns {JSX.Element} Tabla de contribuyentes con filtros y eventos en tiempo real.
+ */
 import React, { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import ErrorResponse from '../components/ErrorResponse';
@@ -9,11 +23,16 @@ import useFetch from '../helpers/hooks/useFetch';
 const Taxpayers = () => {
     const URL = import.meta.env.VITE_API_URL;
     const navigate = useNavigate();
+    // Hook personalizado para obtener los datos iniciales
     const { data, loading, error, refetch } = useFetch(`${URL}/api/taxpayer`);
+
+    // Estados locales
     const [buscarCuit, setBuscarCuit] = useState('');
     const [buscarApellido, setBuscarApellido] = useState('');
     const [taxpayers, setTaxpayers] = useState([]);
+   
 
+    // Actualizar la lista cuando se reciben nuevos datos de la API
     useEffect(() => {
         if (data?.response) {
             setTaxpayers(data.response);
@@ -25,13 +44,13 @@ const Taxpayers = () => {
     // Configurar eventos del socket
     useEffect(() => {
         const socket = io(URL);
-        // Evento: nuevo contribuyente
+        // Evento: agregar nuevo contribuyente
         socket.on('nuevo-contribuyente', (nuevoContribuyente) => {
             setTaxpayers((prevTaxpayers) => [...prevTaxpayers, nuevoContribuyente]);
             refetch();
         });
 
-        // Evento: estado actualizado
+       // Evento: actualizar estado de un contribuyente
         socket.on('estado-actualizado', (contribuyenteActualizado) => {
             if (contribuyenteActualizado && contribuyenteActualizado.id_contribuyente) {
                 setTaxpayers((prevTaxpayers) =>
@@ -62,7 +81,7 @@ const Taxpayers = () => {
 
     return (
         <>          
-            {/* Filtros */}
+            {/* Sección de filtros */}
             <div className="container mt-4">
                 <div className="row justify-content-center">
                     <div className="col-12 col-sm-8 col-md-6 col-lg-5">
@@ -77,7 +96,7 @@ const Taxpayers = () => {
                 </div>
             </div>
 
-            {/* Tabla */}
+            {/* Tabla de contribuyentes */}
             <div className="container mt-4 col-12">
                 <div className="mt-4 mb-4">
                     <div className="card shadow">

@@ -222,7 +222,6 @@ const RegisterFields = ({ registroData, setRegistroData, setError }) => {
         setCurrentStep((prev) => prev - 1);
     };
 
-
     const renderSteps = () => {
         switch (currentStep) {
             case 0:
@@ -326,7 +325,6 @@ const RegisterFields = ({ registroData, setRegistroData, setError }) => {
         }
 
     }
-
 
     return (
         <>
