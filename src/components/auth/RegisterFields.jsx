@@ -43,12 +43,8 @@ const RegisterFields = ({ registroData, setRegistroData, setError }) => {
                 case "direccion":
                 case "telefono":
                 case "razon_social":
-                    if (value.trim() === "") {
-                        return `*${name.charAt(0).toUpperCase() + name.slice(1)} es obligatorio.`;
-                    }
-                    if (value.trim().length < 6) {
-                        return `*${name.charAt(0).toUpperCase() + name.slice(1)} debe tener al menos 6 caracteres.`;
-                    }
+                    if (value.trim() === "") return `*${name.charAt(0).toUpperCase() + name.slice(1)} es obligatorio.`;
+                    if (value.trim().length < 4) return `*${name.charAt(0).toUpperCase() + name.slice(1)} debe tener al menos 4 caracteres.`;
                     return null;
                 
                 case "email":
