@@ -2,19 +2,13 @@ import React, { useEffect } from 'react';
 import { Modal } from 'react-bootstrap';
 
 const WelcomeModal = ({ show, onAutoHide, duration, type }) => {
-    const modalContent = type === 'login'
-        ? {
-            icon: 'bi bi-person-check',
-            bgColor: 'bg-info',
-            title: '¡Bienvenido!',
-            message: 'Nos alegra que use la app. 😊',
-        }
-        : {
-            icon: 'bi bi-check-circle',
-            bgColor: 'bg-success',
-            title: '¡Registro Exitoso!',
-            message: 'Tu cuenta ha sido creada con éxito. ¡Bienvenido! 🎉',
-        };
+    const modalContent = type === 'register'
+        && {
+        icon: 'bi bi-check-circle',
+        bgColor: 'bg-success',
+        title: '¡Registro Exitoso!',
+        message: 'Tu cuenta ha sido creada con éxito. ¡Bienvenido! 🎉',
+    };
 
     useEffect(() => {
         if (show) {

@@ -28,7 +28,6 @@ const DetailsTaxpayer = () => {
     const taxpayerInfo = data?.response[0];
     const [isTaxpayerEnabled, setIsTaxpayerEnabled] = useState(false);
 
-
     const existeHabilitado = data?.response.some(comercio => comercio.estado);
 
     useEffect(() => {        
@@ -36,8 +35,6 @@ const DetailsTaxpayer = () => {
             setTrades(data?.response);
         }
     }, [data]);
-
-    console.log("habilitado: " + isTaxpayerEnabled)
 
     // Configuración del socket
     useEffect(() => {

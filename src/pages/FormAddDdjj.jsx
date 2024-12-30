@@ -1,5 +1,6 @@
 import axios from 'axios';
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
+import { io } from 'socket.io-client';
 import InputField from '../components/auth/InputField';
 import ErrorNotification from '../components/ErrorNotification';
 import ConfirmModal from '../components/modalsComponents/ConfirmModal';
@@ -29,6 +30,17 @@ const FormAddDdjj = () => {
       setSelectedComercio(data.response[0].id_comercio);
     }
   }, [data]);
+
+  useEffect(() => {
+    const socket = io(URL);
+    socket.on('comercio-nuevo', (nuevoComercio) => {
+      const id_comercio = nuevoComercio;
+      setSelectedComercio(id_comercio); // Actualiza el estado con un valor único
+      refetch();
+    });
+
+    return () => socket.disconnect();
+  }, [URL], refetch);
 
   const setError = (message) => {
     setErrorMessage(message);
@@ -107,10 +119,16 @@ const FormAddDdjj = () => {
     } catch (error) {
       setShowConfirmModal(false);
       if (error.response) {
-        if (error.response.status === 404) {
+        if (error.response.status === 401) {
+          setError(error.response.data.error);
+          setTimeout(() => {
+            logout();
+          }, 3000);
+        }
+        else if (error.response.status === 404) {
           setError(error.response.data.error);
         } else {
-          setError("Ocurrió un error en el servidor. Por favor, intente más tarde.");
+          setError(error.response.data.error);
         }
       } else {
         setError("Error de conexión. Verifique su red e intente nuevamente.");
@@ -120,9 +138,9 @@ const FormAddDdjj = () => {
 
   return (
     <>
-      <div className="container mt-5">
+      <div className="container mt-4 mb-4">
         <div className="row justify-content-center">
-          <div className="col-md-6 col-lg-5">
+          <div className="col-12 col-sm-8 col-md-6 col-lg-4">
             <div className="card shadow">
               <div className="card-body">
                 <h2 className="text-center mb-4">Cargar DDJJ</h2>
@@ -133,7 +151,7 @@ const FormAddDdjj = () => {
                       <label htmlFor="comercio" className="form-label">Seleccione Comercio:</label>
                       <select
                         id="comercio"
-                        className="form-select"
+                        className="form-select text-center"
                         value={selectedComercio}
                         onChange={handleComercioChange}
                       >
@@ -144,11 +162,13 @@ const FormAddDdjj = () => {
                         ) : data?.response?.length === 0 ? (
                           <option>No hay comercios disponibles</option>
                         ) : (
-                          data?.response.map((c) => (
-                            <option key={c.cod_comercio} value={c.id_comercio}>
-                              {c.nombre_comercio} (N° {c.cod_comercio})
-                            </option>
-                          ))
+                          data?.response
+                            .filter(c => c.estado) // Filtra solo los comercios con estado true
+                            .map(c => (
+                              <option key={c.cod_comercio} value={c.id_comercio}>
+                                {c.nombre_comercio} (N° {c.cod_comercio})
+                              </option>
+                            ))
                         )}
                       </select>
                     </div>

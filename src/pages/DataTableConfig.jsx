@@ -155,9 +155,9 @@ const DataTableConfig = () => {
 
     return (
         <>
-            <div className="container mt-2">
+            <div className="container mb-4">
                 <div className="row justify-content-center">
-                    <div className="col-12 col-sm-8 col-md-6 col-lg-5">
+                    <div className="col-12 col-sm-8 col-md-6 col-lg-4">
                         <div className="card shadow p-3">
                             <div className="card-body">
                                 <form>

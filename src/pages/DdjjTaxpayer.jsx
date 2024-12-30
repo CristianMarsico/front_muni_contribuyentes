@@ -37,7 +37,6 @@ const DdjjTaxpayer = () => {
 
         try {
             const response = await axios.get(_url, { withCredentials: true });
-            console.log(response)
 
             if (response.status === 200) {
                 const responseData = response.data.response;
@@ -70,8 +69,8 @@ const DdjjTaxpayer = () => {
     };
 
     return (
-        <div className="container mt-4">
-            <h1>Declaraciones Juradas del comercio n° {cod_comercio}</h1>
+        <div className="container mt-4 text-center">
+            <h1>DDJJs del comercio n° {cod_comercio}</h1>
             <div className="card mx-auto" style={{ maxWidth: "600px" }}>
                 <div className="card-body">
                     <form className="row g-3 justify-content-center">
@@ -82,7 +81,7 @@ const DdjjTaxpayer = () => {
                             </label>
                             <select
                                 id="anio"
-                                className="form-select"
+                                className="form-select text-center"
                                 value={selectedYear}
                                 onChange={handleYearChange}
                             >
@@ -100,7 +99,7 @@ const DdjjTaxpayer = () => {
                             </label>
                             <select
                                 id="mes"
-                                className="form-select"
+                                className="form-select text-center"
                                 value={selectedMonth}
                                 onChange={handleMonthChange}
                             >

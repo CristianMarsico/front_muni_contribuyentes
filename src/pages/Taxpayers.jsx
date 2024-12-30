@@ -84,7 +84,7 @@ const Taxpayers = () => {
             {/* Sección de filtros */}
             <div className="container mt-4">
                 <div className="row justify-content-center">
-                    <div className="col-12 col-sm-8 col-md-6 col-lg-5">
+                    <div className="col-12 col-sm-8 col-md-6 col-lg-4">
                         <div className="card shadow-lg rounded-4 border-0">
                             <div className="card-body p-4">
                                 <h5 className="card-title text-center text-primary mb-4">Filtros</h5>
@@ -141,8 +141,7 @@ const Taxpayers = () => {
                                                         <td>{c?.nombre} {c?.apellido}</td>
                                                         <td>{c?.cuit}</td>
                                                         <td>{c?.email}</td>
-                                                        <td>
-                                                            {/* {c?.estado ? 'Habilitado' : 'Sin habilitar'} */}
+                                                        <td>                                                           
                                                             {c?.estado ? (
                                                                 <strong className="bi bi-check-circle text-success"> Habilitado</strong>
                                                             ) : (

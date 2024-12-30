@@ -7,16 +7,18 @@ import LoginAdmin from '../components/auth/LoginAdmin';
 import RegisterFields from '../components/auth/RegisterFields';
 import ErrorNotification from '../components/ErrorNotification';
 import LoginTaxpayer from '../components/auth/LoginTaxpayer';
+import Loading from '../components/Loading';
 
 const AuthPage = () => {
     const URL = import.meta.env.VITE_API_URL;
     const { login } = useAuth();
     const [modalShow, setModalShow] = useState(false);
-    const [modalType, setModalType] = useState('login'); // Control del tipo de modal (login o register)
+    const [modalType, setModalType] = useState('register'); // Control del tipo de modal (login o register)
     const [errorMessage, setErrorMessage] = useState(null);
     const navigate = useNavigate();
     const [isLogin, setIsLogin] = useState(true);
     const [userType, setUserType] = useState('contribuyente');
+    const [isLoading, setIsLoading] = useState(false);
 
     const [loginAdmin, setLoginAdmin] = useState({ username: '', password: '' });
     const [loginTaxpayer, setLoginTaxpayer] = useState({
@@ -131,16 +133,18 @@ const AuthPage = () => {
                 : `${URL}/api/auth/login/taxpayer`;
             let data = userType === 'administrador' ? loginAdmin : loginTaxpayer
 
+            setIsLoading(true);
+
             try {
                 const response = await axios.post(endpoint, data, { withCredentials: true });
 
                 if (response.status === 200) {
                     login(response.data);
-                    setModalType('login'); // Modal para login
-                    setModalShow(true); // Muestra modal
+                    // setModalType('login'); // Modal para login
+                    // setModalShow(true); // Muestra modal
+                    navigate("/home")
                 }
             } catch (error) {
-
                 if (error.response) {
                     if (error.response.status === 404) {
                         setError(error.response.data.error);
@@ -150,7 +154,8 @@ const AuthPage = () => {
                 } else {
                     setError("Error de conexión. Verifique su red e intente nuevamente.");
                 }
-
+            } finally {
+                setIsLoading(false);
             }
         } else {
             const codigosComercioFinales = [...registroData.misComercios];
@@ -159,11 +164,12 @@ const AuthPage = () => {
                 ...registroData,
                 misComercios: codigosComercioFinales.filter(Boolean),
             };
+           
             try {
                 const response = await axios.post(`${URL}/api/auth/register`, registroFinal);
                 if (response.status === 200) {
                     setModalType('register');
-                    setModalShow(true);
+                    setModalShow(true);                    
                 }
             } catch (error) {
                 if (error.response) {
@@ -182,98 +188,101 @@ const AuthPage = () => {
 
     return (
         <>
-            <div className="container mt-5">
-                <div className="row justify-content-center">
-                    <div className="col-12 col-sm-8 col-md-6 col-lg-5">
-                        <div className="card shadow p-3">
-                            <div className="card-body">
-                                <h2 className="text-center mb-4">{isLogin ? 'Inicio de sesión' : 'Registro'}</h2>
+            {isLoading && <Loading />}
+            {!isLoading && (
+                <div className="container mt-4 mb-4">
+                    <div className="row justify-content-center">
+                        <div className="col-12 col-sm-8 col-md-6 col-lg-4">
+                            <div className="card shadow p-3">
+                                <div className="card-body">
+                                    <h2 className="text-center mb-4">{isLogin ? 'Inicio de sesión' : 'Registro'}</h2>
 
-                                <form onSubmit={handleSubmit}>
-                                    {isLogin ? (
-                                        <>
-                                            <div className="mb-3">
-                                                <label htmlFor="userType" className="form-label">
-                                                    Selecciona el tipo de usuario:
-                                                </label>
-                                                <select
-                                                    id="userType"
-                                                    name="userType"
-                                                    className="form-select text-center"
-                                                    value={userType}
-                                                    onChange={(e) => setUserType(e.target.value)}
-                                                    required
-                                                >
-                                                    <option value="contribuyente">Contribuyente</option>
-                                                    <option value="administrador">Administrador</option>
-                                                </select>
-                                            </div>
-                                            {
-                                                userType !== "contribuyente" ? (
-                                                    <LoginAdmin
-                                                        loginAdmin={loginAdmin}
-                                                        handleLoginAdminChange={handleLoginAdminChange}
-                                                        errorsAdmin={errorsAdmin}
-                                                    />
-                                                ) : (
-                                                    <LoginTaxpayer
-                                                        loginTaxpayer={loginTaxpayer}
-                                                        handleLoginTaxpayerChange={handleLoginTaxpayerChange}
-                                                        handleCuitChange={handleCuitChange}
-                                                        errorTaxpayer={errorTaxpayer}
-                                                    />
-                                                )
-                                            }
-                                        </>
+                                    <form onSubmit={handleSubmit}>
+                                        {isLogin ? (
+                                            <>
+                                                <div className="mb-3">
+                                                    <label htmlFor="userType" className="form-label">
+                                                        Selecciona el tipo de usuario:
+                                                    </label>
+                                                    <select
+                                                        id="userType"
+                                                        name="userType"
+                                                        className="form-select text-center"
+                                                        value={userType}
+                                                        onChange={(e) => setUserType(e.target.value)}
+                                                        required
+                                                    >
+                                                        <option value="contribuyente">Contribuyente</option>
+                                                        <option value="administrador">Administrador</option>
+                                                    </select>
+                                                </div>
+                                                {
+                                                    userType !== "contribuyente" ? (
+                                                        <LoginAdmin
+                                                            loginAdmin={loginAdmin}
+                                                            handleLoginAdminChange={handleLoginAdminChange}
+                                                            errorsAdmin={errorsAdmin}
+                                                        />
+                                                    ) : (
+                                                        <LoginTaxpayer
+                                                            loginTaxpayer={loginTaxpayer}
+                                                            handleLoginTaxpayerChange={handleLoginTaxpayerChange}
+                                                            handleCuitChange={handleCuitChange}
+                                                            errorTaxpayer={errorTaxpayer}
+                                                        />
+                                                    )
+                                                }
+                                            </>
 
-                                    ) : (
-                                        <RegisterFields
-                                            registroData={registroData}
-                                            setRegistroData={setRegistroData}
-                                            setError={setError}
-                                        />
-                                    )}
+                                        ) : (
+                                            <RegisterFields
+                                                registroData={registroData}
+                                                setRegistroData={setRegistroData}
+                                                setError={setError}
+                                            />
+                                        )}
 
+                                        <button
+                                            type="submit"
+                                            className="btn btn-primary w-100"
+                                            disabled={!isLogin && registroData.misComercios.length === 0}
+                                        >
+                                            {isLogin ? 'Iniciar Sesión' : 'Registrarse'}
+                                        </button>
+                                    </form>
                                     <button
-                                        type="submit"
-                                        className="btn btn-primary w-100"
-                                        disabled={!isLogin && registroData.misComercios.length === 0}
+                                        className="btn btn-link w-100 mt-3"
+                                        onClick={() => {
+                                            setIsLogin(!isLogin); // Cambiar entre login y registro
+                                            // Limpiar los campos de registro cuando vuelves a Login
+                                            if (isLogin) {
+                                                setRegistroData({
+                                                    nombre: '',
+                                                    apellido: '',
+                                                    cuit: {
+                                                        prefijoCuit: '',
+                                                        numeroCuit: '',
+                                                        verificadorCuit: '',
+                                                    },
+                                                    email: '',
+                                                    direccion: '',
+                                                    telefono: '',
+                                                    password: '',
+                                                    rePassword: '',
+                                                    razon_social: '',
+                                                    misComercios: [], // Arreglo de comercios
+                                                });
+                                            }
+                                        }}
                                     >
-                                        {isLogin ? 'Iniciar Sesión' : 'Registrarse'}
+                                        {isLogin ? '¿No tienes cuenta? Regístrate' : '¿Ya tienes cuenta? Inicia sesión'}
                                     </button>
-                                </form>
-                                <button
-                                    className="btn btn-link w-100 mt-3"
-                                    onClick={() => {
-                                        setIsLogin(!isLogin); // Cambiar entre login y registro
-                                        // Limpiar los campos de registro cuando vuelves a Login
-                                        if (isLogin) {
-                                            setRegistroData({
-                                                nombre: '',
-                                                apellido: '',
-                                                cuit: {
-                                                    prefijoCuit: '',
-                                                    numeroCuit: '',
-                                                    verificadorCuit: '',
-                                                },
-                                                email: '',
-                                                direccion: '',
-                                                telefono: '',
-                                                password: '',
-                                                rePassword: '',
-                                                razon_social: '',
-                                                misComercios: [], // Arreglo de comercios
-                                            });
-                                        }
-                                    }}
-                                >
-                                    {isLogin ? '¿No tienes cuenta? Regístrate' : '¿Ya tienes cuenta? Inicia sesión'}
-                                </button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            )}
 
             <WelcomeModal
                 show={modalShow}

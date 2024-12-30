@@ -39,17 +39,26 @@ const RegisterFields = ({ registroData, setRegistroData, setError }) => {
         const validateField = (name, value) => {
             switch (name) {
                 case "nombre":
-                    return value.trim() === "" ? "*Nombre es obligatorio" : null;
                 case "apellido":
-                    return value.trim() === "" ? "*Apellido es obligatorio" : null;
-                case "email":
-                    return value.trim() === "" ? "*Email obligatorio" : null;
                 case "direccion":
-                    return value.trim() === "" ? "*Dirección obligatoria" : null;
                 case "telefono":
-                    return value.trim() === "" ? "*Teléfono o celular obligatorio" : null;
                 case "razon_social":
-                    return value.trim() === "" ? "*Razón social obligatoria" : null;
+                    if (value.trim() === "") {
+                        return `*${name.charAt(0).toUpperCase() + name.slice(1)} es obligatorio.`;
+                    }
+                    if (value.trim().length < 6) {
+                        return `*${name.charAt(0).toUpperCase() + name.slice(1)} debe tener al menos 6 caracteres.`;
+                    }
+                    return null;
+                
+                case "email":
+                    if (value.trim() === "") {
+                        return "*Email obligatorio.";
+                    }
+                    // Validar formato de correo
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    return !emailRegex.test(value) ? "*Formato de email inválido." : null;
+
                 case "password":
                     // Validar que la contraseña tenga al menos una mayúscula, una minúscula y un número
                     if (value.trim() === "") {
@@ -76,10 +85,7 @@ const RegisterFields = ({ registroData, setRegistroData, setError }) => {
         // Validar y actualizar errores para cada campo
         const errorMessage = validateField(name, value);
 
-        setErrors({
-            ...errors,
-            [name]: errorMessage,
-        });
+        setErrors({...errors,[name]: errorMessage,});
     };
 
     // Validación y actualización de CUIT

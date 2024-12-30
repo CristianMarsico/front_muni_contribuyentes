@@ -48,7 +48,7 @@ const Quotas = () => {
 
 
     const handleCellClick = (rowIndex, id_vencimiento, currentValue) => {
-        if (user?.rol === 'admin') {
+        if (user?.rol === 'admin' || user?.rol === 'super_admin') {
             setEditingCell({ rowIndex, id_vencimiento });
             setEditedValue(currentValue);
             setIsEditing(true);
@@ -78,7 +78,6 @@ const Quotas = () => {
 
             // Realizar la solicitud POST
             const response = await axios.put(`${URL}/api/expirationDates/${data.id_vencimiento}/${data.fecha}`,null, { withCredentials: true });
-            console.log(response)
             if (response.status === 200) {
                 setShowSuccessModal(false);
                 setTimeout(() => setShowSuccessModal(true), 100); // Delay corto para re-renderizar

@@ -15,6 +15,8 @@ import PrivateRoutes from "./routes/PrivateRoutes";
 import Quotas from './pages/Quotas';
 import Configuration from './pages/Configuration';
 import DdjjTaxpayer from './pages/DdjjTaxpayer';
+import Footer from './components/Footer';
+import DdjjToRafam from './pages/DdjjToRafam';
 
 function App() {
   return (
@@ -34,13 +36,15 @@ function App() {
               <Route path="/contribuyente/:id" element={<PrivateRoutes><DetailsTaxpayer /></PrivateRoutes>} />
               <Route path="/ddjjContribuyente/:id_contribuyente/:id_comercio/:cod_comercio" element={<PrivateRoutes><DdjjTaxpayer /></PrivateRoutes>} />
               <Route path="/vencimientos" element={<PrivateRoutes><Quotas /></PrivateRoutes>} />
-              <Route path="/config" element={<PrivateRoutes><Configuration /></PrivateRoutes>} />
+              <Route path="/configuracion" element={<PrivateRoutes><Configuration /></PrivateRoutes>} />
+              <Route path="/rafam" element={<PrivateRoutes><DdjjToRafam /></PrivateRoutes>} />
               
               {/* Ruta para la página de error cuando la URL no coincide con ninguna de las anteriores. */}
               <Route path="*" element={<Error />} />             
             </Routes>
           </div>
         </Router>
+        <Footer/>
       </div>
     </AuthProvider>
   );

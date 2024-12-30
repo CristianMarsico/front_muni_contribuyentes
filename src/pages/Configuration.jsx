@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useAuth } from '../context/AuthProvider';
 import DataTableConfig from './DataTableConfig';
 import Quotas from './Quotas';
 import Users from './Users';
@@ -6,6 +7,8 @@ import Users from './Users';
 const Configuration = () => {
     // Estado para controlar la sección activa
     const [activeSection, setActiveSection] = useState('general');
+
+    const { user } = useAuth();
 
     return (
         <>
@@ -26,16 +29,21 @@ const Configuration = () => {
                             >
                                 CONFIGURACIÓN DE VENCIMINETOS
                             </button>
-                            <button
-                                className={`btn px-4 py-2 text-white ${activeSection === 'usuarios' ? 'btn-primary border border-light' : ''}`}
-                                onClick={() => setActiveSection('usuarios')}
-                            >
-                                ALTA DE USUARIOS
-                            </button>
+                            {
+                                user.rol === 'super_admin' && (
+                                    <button
+                                        className={`btn px-4 py-2 text-white ${activeSection === 'usuarios' ? 'btn-primary border border-light' : ''}`}
+                                        onClick={() => setActiveSection('usuarios')}
+                                    >
+                                        ALTA DE USUARIOS
+                                    </button>
+
+                                )
+                            }
                         </div>
                     </div>
                 </nav>
-               
+
                 {/* Contenido de las Secciones */}
                 {activeSection === 'general' && (
                     <div className="card-body container d-flex flex-column align-items-center">
@@ -51,13 +59,15 @@ const Configuration = () => {
                     </div>
                 )}
 
-                {activeSection === 'usuarios' && (
-
-                    <div className="card-body container d-flex flex-column align-items-center">
-                        <Users/>
-                    </div>
-
-                )}
+                {
+                    user.rol === 'super_admin' && (
+                        activeSection === 'usuarios' && (
+                            <div className="card-body container d-flex flex-column align-items-center">
+                                <Users />
+                            </div>
+                        )
+                    )
+                }
             </div>
         </>
     );

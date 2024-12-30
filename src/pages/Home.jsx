@@ -20,7 +20,7 @@ const Home = () => {
   return (
     <>
       {
-        user.rol === 'admin' ? (
+        user.rol === 'admin' || user.rol === 'super_admin' ? (
           <Taxpayers/>
         ) : (
           <>

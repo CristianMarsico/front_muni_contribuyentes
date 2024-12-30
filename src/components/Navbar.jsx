@@ -43,7 +43,7 @@ const Navbar = () => {
                     <ul className="navbar-nav ms-auto text-center">
                         {user?.rol && (
                             <>
-                                {user?.rol === 'admin' ? (
+                                {user?.rol === 'admin' || user?.rol === 'super_admin' ? (
                                     <>
                                         <li className="nav-item">
                                             <Link
@@ -57,14 +57,25 @@ const Navbar = () => {
                                         </li>
                                         <li className="nav-item">
                                             <Link
-                                                className={`btn btn-dark text-uppercase me-2 ${isActive('/config')
+                                                className={`btn btn-dark text-uppercase me-2 ${isActive('/rafam')
                                                     && 'btn-outline-light'
                                                     }`}
-                                                to="/config"
+                                                to="/rafam"
+                                            >
+                                                Cargar DDJJs en RAFAM
+                                            </Link>
+                                        </li>
+                                        <li className="nav-item">
+                                            <Link
+                                                className={`btn btn-dark text-uppercase me-2 ${isActive('/configuracion')
+                                                    && 'btn-outline-light'
+                                                    }`}
+                                                to="/configuracion"
                                             >
                                                 Configuración
                                             </Link>
                                         </li>
+                                       
                                     </>
                                 ) : (
                                     user?.estado && (
@@ -109,7 +120,7 @@ const Navbar = () => {
                                             }`}
                                         onClick={logout}
                                     >
-                                        Cerrar Sesion
+                                        Cerrar Sesión
                                     </Link>
                                 </li>
                             </>

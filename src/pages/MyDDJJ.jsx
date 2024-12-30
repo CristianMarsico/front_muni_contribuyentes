@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { io } from 'socket.io-client';
 import { useAuth } from "../context/AuthProvider";
 import Loading from "../components/Loading";
 import ErrorResponse from "../components/ErrorResponse";
 import useFetch from "../helpers/hooks/useFetch";
-import { io } from 'socket.io-client';
 
 
 const MyDDJJ = ({ id }) => {
@@ -95,7 +95,7 @@ const MyDDJJ = ({ id }) => {
     };
 
     return (
-        <div className="container mt-4">
+        <div className="container mt-4 text-center">
             <h1>Declaraciones Juradas</h1>
             <div className="card">
                 <div className="card-body">
@@ -106,7 +106,7 @@ const MyDDJJ = ({ id }) => {
                             </label>
                             <select
                                 id="comercio"
-                                className="form-select"
+                                className="form-select text-center"
                                 value={selectedTrade}
                                 onChange={handleComercioChange}
                             >
@@ -134,7 +134,7 @@ const MyDDJJ = ({ id }) => {
                             </label>
                             <select
                                 id="anio"
-                                className="form-select"
+                                className="form-select text-center"
                                 value={selectedYear}
                                 onChange={handleYearChange}
                             >
@@ -152,7 +152,7 @@ const MyDDJJ = ({ id }) => {
                             </label>
                             <select
                                 id="mes"
-                                className="form-select"
+                                className="form-select text-center"
                                 value={selectedMonth}
                                 onChange={handleMonthChange}
                             >
