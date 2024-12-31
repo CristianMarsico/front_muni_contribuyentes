@@ -98,7 +98,7 @@ const Taxpayers = () => {
 
             {/* Tabla de contribuyentes */}
             <div className="container mt-4 col-12">
-                <div className="mt-4 mb-4">
+                <div className="mt-4">
                     <div className="card shadow">
                         <div className="card-header bg-primary text-white text-center">
                             <h5 className="mb-0">Contribuyentes en espera para ser aprobados</h5>

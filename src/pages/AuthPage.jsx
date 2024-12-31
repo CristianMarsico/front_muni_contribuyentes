@@ -190,7 +190,7 @@ const AuthPage = () => {
         <>
             {isLoading && <Loading />}
             {!isLoading && (
-                <div className="container mt-4 mb-4">
+                <div className="container mt-4">
                     <div className="row justify-content-center">
                         <div className="col-12 col-sm-8 col-md-6 col-lg-4">
                             <div className="card shadow p-3">
@@ -277,6 +277,13 @@ const AuthPage = () => {
                                     >
                                         {isLogin ? '¿No tienes cuenta? Regístrate' : '¿Ya tienes cuenta? Inicia sesión'}
                                     </button>
+                                    
+                                    <button
+                                        className="btn btn-link w-100 text-danger"
+                                        onClick={() => navigate(`/recuperar`)}
+                                    >
+                                        {isLogin && 'Olvidé mi contraseña' }
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -288,7 +295,7 @@ const AuthPage = () => {
                 show={modalShow}
                 onAutoHide={handleAutoHideModal}
                 duration={2000}
-                type={modalType} // Cambia dinámicamente entre "login" y "register"
+                type={modalType}
             />
 
             <ErrorNotification

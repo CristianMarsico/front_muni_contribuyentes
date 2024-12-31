@@ -193,7 +193,7 @@ const DdjjToRafam = () => {
             </div>
 
             <div className="container col-12">
-                <div className="mt-4 mb-4">
+                <div className="mt-4">
                     <div className="card shadow">
                         <div className="card-header bg-primary text-white text-center">
                             <h5 className="mb-0">Lista de DDJJs para procesar en RAFAM</h5>

@@ -12,11 +12,13 @@ import FormAddDdjj from "./pages/FormAddDdjj";
 import DetailsTaxpayer from "./pages/DetailsTaxpayer";
 import { AuthProvider } from "./context/AuthProvider";
 import PrivateRoutes from "./routes/PrivateRoutes";
+import PublicRoutes from "./routes/PublicRoutes";
 import Quotas from './pages/Quotas';
 import Configuration from './pages/Configuration';
 import DdjjTaxpayer from './pages/DdjjTaxpayer';
 import Footer from './components/Footer';
 import DdjjToRafam from './pages/DdjjToRafam';
+import RecoverPassword from './pages/RecoverPassword';
 
 function App() {
   return (
@@ -38,6 +40,7 @@ function App() {
               <Route path="/vencimientos" element={<PrivateRoutes><Quotas /></PrivateRoutes>} />
               <Route path="/configuracion" element={<PrivateRoutes><Configuration /></PrivateRoutes>} />
               <Route path="/rafam" element={<PrivateRoutes><DdjjToRafam /></PrivateRoutes>} />
+              <Route path="/recuperar" element={<PublicRoutes><RecoverPassword /></PublicRoutes>} />
               
               {/* Ruta para la página de error cuando la URL no coincide con ninguna de las anteriores. */}
               <Route path="*" element={<Error />} />             

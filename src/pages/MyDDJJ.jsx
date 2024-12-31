@@ -179,7 +179,7 @@ const MyDDJJ = ({ id }) => {
                 </div>
             </div>
 
-            <div className="mt-4 mb-4">
+            <div className="mt-4">
                 {loading ? (
                     <Loading />
                 )

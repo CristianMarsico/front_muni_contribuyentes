@@ -138,7 +138,7 @@ const FormAddDdjj = () => {
 
   return (
     <>
-      <div className="container mt-4 mb-4">
+      <div className="container mt-4">
         <div className="row justify-content-center">
           <div className="col-12 col-sm-8 col-md-6 col-lg-4">
             <div className="card shadow">

@@ -7,11 +7,11 @@ const TaxpayerCard = ({ info, existeHabilitado }) => {
 
     // Determinar la clase de estado y el texto basado en existeHabilitado
     const estadoClass = existeHabilitado ? 'bi-check-circle text-success' : 'bi-x-circle text-danger'
-    const estadoText = existeHabilitado ? 'Habilitado' : 'Inhabilitado'
+    const estadoText = existeHabilitado ? ' Habilitado' : ' Inhabilitado'
 
     return (
         <div className="d-flex justify-content-center">
-            <div className="card col-12 col-sm-12 col-md-9 col-lg-7 shadow-lg border-0 rounded-3 mb-4">
+            <div className="card col-12 col-sm-12 col-md-9 col-lg-7 shadow-lg border-0 rounded-3 mb-2">
                 <div className="card-header bg-primary text-white rounded-3">
                     <h4 className="mb-0 text-center">Información del Contribuyente</h4>
                 </div>
@@ -25,7 +25,7 @@ const TaxpayerCard = ({ info, existeHabilitado }) => {
                         <InfoField label="TELÉFONO" value={telefono} />
                     </div>
                     <div className="d-flex flex-column flex-sm-row flex-wrap justify-content-center gap-3 align-items-center">
-                        <p className="mb-0 text-center text-sm-start text-wrap fs-5">
+                        <p className="mb-0 text-center text-sm-start text-wrap fs-6">
                             <strong className="text-muted">ESTADO :</strong>
                             <span
                                 className={`badge ${estadoClass} fs-5`}

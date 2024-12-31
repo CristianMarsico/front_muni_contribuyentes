@@ -220,7 +220,7 @@ const Users = () => {
 
             {mostrarForm && (
                 <>
-                    <div className="container mb-4">
+                    <div className="container">
                         <div className="row justify-content-center">
                             <div className="col-12 col-sm-8 col-md-6 col-lg-4">
                                 <div className="card shadow p-3">
@@ -288,7 +288,7 @@ const Users = () => {
             {/* Mostrar Tabla */}
             {!mostrarForm && (
                 <div className="container col-12">
-                    <div className="mt-4 mb-4">
+                    <div className="mt-4">
                         <div className="card shadow">
                             <div className="card-header bg-primary text-white text-center">
                                 <h5 className="mb-0">Listado de administradores</h5>
