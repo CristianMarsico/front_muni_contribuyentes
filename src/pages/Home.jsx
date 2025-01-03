@@ -16,20 +16,20 @@ import MyDDJJ from './MyDDJJ';
 import Taxpayers from './Taxpayers';
 
 const Home = () => {
-  const { user } = useAuth(); 
+  const { user } = useAuth();
   return (
     <>
       {
         user.rol === 'admin' || user.rol === 'super_admin' ? (
-          <Taxpayers/>
+          <Taxpayers />
         ) : (
           <>
             {
               user.estado == true ? (
-                <MyDDJJ id={user?.id}/>
+                <MyDDJJ id={user?.id} />
 
               ) : (
-                <PendingApproval/>
+                <PendingApproval />
               )
             }
           </>

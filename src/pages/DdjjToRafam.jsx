@@ -10,33 +10,29 @@ import SuccessModal from '../components/modalsComponents/SuccessModal';
 import ErrorNotification from '../components/ErrorNotification';
 import axios from 'axios';
 import Filter from '../components/Filter';
+import { handleError } from '../helpers/hooks/handleError';
+import { useAuth } from '../context/AuthProvider';
 
 const DdjjToRafam = () => {
     const URL = import.meta.env.VITE_API_URL;
-
-    const { data, loading, error, refetch } = useFetch(`${URL}/api/ddjj`)
+    const { data, loading, error, refetch } = useFetch(`${URL}/api/ddjj`);
+    const {logout} = useAuth();
     const [ddjj, setDdjj] = useState([]);
-
     // Manejo de modal de confirmación (antes de enviar pregunta)
     const [modalConfig, setModalConfig] = useState({
         isVisible: false,
         message: '',
         onConfirm: null,
     });
-
     // Manejo de modal de éxito y sus mensajes
     const [showModal, setShowModal] = useState(false);
     const [msjModalExito, setMsjModalExito] = useState("");
-
     // Manejo de errores
     const [errorMessage, setErrorMessage] = useState(null);
-
     // Obtengo los datos seleccionados
     const [selectedCheckbox, setSelectedCheckbox] = useState(null);
-
     const [buscarCuit, setBuscarCuit] = useState('');
     const [buscarCodComercio, setBuscarCodComercio] = useState('');
-
     // Actualizar la lista cuando se reciben nuevos datos de la API
     useEffect(() => {
         if (data?.response) {
@@ -54,8 +50,19 @@ const DdjjToRafam = () => {
         });
 
         socket.on('ddjj-newState', (newState) => {
-            setDdjj((prev) => [...prev, newState]);
-            refetch();
+            if (newState && newState.id_taxpayer && newState.id_trade) {
+                // Actualizar solo si los datos recibidos son válidos
+                setDdjj((prev) =>
+                    prev.map((item) =>
+                        item.id_contribuyente === newState.id_taxpayer &&
+                            item.id_comercio === newState.id_trade &&
+                            item.fecha === newState.id_date
+                            ? { ...item, cargada_rafam: newState.cargada_rafam }
+                            : item
+                    )
+                );
+                refetch();
+            }
         });
 
         return () => socket.disconnect();
@@ -69,8 +76,10 @@ const DdjjToRafam = () => {
     });
 
     const exportToExcel = () => {
-        if (!data?.response || data.response.length === 0) return;
-
+        if (!ddjj || ddjj?.length == 0 || error) {
+            setErrorMessage("No hay datos para exportar en EXCEL");
+            return;
+        }
         // Crea un nuevo libro de Excel (workbook)
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('Administradores');
@@ -91,13 +100,13 @@ const DdjjToRafam = () => {
         ddjj?.forEach((row, index) => {
             worksheet.addRow({
                 id: parseFloat(index + 1),
-                cuit: parseFloat(row.cuit),
-                cod_comercio: parseFloat(row.cod_comercio),
-                nombre_comercio: row.nombre_comercio,
-                monto: parseFloat(row.monto),
-                tasa: parseFloat(row.tasa_calculada) || 'N/A',
-                fecha: row.fecha,
-                en_tiempo: row.cargada_en_tiempo ? 'Sí' : 'No',
+                cuit: parseFloat(row?.cuit),
+                cod_comercio: parseFloat(row?.cod_comercio),
+                nombre_comercio: row?.nombre_comercio,
+                monto: parseFloat(row?.monto),
+                tasa: parseFloat(row?.tasa_calculada) || 'N/A',
+                fecha: new Date(row?.fecha).toLocaleDateString(),
+                en_tiempo: row?.cargada_en_tiempo ? 'Sí' : 'No',
             });
         });
 
@@ -113,7 +122,7 @@ const DdjjToRafam = () => {
             // Guarda el archivo con FileSaver
             saveAs(blob, 'Administradores.xlsx');
         }).catch((err) => {
-            console.error('Error al generar el archivo Excel:', err);
+            setErrorMessage('Error al generar el archivo Excel:', err);
         });
     };
 
@@ -143,18 +152,15 @@ const DdjjToRafam = () => {
                 refetch();
             }
         } catch (error) {
-            if (error?.response) {
-                if (error?.response.status === 401) {
-                    setErrorMessage(error?.response.data.error);
-                    setTimeout(() => {
-                        logout();
-                    }, 3000);
-                } else {
-                    setErrorMessage(error?.response.data.error);
-                }
-            } else {
-                setErrorMessage("Error de conexión. Verifique su red e intente nuevamente.");
-            }
+            handleError(error, {
+                on401: (message) => {
+                    setErrorMessage(message);
+                    setTimeout(() => logout(), 3000);
+                },
+                on404: (message) => setErrorMessage(message), // Puedes pasar cualquier función específica
+                onOtherServerError: (message) => setErrorMessage(message),
+                onConnectionError: (message) => setErrorMessage(message),
+            });
         } finally {
             setSelectedCheckbox(null)
         }
@@ -245,9 +251,9 @@ const DdjjToRafam = () => {
                                                                 <td>{ddjj?.nombre_comercio}</td>
                                                                 <td>$ {ddjj?.monto}</td>
                                                                 <td>$ {ddjj?.tasa_calculada}</td>
-                                                                <td>{ddjj?.fecha}</td>
+                                                                <td>{new Date(ddjj?.fecha).toLocaleDateString()}</td>
                                                                 <td>
-                                                                    {ddjj?.cargada_en_timpo ? (
+                                                                    {ddjj?.cargada_en_tiempo ? (
                                                                         <strong className="bi bi-check-circle text-success"> Sí</strong>
                                                                     ) : (
                                                                         <strong className="bi bi-x-circle text-danger"> No </strong>

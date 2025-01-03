@@ -22,5 +22,4 @@ const LoginTaxpayer = ({ loginTaxpayer, handleLoginTaxpayerChange, handleCuitCha
         </>
     );
 };
-
 export default LoginTaxpayer

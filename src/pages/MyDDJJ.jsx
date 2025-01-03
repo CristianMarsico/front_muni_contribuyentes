@@ -5,6 +5,7 @@ import { useAuth } from "../context/AuthProvider";
 import Loading from "../components/Loading";
 import ErrorResponse from "../components/ErrorResponse";
 import useFetch from "../helpers/hooks/useFetch";
+import { handleError } from "../helpers/hooks/handleError";
 
 
 const MyDDJJ = ({ id }) => {
@@ -35,11 +36,11 @@ const MyDDJJ = ({ id }) => {
     useEffect(() => {
         const socket = io(URL);
         socket.on('comercio-nuevo', (nuevoComercio) => {
-            const id_comercio = nuevoComercio;      
+            const id_comercio = nuevoComercio;
             setSelectedTrade(id_comercio); // Actualiza el estado con un valor único
             refetch();
         });
-       
+
         return () => socket.disconnect();
     }, [URL], refetch);
 
@@ -61,8 +62,7 @@ const MyDDJJ = ({ id }) => {
             _url += `/${selectedMonth}`;
         }
         try {
-            const response = await axios.get(_url, {withCredentials: true});
-           
+            const response = await axios.get(_url, { withCredentials: true });
             if (response.status === 200) {
                 const responseData = response.data.response;
                 if (responseData.length > 0) {
@@ -75,22 +75,15 @@ const MyDDJJ = ({ id }) => {
             }
         } catch (error) {
             setTableData([]);
-            if (error.response) {
-                if (error.response.status === 401) {
-                    setTableError(error.response.data.error);
-                    setTimeout(() => {
-                        logout();
-                    }, 3000);
-                }
-                else if (error.response.status === 404) {
-                    setTableError(error.response.data.error);
-                } else {
-                    setTableError(error.response.data.error);
-                }
-                
-            } else {
-                setTableError("Error de conexión. Verifique su red e intente nuevamente.");
-            }
+            handleError(error, {
+                on401: (message) => {
+                    setTableError(message);
+                    setTimeout(() => logout(), 3000);
+                },
+                on404: (message) => setTableError(message), // Puedes pasar cualquier función específica
+                onOtherServerError: (message) => setTableError(message),
+                onConnectionError: (message) => setTableError(message),
+            });
         }
     };
 
@@ -183,64 +176,64 @@ const MyDDJJ = ({ id }) => {
                 {loading ? (
                     <Loading />
                 )
-                : tableError ? (
-                    <ErrorResponse message={tableError}/>                   
-                ):
-                tableData.length > 0 && (
-                    <div className="card shadow-sm">
-                        <div className="card-header bg-primary text-white text-center">
-                            <h5 className="mb-0">Resultados de Declaraciones Juradas</h5>
-                        </div>
-                        <div className="card-body">
+                    : tableError ? (
+                        <ErrorResponse message={tableError} />
+                    ) :
+                        tableData.length > 0 && (
+                            <div className="card shadow-sm">
+                                <div className="card-header bg-primary text-white text-center">
+                                    <h5 className="mb-0">Resultados de Declaraciones Juradas</h5>
+                                </div>
+                                <div className="card-body">
 
-                            <div className="table-responsive">
-                                <table className="table table-striped table-bordered text-center">
-                                    <thead className="thead-dark">
-                                        <tr>
-                                            <th scope="col">Cuit</th>
-                                            <th scope="col">N° Comercio</th>
-                                            <th scope="col">Fecha</th>
-                                            <th scope="col">Monto</th>
-                                            <th scope="col">Tasa Calculada</th>
-                                            <th scope="col">Descripción</th>
-                                            <th scope="col">En Fecha</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {tableData?.map((item, index) => (
-                                            <tr key={index}>
-                                                <td>{item.cuit}</td>
-                                                <td>{item.cod_comercio}</td>
-                                                <td>{new Date(item.fecha).toLocaleDateString()}</td>
-                                                <td>${item.monto.toLocaleString()}</td>
-                                                <td>${item.tasa_calculada}</td>
-                                                <td>
-                                                    {item.descripcion ? (
-                                                        item.descripcion
-                                                    ) : (
-                                                        <span className="bg-warning px-1 rounded">
-                                                            Sin especificar
-                                                        </span>
-                                                    )}
-                                                </td>
-                                                <td>
-                                                    {item.cargada_en_tiempo ? (
-                                                        <i className="bi bi-check-circle text-success"> Sí</i>                                                         
-                                                    ) : (
-                                                        <i className="bi bi-x-circle text-danger"> No</i>
-                                                    )}
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                                    <div className="table-responsive">
+                                        <table className="table table-striped table-bordered text-center">
+                                            <thead className="thead-dark">
+                                                <tr>
+                                                    <th scope="col">Cuit</th>
+                                                    <th scope="col">N° Comercio</th>
+                                                    <th scope="col">Fecha</th>
+                                                    <th scope="col">Monto</th>
+                                                    <th scope="col">Tasa Calculada</th>
+                                                    <th scope="col">Descripción</th>
+                                                    <th scope="col">En Fecha</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {tableData?.map((item, index) => (
+                                                    <tr key={index}>
+                                                        <td>{item.cuit}</td>
+                                                        <td>{item.cod_comercio}</td>
+                                                        <td>{new Date(item.fecha).toLocaleDateString()}</td>
+                                                        <td>${item.monto.toLocaleString()}</td>
+                                                        <td>${item.tasa_calculada}</td>
+                                                        <td>
+                                                            {item.descripcion ? (
+                                                                item.descripcion
+                                                            ) : (
+                                                                <span className="bg-warning px-1 rounded">
+                                                                    Sin especificar
+                                                                </span>
+                                                            )}
+                                                        </td>
+                                                        <td>
+                                                            {item.cargada_en_tiempo ? (
+                                                                <i className="bi bi-check-circle text-success"> Sí</i>
+                                                            ) : (
+                                                                <i className="bi bi-x-circle text-danger"> No</i>
+                                                            )}
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div className="card-footer text-muted text-center">
+                                    Total resultados: {tableData.length}
+                                </div>
                             </div>
-                        </div>
-                        <div className="card-footer text-muted text-center">
-                            Total resultados: {tableData.length}
-                        </div>
-                    </div>
-                )}
+                        )}
             </div>
         </div>
     );

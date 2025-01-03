@@ -3,20 +3,29 @@ import React from 'react'
 const ConfirmModal = ({ msj, handleEstadoChange, setShowConfirmModal }) => {
     return (
         <div
-            className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center bg-dark bg-opacity-50"
+            className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center bg-dark bg-opacity-75"
             style={{ zIndex: 1050 }}
         >
-            <div className="shadow-lg rounded bg-white p-4" style={{ maxWidth: "300px", width: "90%" }}>
-                <h5 className="text-primary mb-3 text-center">{msj}</h5>
-                <div className="d-flex justify-content-end gap-2">
+            <div
+                className="bg-white rounded-4 shadow-lg p-4 text-center"
+                style={{ maxWidth: "350px", width: "90%" }}
+            >
+                <div className="mb-3">
+                    <i
+                        className="bi bi-question-circle text-primary"
+                        style={{ fontSize: "2.5rem" }}
+                    ></i>
+                </div>
+                <h5 className="fw-bold mb-3 text-dark">{msj}</h5>
+                <div className="d-flex justify-content-between gap-2">
                     <button
-                        className="btn btn-primary"
+                        className="btn btn-success flex-grow-1"
                         onClick={handleEstadoChange}
                     >
-                        Sí, dar de alta
+                        Aceptar
                     </button>
                     <button
-                        className="btn btn-danger"
+                        className="btn btn-outline-danger flex-grow-1"
                         onClick={() => setShowConfirmModal(false)}
                     >
                         Cancelar
@@ -24,7 +33,7 @@ const ConfirmModal = ({ msj, handleEstadoChange, setShowConfirmModal }) => {
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};
 
 export default ConfirmModal

@@ -6,11 +6,12 @@ import ErrorNotification from '../components/ErrorNotification';
 import ConfirmModal from '../components/modalsComponents/ConfirmModal';
 import SuccessModal from '../components/modalsComponents/SuccessModal';
 import { useAuth } from '../context/AuthProvider';
+import { handleError } from '../helpers/hooks/handleError';
 import useFetch from '../helpers/hooks/useFetch';
 
 const FormAddDdjj = () => {
   const URL = import.meta.env.VITE_API_URL;
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { data, loading, error, refetch } = useFetch(`${URL}/api/trade/${user?.id}`);
   const [selectedComercio, setSelectedComercio] = useState("");
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -106,7 +107,6 @@ const FormAddDdjj = () => {
       monto: parseFloat(registroDDJJ?.monto).toFixed(2),
       descripcion: registroDDJJ?.descripcion || null
     };
-
     try {
       const response = await axios.post(`${URL}/api/ddjj`, data, { withCredentials: true });
       if (response.status === 200) {
@@ -118,21 +118,15 @@ const FormAddDdjj = () => {
       }
     } catch (error) {
       setShowConfirmModal(false);
-      if (error.response) {
-        if (error.response.status === 401) {
-          setError(error.response.data.error);
-          setTimeout(() => {
-            logout();
-          }, 3000);
-        }
-        else if (error.response.status === 404) {
-          setError(error.response.data.error);
-        } else {
-          setError(error.response.data.error);
-        }
-      } else {
-        setError("Error de conexión. Verifique su red e intente nuevamente.");
-      }
+      handleError(error, {
+        on401: (message) => {
+          setError(message);
+          setTimeout(() => logout(), 3000);
+        },
+        on404: (message) => setError(message), // Puedes pasar cualquier función específica
+        onOtherServerError: (message) => setError(message),
+        onConnectionError: (message) => setError(message),
+      });
     }
   };
 

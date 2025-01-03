@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react'
 import { io } from 'socket.io-client';
 import { useParams } from 'react-router-dom';
 import SuccessModal from '../components/modalsComponents/SuccessModal';
-import ConfirmAddTradeModal from '../components/modalsComponents/ConfirmAddTradeModal';
 import ConfirmModal from '../components/modalsComponents/ConfirmModal';
 import useFetch from '../helpers/hooks/useFetch';
 import axios from 'axios';
@@ -10,6 +9,7 @@ import TaxpayerCard from '../components/detailsTaxpayerComponents/TaxpayerCard';
 import TradesTable from '../components/detailsTaxpayerComponents/TradesTable';
 import ErrorNotification from '../components/ErrorNotification';
 import { useAuth } from '../context/AuthProvider';
+import { handleError } from '../helpers/hooks/handleError';
 
 const DetailsTaxpayer = () => {
     const URL = import.meta.env.VITE_API_URL;
@@ -26,11 +26,11 @@ const DetailsTaxpayer = () => {
     const [selectedEstado, setSelectedEstado] = useState(null);
     const [trades, setTrades] = useState([]);
     const taxpayerInfo = data?.response[0];
-    const [isTaxpayerEnabled, setIsTaxpayerEnabled] = useState(false);
+    const [isTaxpayerEnabled, setIsTaxpayerEnabled] = useState(false);   
 
     const existeHabilitado = data?.response.some(comercio => comercio.estado);
 
-    useEffect(() => {        
+    useEffect(() => {
         if (data?.response) {
             setTrades(data?.response);
         }
@@ -87,18 +87,15 @@ const DetailsTaxpayer = () => {
                 refetch();
             }
         } catch (error) {
-            if (error.response) {
-                if (error.response.status === 401) {
-                    setError(error.response.data.error);
-                    setTimeout(() => {
-                        logout();
-                    }, 3000);
-                } else {
-                    setError(error.response.data.error);
-                }
-            } else {
-                setError("Error de conexión. Verifique su red e intente nuevamente.");
-            }
+            handleError(error, {
+                on401: (message) => {
+                    setError(message);
+                    setTimeout(() => logout(), 3000);
+                },
+                on404: (message) => setError(message), // Puedes pasar cualquier función específica
+                onOtherServerError: (message) => setError(message),
+                onConnectionError: (message) => setError(message),
+            });
         } finally {
             toggleModal('confirmTrade', false);
         }
@@ -116,18 +113,15 @@ const DetailsTaxpayer = () => {
                 refetch();
             }
         } catch (error) {
-            if (error.response) {
-                if (error.response.status === 401) {
-                    setError(error.response.data.error);
-                    setTimeout(() => {
-                        logout();
-                    }, 3000);
-                } else {
-                    setError(error.response.data.error);
-                }
-            } else {
-                setError("Error de conexión. Verifique su red e intente nuevamente.");
-            }
+            handleError(error, {
+                on401: (message) => {
+                    setError(message);
+                    setTimeout(() => logout(), 3000);
+                },
+                on404: (message) => setError(message), // Puedes pasar cualquier función específica
+                onOtherServerError: (message) => setError(message),
+                onConnectionError: (message) => setError(message),
+            });
         } finally {
             toggleModal('confirmTaxpayer', false);
         }
@@ -148,26 +142,19 @@ const DetailsTaxpayer = () => {
                     setSelectedEstado(comercio);
                     toggleModal('confirmTrade', true);
                 }}
-                existeHabilitado={existeHabilitado}
+                refetch={refetch}
+                setTrades={setTrades}
+                URL={URL}
 
             />
             {/* Modales */}
             {modals.confirmTrade && (
-                <ConfirmAddTradeModal
-                    selectedEstado={selectedEstado}
+                <ConfirmModal
+                    msj={`¿Desea dar de alta al comercio n° ${selectedEstado?.cod_comercio} ?`}
                     handleEstadoChange={handleTradeStateChange}
                     setShowConfirmModal={() => toggleModal('confirmTrade', false)}
                 />
             )}
-
-            {modals.confirmTaxpayer && (
-                <ConfirmModal
-                    msj="¿Desea dar de alta al contribuyente?"
-                    handleEstadoChange={handleTaxpayerStateChange}
-                    setShowConfirmModal={() => toggleModal('confirmTaxpayer', false)}
-                />
-            )}
-
             <SuccessModal
                 show={modals.success}
                 message="Dado de alta exitosamente."

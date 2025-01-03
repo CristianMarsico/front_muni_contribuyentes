@@ -5,10 +5,8 @@ import { useAuth } from '../context/AuthProvider'
 const Navbar = () => {
     const { logout, user } = useAuth();
     const location = useLocation(); // Obtener la ubicación actual
-
     // Función para determinar si un enlace está activo
     const isActive = (path) => location.pathname === path;
-
     return (
         <nav className="navbar navbar-expand-lg navbar-dark bg-dark shadow">
             <div className="container">
@@ -20,11 +18,7 @@ const Navbar = () => {
                         className="img-fluid me-2"
                         style={{ maxHeight: '80px' }}
                     />
-                    {/* <span className="d-none d-md-inline text-uppercase fw-bold text-white">
-                        Municipalidad de Lobería
-                    </span> */}
                 </Link>
-
                 {/* Botón hamburguesa */}
                 <button
                     className="navbar-toggler"
@@ -75,7 +69,7 @@ const Navbar = () => {
                                                 Configuración
                                             </Link>
                                         </li>
-                                       
+
                                     </>
                                 ) : (
                                     user?.estado && (
@@ -98,6 +92,16 @@ const Navbar = () => {
                                                     to="/cargarDDJJ"
                                                 >
                                                     Cargar DDJJ
+                                                </Link>
+                                            </li>
+                                            <li className="nav-item">
+                                                <Link
+                                                    className={`btn btn-dark text-uppercase me-2 ${isActive('/cargarComercio')
+                                                        && 'btn-outline-light'
+                                                        }`}
+                                                    to="/cargarComercio"
+                                                >
+                                                    Cargar Comercio
                                                 </Link>
                                             </li>
                                             <li className="nav-item">

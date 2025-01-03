@@ -18,7 +18,7 @@ const RegisterFields = ({ registroData, setRegistroData, setError }) => {
         nombre: null,
         apellido: null,
         password: null,
-        rePassword : null,
+        rePassword: null,
         email: null,
         direccion: null,
         telefono: null,
@@ -46,7 +46,7 @@ const RegisterFields = ({ registroData, setRegistroData, setError }) => {
                     if (value.trim() === "") return `*${name.charAt(0).toUpperCase() + name.slice(1)} es obligatorio.`;
                     if (value.trim().length < 4) return `*${name.charAt(0).toUpperCase() + name.slice(1)} debe tener al menos 4 caracteres.`;
                     return null;
-                
+
                 case "email":
                     if (value.trim() === "") {
                         return "*Email obligatorio.";
@@ -81,13 +81,12 @@ const RegisterFields = ({ registroData, setRegistroData, setError }) => {
         // Validar y actualizar errores para cada campo
         const errorMessage = validateField(name, value);
 
-        setErrors({...errors,[name]: errorMessage,});
+        setErrors({ ...errors, [name]: errorMessage, });
     };
 
     // Validación y actualización de CUIT
     const handleCuitChange = (e) => {
         const { name, value } = e.target;
-
         // Actualizar valores del CUIT
         setRegistroData({
             ...registroData,
@@ -366,7 +365,6 @@ const RegisterFields = ({ registroData, setRegistroData, setError }) => {
                 {renderSteps()}
                 {/* Botones de Navegación */}
                 < div className="mt-3 mb-3 d-flex justify-content-between align-items-center" >
-
                     <button
                         type="button"
                         className="btn btn-outline-secondary rounded-pill px-4 py-2"
@@ -376,21 +374,17 @@ const RegisterFields = ({ registroData, setRegistroData, setError }) => {
                         Atrás
                     </button>
 
-
-                    {
-                        currentStep < totalSteps - 1 && (
-                            <button
-                                type="button"
-                                className="btn btn-success rounded-pill px-4 py-2 ms-auto"
-                                onClick={handleNextStep}
-                            >
-                                Siguiente
-                            </button>
-                        )
-                    }
+                    {currentStep < totalSteps - 1 && (
+                        <button
+                            type="button"
+                            className="btn btn-success rounded-pill px-4 py-2 ms-auto"
+                            onClick={handleNextStep}
+                        >
+                            Siguiente
+                        </button>
+                    )}
                 </div >
             </div>
-
         </>
     );
 };

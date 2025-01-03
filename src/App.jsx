@@ -19,6 +19,7 @@ import DdjjTaxpayer from './pages/DdjjTaxpayer';
 import Footer from './components/Footer';
 import DdjjToRafam from './pages/DdjjToRafam';
 import RecoverPassword from './pages/RecoverPassword';
+import FormAddTrade from './pages/FormAddTrade';
 
 function App() {
   return (
@@ -31,7 +32,7 @@ function App() {
           <div className="flex-grow-1 m-0">
             <Routes>
               <Route path="/" element={<AuthPage />} />
-              
+
               {/* Rutas privadas (requieren que el usuario esté autenticado). Usamos el componente PrivateRoutes para protegerlas. */}
               <Route path="/home" element={<PrivateRoutes><Home /></PrivateRoutes>} />
               <Route path="/cargarDDJJ" element={<PrivateRoutes><FormAddDdjj /></PrivateRoutes>} />
@@ -40,14 +41,15 @@ function App() {
               <Route path="/vencimientos" element={<PrivateRoutes><Quotas /></PrivateRoutes>} />
               <Route path="/configuracion" element={<PrivateRoutes><Configuration /></PrivateRoutes>} />
               <Route path="/rafam" element={<PrivateRoutes><DdjjToRafam /></PrivateRoutes>} />
+              <Route path="/cargarComercio" element={<PrivateRoutes><FormAddTrade /></PrivateRoutes>} />
               <Route path="/recuperar" element={<PublicRoutes><RecoverPassword /></PublicRoutes>} />
-              
+
               {/* Ruta para la página de error cuando la URL no coincide con ninguna de las anteriores. */}
-              <Route path="*" element={<Error />} />             
+              <Route path="*" element={<Error />} />
             </Routes>
           </div>
         </Router>
-        <Footer/>
+        <Footer />
       </div>
     </AuthProvider>
   );

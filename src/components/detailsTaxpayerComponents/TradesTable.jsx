@@ -1,9 +1,21 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom';
+import { io } from 'socket.io-client';
 
-const TradesTable = ({ id_contribuyente, trades, onTradeStateChange, existeHabilitado }) => {
+const TradesTable = ({ id_contribuyente, trades, onTradeStateChange, refetch, setTrades, URL }) => {
 
     const navigate = useNavigate();
+
+    useEffect(() => {
+        const socket = io(URL);
+        socket.on('new-trade', (nuevoComercio) => {
+            setTrades((prev) => [...prev, nuevoComercio]);
+            refetch();
+        });
+     
+        return () => socket.disconnect();
+    }, [URL, refetch]);
+
     return (
         <div className="container mt-4 col-12">
             <div className="card shadow">

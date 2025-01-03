@@ -4,10 +4,8 @@ import React, { useState } from 'react'
 //minimo 6 parametros (label, name, type, value, onChange, error).
 //al poner ...rest puede seguir recibiendo X cantidad de valores.
 const InputField = ({ label, name, type, value, onChange, error, ...rest }) => {
-
     // Estado para controlar si la contraseña debe ser visible u oculta.
     const [showPassword, setShowPassword] = useState(false);
-
     return (
         <>
             <div className="mb-3 position-relative">

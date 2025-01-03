@@ -7,7 +7,7 @@ import InputField from '../components/auth/InputField';
 import ConfirmModal from '../components/modalsComponents/ConfirmModal';
 import SuccessModal from '../components/modalsComponents/SuccessModal';
 import ErrorNotification from '../components/ErrorNotification';
-
+import { handleError } from '../helpers/hooks/handleError';
 
 const DataTableConfig = () => {
     const URL = import.meta.env.VITE_API_URL;// URL de la API desde las variables de entorno
@@ -18,8 +18,7 @@ const DataTableConfig = () => {
     const [configuracionGeneral, setConfiguracionGeneral] = useState({
         fecha_limite_ddjj: '',
         monto_ddjj_defecto: '',
-        tasa_actual: '',
-        tasa_default: '',
+        tasa_actual: ''      
     });
     // Estado que almacena los valores iniciales de configuración para comparar con los actuales
     const [initialConfig, setInitialConfig] = useState(null);
@@ -61,8 +60,7 @@ const DataTableConfig = () => {
     const errorMessages = {
         fecha_limite_ddjj: "*Especifique el día límite para cargar DDJJ.",
         tasa_actual: "*La tasa actual es obligatoria y debe ser un número decimal válido.",
-        monto_ddjj_defecto: "*El monto por defecto es obligatorio y debe ser un número decimal válido.",
-        tasa_default: "*La tasa por defecto es obligatoria y debe ser un número decimal válido."
+        monto_ddjj_defecto: "*El monto por defecto es obligatorio y debe ser un número decimal válido."
     };
 
     // Este useEffect establece la configuración inicial cuando los datos de la API se cargan
@@ -71,8 +69,7 @@ const DataTableConfig = () => {
             const initialData = {
                 fecha_limite_ddjj: data.response[0].fecha_limite_ddjj || '',
                 tasa_actual: data.response[0].tasa_actual || '',
-                monto_ddjj_defecto: data.response[0].monto_defecto || '',
-                tasa_default: data.response[0].tasa_default || '',
+                monto_ddjj_defecto: data.response[0].monto_defecto || ''
             };
             setConfiguracionGeneral(initialData);// Actualiza el estado con la configuración obtenida
             setInitialConfig(initialData); // Guarda los valores iniciales para comparar más tarde
@@ -132,22 +129,15 @@ const DataTableConfig = () => {
             }
             // Maneja errores de la solicitud
         } catch (error) {
-            if (error.response) {
-                if (error.response.status === 401) {
-                    setErrorMessage(error.response.data.error);// Muestra el error de autenticación
-                    // Redirige al usuario a la página de inicio si está no autorizado
-                    setTimeout(() => {
-                        logout();
-                    }, 3000);
-                }
-                else if (error.response.status === 404) {
-                    setErrorMessage(error.response.data.error);
-                } else {
-                    setErrorMessage("Ocurrió un error en el servidor. Por favor, intente más tarde.");
-                }
-            } else {
-                setErrorMessage("Error de conexión. Verifique su red e intente nuevamente.");
-            }
+            handleError(error, {
+                on401: (message) => {
+                    setErrorMessage(message);
+                    setTimeout(() => logout(), 3000);
+                },
+                on404: (message) => setErrorMessage(message), // Puedes pasar cualquier función específica
+                onOtherServerError: (message) => setErrorMessage(message),
+                onConnectionError: (message) => setErrorMessage(message),
+            });
         } finally {
             setShowConfirmModal(false);// Cierra el modal de confirmación independientemente del resultado
         }
@@ -188,17 +178,7 @@ const DataTableConfig = () => {
                                         error={errorsConfig.monto_ddjj_defecto}
                                         step="0.01"
                                         min="0"
-                                    />
-                                    <InputField
-                                        label="Tasa POST vencimiento"
-                                        name="tasa_default"
-                                        value={configuracionGeneral.tasa_default}
-                                        type="number"
-                                        onChange={handleConfigChange}
-                                        error={errorsConfig.tasa_default}
-                                        step="0.01"
-                                        min="0"
-                                    />
+                                    />                                    
                                 </form>
                                 {/* Botón para confirmar cambios */}
                                 <button
@@ -213,7 +193,6 @@ const DataTableConfig = () => {
                     </div>
                 </div>
             </div>
-
             {/* Modales */}
             {showConfirmModal && (
                 <ConfirmModal
@@ -222,13 +201,11 @@ const DataTableConfig = () => {
                     setShowConfirmModal={setShowConfirmModal}
                 />
             )}
-
             <SuccessModal
                 show={showSuccessModal}
                 message="Configuración modificada."
                 duration={3000}
             />
-
             <ErrorNotification
                 message={errorMessage}
                 onClose={() => setErrorMessage(null)}

@@ -28,5 +28,4 @@ const LoginAdmin = ({ loginAdmin, handleLoginAdminChange, errorsAdmin }) => {
         </>
     );
 };
-
 export default LoginAdmin;

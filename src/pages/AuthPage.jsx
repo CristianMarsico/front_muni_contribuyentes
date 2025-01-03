@@ -8,6 +8,7 @@ import RegisterFields from '../components/auth/RegisterFields';
 import ErrorNotification from '../components/ErrorNotification';
 import LoginTaxpayer from '../components/auth/LoginTaxpayer';
 import Loading from '../components/Loading';
+import { handleError } from '../helpers/hooks/handleError';
 
 const AuthPage = () => {
     const URL = import.meta.env.VITE_API_URL;
@@ -137,23 +138,20 @@ const AuthPage = () => {
 
             try {
                 const response = await axios.post(endpoint, data, { withCredentials: true });
-
                 if (response.status === 200) {
                     login(response.data);
-                    // setModalType('login'); // Modal para login
-                    // setModalShow(true); // Muestra modal
                     navigate("/home")
                 }
             } catch (error) {
-                if (error.response) {
-                    if (error.response.status === 404) {
-                        setError(error.response.data.error);
-                    } else {
-                        setError("Ocurrió un error en el servidor. Por favor, intente más tarde.");
-                    }
-                } else {
-                    setError("Error de conexión. Verifique su red e intente nuevamente.");
-                }
+                handleError(error, {
+                    on401: (message) => {
+                        setError(message);
+                        setTimeout(() => logout(), 3000);
+                    },
+                    on404: (message) => setError(message), // Puedes pasar cualquier función específica
+                    onOtherServerError: (message) => setError(message),
+                    onConnectionError: (message) => setError(message),
+                });
             } finally {
                 setIsLoading(false);
             }
@@ -164,24 +162,24 @@ const AuthPage = () => {
                 ...registroData,
                 misComercios: codigosComercioFinales.filter(Boolean),
             };
-           
+
             try {
                 const response = await axios.post(`${URL}/api/auth/register`, registroFinal);
                 if (response.status === 200) {
                     setModalType('register');
-                    setModalShow(true);                    
+                    setModalShow(true);
                 }
             } catch (error) {
-                if (error.response) {
-                    if (error.response.status === 404) {
-                        setError(error.response.data.error);
+                handleError(error, {
+                    on401: (message) => {
+                        setError(message);
+                        setTimeout(() => logout(), 3000);
+                    },
+                    on404: (message) => setError(message), // Puedes pasar cualquier función específica
+                    onOtherServerError: (message) => setError(message),
+                    onConnectionError: (message) => setError(message),
+                });
 
-                    } else {
-                        setError(error.response.data.error);
-                    }
-                } else {
-                    setError("Error de conexión. Verifique su red e intente nuevamente.");
-                }
             }
         }
     };
@@ -277,12 +275,12 @@ const AuthPage = () => {
                                     >
                                         {isLogin ? '¿No tienes cuenta? Regístrate' : '¿Ya tienes cuenta? Inicia sesión'}
                                     </button>
-                                    
+
                                     <button
                                         className="btn btn-link w-100 text-danger"
                                         onClick={() => navigate(`/recuperar`)}
                                     >
-                                        {isLogin && 'Olvidé mi contraseña' }
+                                        {isLogin && 'Olvidé mi contraseña'}
                                     </button>
                                 </div>
                             </div>
@@ -290,14 +288,12 @@ const AuthPage = () => {
                     </div>
                 </div>
             )}
-
             <WelcomeModal
                 show={modalShow}
                 onAutoHide={handleAutoHideModal}
                 duration={2000}
                 type={modalType}
             />
-
             <ErrorNotification
                 message={errorMessage}
                 onClose={() => setErrorMessage(null)}

@@ -25,12 +25,10 @@ const Taxpayers = () => {
     const navigate = useNavigate();
     // Hook personalizado para obtener los datos iniciales
     const { data, loading, error, refetch } = useFetch(`${URL}/api/taxpayer`);
-
     // Estados locales
     const [buscarCuit, setBuscarCuit] = useState('');
     const [buscarApellido, setBuscarApellido] = useState('');
     const [taxpayers, setTaxpayers] = useState([]);
-   
 
     // Actualizar la lista cuando se reciben nuevos datos de la API
     useEffect(() => {
@@ -50,7 +48,7 @@ const Taxpayers = () => {
             refetch();
         });
 
-       // Evento: actualizar estado de un contribuyente
+        // Evento: actualizar estado de un contribuyente
         socket.on('estado-actualizado', (contribuyenteActualizado) => {
             if (contribuyenteActualizado && contribuyenteActualizado.id_contribuyente) {
                 setTaxpayers((prevTaxpayers) =>
@@ -80,7 +78,7 @@ const Taxpayers = () => {
     });
 
     return (
-        <>          
+        <>
             {/* Sección de filtros */}
             <div className="container mt-4">
                 <div className="row justify-content-center">
@@ -141,7 +139,7 @@ const Taxpayers = () => {
                                                         <td>{c?.nombre} {c?.apellido}</td>
                                                         <td>{c?.cuit}</td>
                                                         <td>{c?.email}</td>
-                                                        <td>                                                           
+                                                        <td>
                                                             {c?.estado ? (
                                                                 <strong className="bi bi-check-circle text-success"> Habilitado</strong>
                                                             ) : (
@@ -151,7 +149,7 @@ const Taxpayers = () => {
                                                         <td className="text-center">
                                                             <button
                                                                 type="button"
-                                                               className="btn btn-warning fw-bold"
+                                                                className="btn btn-warning fw-bold"
                                                                 onClick={() => navigate(`/contribuyente/${c?.id_contribuyente}`)}
                                                             >
                                                                 Ver Detalles

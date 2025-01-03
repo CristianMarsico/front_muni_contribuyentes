@@ -54,7 +54,6 @@ const CuitField = ({ cuit, errors, onChange }) => {
             </div>
         </div>
     );
-
 }
 
 export default CuitField

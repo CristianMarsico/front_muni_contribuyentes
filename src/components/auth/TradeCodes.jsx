@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import InputField from "./InputField";
 
 // Componente TradeCodes que maneja la lista de comercios y la adición/eliminación de nuevos comercios
 const TradeCodes = ({
@@ -13,156 +14,123 @@ const TradeCodes = ({
 
     // Estado para almacenar los errores de validación
     const [errors, setErrors] = useState({});
-
-   // Función para validar los campos del formulario antes de registrar el comercio
+    // Función para validar los campos del formulario antes de registrar el comercio
     const validateFields = () => {
         const newErrors = {};
-        if (!nuevoComercio.codigo) newErrors.codigo = "El código del comercio es obligatorio";
-        if (!nuevoComercio.direccion) newErrors.direccion = "La dirección del comercio es obligatoria";
-        if (!nuevoComercio.nombre) newErrors.nombre = "El nombre del comercio es obligatorio";
+        if (!nuevoComercio.codigo) newErrors.codigo = "*El código del comercio es obligatorio";
+        if (!nuevoComercio.direccion) newErrors.direccion = "*La dirección del comercio es obligatoria";
+        if (!nuevoComercio.nombre) newErrors.nombre = "*El nombre del comercio es obligatorio";
         setErrors(newErrors);
 
         return Object.keys(newErrors).length === 0; // Devuelve true si no hay errores
     };
-
     // Función que maneja el envío del formulario
     const handleSubmit = () => {
         if (validateFields()) {
             handleRegistrarComercio(); // Si no hay errores, registra el comercio
         }
     };
-
-     // Determina si se debe mostrar el formulario de comercio o no
-    const mostrarFormulario = codigos.length === 0 || showComercioForm;
+    // Determina si se debe mostrar el formulario de comercio o no
+    const mostrarFormulario = codigos?.length === 0 || showComercioForm;
 
     return (
         <div>
             {/* Lista de comercios */}
-            {codigos.length > 0 && (
+            {codigos?.length > 0 && (
                 <div>
-                    <h5 className="text-success">Lista de Comercios</h5>
+                    <h5 className="text-success text-center">Lista de Comercios</h5>
                     <div className="list-group mt-3">
                         {codigos.map((comercio, index) => (
                             <div
                                 key={index}
-                                className="list-group-item d-flex justify-content-between align-items-center shadow-sm p-3 mb-3 bg-white rounded"
+                                className="list-group-item d-flex flex-column flex-sm-row justify-content-between align-items-start shadow-lg p-4 mb-3 bg-light rounded"
+                                style={{ borderLeft: "5px solid #28a745" }} // Borde verde al lado izquierdo
                             >
-                                <div>
-                                    <p className="mb-1 text-muted">
+                                <div className="mb-3 mb-sm-0">
+                                    <p className="mb-2 text-muted">
                                         <strong>Código:</strong> {comercio.codigo}
                                     </p>
-                                    <p className="mb-1 text-muted">
+                                    <p className="mb-2 text-muted">
                                         <strong>Nombre:</strong> {comercio.nombre}
                                     </p>
                                     <p className="mb-0 text-muted">
                                         <strong>Dirección:</strong> {comercio.direccion}
                                     </p>
                                 </div>
-                                <button
-                                    type="button"
-                                    className="btn btn-danger btn-sm px-4 py-2 rounded"
-                                    onClick={() => handleEliminarComercio(comercio.codigo)}
-                                >
-                                    <i className="bi bi-trash"></i> Eliminar
-                                </button>
+                                <div className="d-flex justify-content-start align-items-center">
+                                    <button
+                                        type="button"
+                                        className="btn btn-danger btn-sm d-flex align-items-center px-3 py-2 rounded-3"
+                                        onClick={() => handleEliminarComercio(comercio.codigo)}
+                                    >
+                                        <i className="bi bi-trash me-2"></i> Eliminar
+                                    </button>
+                                </div>
                             </div>
                         ))}
                     </div>
                 </div>
             )}
-
             {/* Formulario de comercio */}
             {mostrarFormulario && (
-                <div className="mt-3">
-                    {/* Código */}
-                    <div className="mb-3">
-                        <label htmlFor="codigo" className="form-label">
-                            Código de Comercio
-                        </label>
-                        <div className="input-group">
-                            <input
-                                type="number"
-                                id="codigo"
-                                name="codigo"
-                                className={`form-control ${errors.codigo ? "is-invalid" : ""}`}
-                                value={nuevoComercio.codigo}
-                                onChange={handleNuevoComercioChange}
-                                required
-                            />                           
-                        </div>
-                        {errors.codigo && (
-                            <div className="form-text text-danger">{errors.codigo}</div>
-                        )}
-                    </div>
+                <div className="bg-light p-4 rounded shadow-sm">
+                    <h5 className="text-center text-success mb-4">Registrar Nuevo Comercio</h5>
+                    <div className="mt-2">
+                        <InputField
+                            label="Código de Comercio"
+                            name="codigo"
+                            value={nuevoComercio.codigo}
+                            type="number"
+                            onChange={handleNuevoComercioChange}
+                            error={errors.codigo}
+                            placeholder="Ingrese código de comercio"
+                            className="form-control mb-3" // Asegura que el input tenga espacio y buen estilo
+                        />
+                        <InputField
+                            label="Dirección de comercio"
+                            name="direccion"
+                            value={nuevoComercio.direccion}
+                            type="text"
+                            onChange={handleNuevoComercioChange}
+                            error={errors.direccion}
+                            placeholder="Ingrese la dirección comercial"
+                            className="form-control mb-3" // Mantiene la coherencia del estilo
+                        />
+                        <InputField
+                            label="Nombre del Comercio"
+                            name="nombre"
+                            value={nuevoComercio.nombre}
+                            type="text"
+                            onChange={handleNuevoComercioChange}
+                            error={errors.nombre}
+                            placeholder="Ingrese el nombre del comercio"
+                            className="form-control mb-3" // Añadido margen para los campos
+                        />
 
-                    {/* Dirección */}
-                    <div className="mb-3">
-                        <label htmlFor="direccion" className="form-label">
-                            Dirección de comercio
-                        </label>
-                        <div className="input-group">
-                            <input
-                                type="text"
-                                id="direccion"
-                                name="direccion"
-                                className={`form-control ${errors.direccion ? "is-invalid" : ""}`}
-                                value={nuevoComercio.direccion}
-                                onChange={handleNuevoComercioChange}
-                                required
-                            />                           
-                        </div>
-                        {errors.direccion && (
-                            <div className="form-text text-danger">{errors.direccion}</div>
-                        )}
-                    </div>
-
-                    {/* Nombre */}
-                    <div className="mb-3">
-                        <label htmlFor="nombre" className="form-label">
-                            Nombre del Comercio
-                        </label>
-                        <div className="input-group">
-                            <input
-                                type="text"
-                                id="nombre"
-                                name="nombre"
-                                className={`form-control ${errors.nombre ? "is-invalid" : ""}`}
-                                value={nuevoComercio.nombre}
-                                onChange={handleNuevoComercioChange}
-                                required
-                            />                           
-                        </div>
-                        {errors.nombre && (
-                            <div className="form-text text-danger">{errors.nombre}</div>
-                        )}
-                    </div>
-
-                    {/* Botones para registrar o cancelar */}
-                    <div className="d-flex justify-content-center gap-3">
-                        <div className="d-flex flex-column flex-sm-row justify-content-center align-items-center gap-2">
+                        {/* Botones para registrar o cancelar */}
+                        <div className="d-flex flex-column flex-md-row justify-content-center align-items-center gap-3 mt-4">
                             <button
                                 type="button"
-                                className="btn btn-primary w-sm-auto rounded-3"
+                                className="btn btn-primary w-100 w-sm-auto rounded-3 d-flex align-items-center justify-content-center gap-2 py-2"
                                 onClick={handleSubmit} // Llama a handleSubmit cuando se hace click
                             >
-                                <i className="bi bi-plus-circle me-2"></i> Cargar Comercio
+                                <i className="bi bi-plus-circle"></i> Agregar
+                            </button>
+
+                            <button
+                                type="button"
+                                className="btn btn-secondary w-100 w-sm-auto py-2"
+                                onClick={() => setShowComercioForm(false)} // Cierra el formulario cuando se hace click
+                            >
+                                Cancelar
                             </button>
                         </div>
-
-                        <button
-                            type="button"
-                            className="btn btn-secondary w-sm-auto"
-                            onClick={() => setShowComercioForm(false)}// Cierra el formulario cuando se hace click
-                        >
-                            Cancelar
-                        </button>
                     </div>
                 </div>
             )}
-
-            {/* Botón para mostrar el formulario de nuevo comercio */}           
+            {/* Botón para mostrar el formulario de nuevo comercio */}
             {!mostrarFormulario && (
-                <div className="mt-3 d-flex justify-content-center">
+                <div className="d-flex justify-content-center">
                     <button
                         type="button"
                         className="btn btn-success"

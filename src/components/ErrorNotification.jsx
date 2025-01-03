@@ -1,7 +1,7 @@
 import React from 'react';
 
 // Función que se usa en los formularios para mostrar el error
-const ErrorNotification = ({ message, onClose }) => {   
+const ErrorNotification = ({ message, onClose }) => {
 
     return (
         <div
@@ -41,8 +41,6 @@ const ErrorNotification = ({ message, onClose }) => {
             </div>
         </div>
     );
-
-
 };
 
 export default ErrorNotification;

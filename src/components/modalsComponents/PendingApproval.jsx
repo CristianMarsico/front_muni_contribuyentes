@@ -28,5 +28,4 @@ const PendingApproval = () => {
         </div>
     );
 }
-
 export default PendingApproval

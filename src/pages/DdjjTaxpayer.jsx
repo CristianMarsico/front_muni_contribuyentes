@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import { useParams } from 'react-router-dom';
 import ErrorResponse from '../components/ErrorResponse';
 import { useAuth } from '../context/AuthProvider';
+import { handleError } from '../helpers/hooks/handleError';
 
 const DdjjTaxpayer = () => {
     const URL = import.meta.env.VITE_API_URL;
@@ -29,15 +30,12 @@ const DdjjTaxpayer = () => {
     ];
 
     const handleButtonClick = async () => {
-
         let _url = `${URL}/api/ddjj/${id_contribuyente}/${id_comercio}/${selectedYear}`;
         if (selectedMonth) {
             _url += `/${selectedMonth}`;
         }
-
         try {
             const response = await axios.get(_url, { withCredentials: true });
-
             if (response.status === 200) {
                 const responseData = response.data.response;
                 if (responseData.length > 0) {
@@ -50,21 +48,15 @@ const DdjjTaxpayer = () => {
             }
         } catch (error) {
             setTableData([]);
-            if (error.response) {
-                if (error.response.status === 401) {
-                    setTableError(error.response.data.error);
-                    setTimeout(() => {
-                        logout();
-                    }, 3000);
-                }
-                else if (error.response.status === 404) {
-                    setTableError(error.response.data.error);
-                } else {
-                    setTableError(error.response.data.error);
-                }
-            } else {
-                setTableError("Error de conexión. Verifique su red e intente nuevamente.");
-            }
+            handleError(error, {
+                on401: (message) => {
+                    setTableError(message);
+                    setTimeout(() => logout(), 3000);
+                },
+                on404: (message) => setTableError(message), // Puedes pasar cualquier función específica
+                onOtherServerError: (message) => setTableError(message),
+                onConnectionError: (message) => setTableError(message),
+            });
         }
     };
 

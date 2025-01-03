@@ -6,7 +6,7 @@ import ConfirmModal from '../components/modalsComponents/ConfirmModal';
 import SuccessModal from '../components/modalsComponents/SuccessModal';
 import { useAuth } from '../context/AuthProvider';
 import useFetch from '../helpers/hooks/useFetch';
-
+import { handleError } from '../helpers/hooks/handleError';
 
 const Quotas = () => {
     const URL = import.meta.env.VITE_API_URL;
@@ -19,9 +19,9 @@ const Quotas = () => {
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [errorMessage, setErrorMessage] = useState(null);
     const [dates, setDates] = useState([]);
-    
+    const [pendingDate, setPendingDate] = useState(''); // Nuevo estado temporal para la fecha seleccionada
     const cuotas = data?.response;
-    
+
     useEffect(() => {
         if (data?.response) {
             setDates(data?.response);
@@ -29,7 +29,6 @@ const Quotas = () => {
             setDates([]);
         }
     }, [data]);
-
 
     const getMonthName = (month, year) => {
         const date = new Date(year, month - 1);
@@ -46,7 +45,6 @@ const Quotas = () => {
         return () => socket.disconnect();
     }, [URL, refetch]);
 
-
     const handleCellClick = (rowIndex, id_vencimiento, currentValue) => {
         if (user?.rol === 'admin' || user?.rol === 'super_admin') {
             setEditingCell({ rowIndex, id_vencimiento });
@@ -57,11 +55,13 @@ const Quotas = () => {
 
     const handleDateChange = (e) => {
         setEditedValue(e.target.value);
-        setShowConfirmModal(true);
+        setPendingDate(e.target.value);
     };
 
     const handleBlur = () => {
-        if (editedValue !== '') setShowConfirmModal(true);
+        if (pendingDate !== '') {
+            setShowConfirmModal(true); // Muestra el modal de confirmación después de seleccionar la fecha
+        }
     };
 
     const setError = (message) => {
@@ -75,42 +75,37 @@ const Quotas = () => {
                 id_vencimiento: editingCell?.id_vencimiento,
                 fecha: editedValue,
             };
-
             // Realizar la solicitud POST
-            const response = await axios.put(`${URL}/api/expirationDates/${data.id_vencimiento}/${data.fecha}`,null, { withCredentials: true });
+            const response = await axios.put(`${URL}/api/expirationDates/${data.id_vencimiento}/${data.fecha}`, null, { withCredentials: true });
             if (response.status === 200) {
                 setShowSuccessModal(false);
                 setTimeout(() => setShowSuccessModal(true), 100); // Delay corto para re-renderizar
                 setEditingCell(null);
                 setShowConfirmModal(false);
+                setPendingDate(''); // Limpia la fecha pendiente
                 setIsEditing(false);
                 refetch();
             }
-        } catch (error) {            
-            if (error.response) {
-                if (error.response.status === 401) {
-                    setError(error.response.data.error);
-                    setTimeout(() => {
-                        logout();
-                    }, 3000);
-                }
-                else if (error.response.status === 404) {
-                    setError(error.response.data.error);
-                } else {
-                    setError("Ocurrió un error en el servidor. Por favor, intente más tarde.");
-                }
-            } else {
-                setError("Error de conexión. Verifique su red e intente nuevamente.");
-            }
-
+        } catch (error) {
+            handleError(error, {
+                on401: (message) => {
+                    setError(message);
+                    setTimeout(() => logout(), 3000);
+                },
+                on404: (message) => setError(message), // Puedes pasar cualquier función específica
+                onOtherServerError: (message) => setError(message),
+                onConnectionError: (message) => setError(message),
+            });
         } finally {
             setShowConfirmModal(false);
+            setIsEditing(false);
             setIsEditing(false);
         }
     };
 
     const handleCancelChange = () => {
         setShowConfirmModal(false);
+        setPendingDate(''); // Limpia la fecha pendiente si se cancela
         setIsEditing(false);
     };
 

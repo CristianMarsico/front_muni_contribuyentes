@@ -35,7 +35,7 @@ const Configuration = () => {
                                         className={`btn px-4 py-2 text-white ${activeSection === 'usuarios' ? 'btn-primary border border-light' : ''}`}
                                         onClick={() => setActiveSection('usuarios')}
                                     >
-                                        ALTA DE USUARIOS
+                                        ABM DE USUARIOS
                                     </button>
 
                                 )
@@ -43,7 +43,6 @@ const Configuration = () => {
                         </div>
                     </div>
                 </nav>
-
                 {/* Contenido de las Secciones */}
                 {activeSection === 'general' && (
                     <div className="card-body container d-flex flex-column align-items-center">
@@ -58,16 +57,13 @@ const Configuration = () => {
                         </div>
                     </div>
                 )}
-
-                {
-                    user.rol === 'super_admin' && (
-                        activeSection === 'usuarios' && (
-                            <div className="card-body container d-flex flex-column align-items-center">
-                                <Users />
-                            </div>
-                        )
+                {user.rol === 'super_admin' && (
+                    activeSection === 'usuarios' && (
+                        <div className="card-body container d-flex flex-column align-items-center">
+                            <Users />
+                        </div>
                     )
-                }
+                )}
             </div>
         </>
     );

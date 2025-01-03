@@ -30,7 +30,7 @@ const RecoverPassword = () => {
             if (!newPassword) {
                 fieldErrors.newPassword = 'La nueva contraseña es obligatoria.';
             } else if (!passwordRegex.test(newPassword)) {
-                fieldErrors.newPassword ='La contraseña debe tener al menos 8 caracteres, incluyendo una mayúscula, una minúscula y un número.';
+                fieldErrors.newPassword = 'La contraseña debe tener al menos 8 caracteres, incluyendo una mayúscula, una minúscula y un número.';
             }
             if (!newRePassword) {
                 fieldErrors.newRePassword = 'Debe confirmar la nueva contraseña.';

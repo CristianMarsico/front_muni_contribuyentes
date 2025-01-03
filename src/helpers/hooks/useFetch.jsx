@@ -13,9 +13,9 @@ const useFetch = (url) => {
         setError(null); // Reinicia el error antes de hacer la solicitud
         try {
             const response = await axios.get(url, { withCredentials: true });
-            setData(response.data);
+            setData(response?.data);
         } catch (err) {
-            if (err.response) {
+            if (err?.response) {
                 if (err.response.status === 401) {
                     logout()
                 } else {
