@@ -115,6 +115,7 @@ const FormAddTrade = () => {
                 onConnectionError: (message) => setError(message),
             });
         } finally {
+            setShowSuccessModal(false);
             setShowConfirmModal(false);
         }
     };

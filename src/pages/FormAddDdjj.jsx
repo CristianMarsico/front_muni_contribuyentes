@@ -109,15 +109,15 @@ const FormAddDdjj = () => {
     };
     try {
       const response = await axios.post(`${URL}/api/ddjj`, data, { withCredentials: true });
-      if (response.status === 200) {
-        setShowSuccessModal(true); // Muestra el modal de éxito
+      if (response?.status === 200) {
+        setShowSuccessModal(false);
+        setTimeout(() => setShowSuccessModal(true), 100);
         refetch();
         setRegistroDDJJ({ monto: '', descripcion: '' });
         setErrorsDDJJ({ monto: null });
         setShowConfirmModal(false); // Cierra el modal de confirmación después del envío
       }
-    } catch (error) {
-      setShowConfirmModal(false);
+    } catch (error) {     
       handleError(error, {
         on401: (message) => {
           setError(message);
@@ -127,6 +127,9 @@ const FormAddDdjj = () => {
         onOtherServerError: (message) => setError(message),
         onConnectionError: (message) => setError(message),
       });
+    }finally{
+      setShowSuccessModal(false);
+      setShowConfirmModal(false);
     }
   };
 
