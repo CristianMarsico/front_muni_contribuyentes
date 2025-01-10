@@ -145,7 +145,7 @@ const DetailsTaxpayer = () => {
                 refetch={refetch}
                 setTrades={setTrades}
                 URL={URL}
-
+                logout={logout}
             />
             {/* Modales */}
             {modals.confirmTrade && (

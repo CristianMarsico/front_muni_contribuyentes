@@ -132,7 +132,7 @@ const FormAddTrade = () => {
                                 <form onSubmit={handleSubmit}>
                                     <div>
                                         <InputField
-                                            label="Código de comercio"
+                                            label="Código de comercio (RAFAM)"
                                             name="codigo_comercio"
                                             value={registerTrade.codigo_comercio}
                                             type="number"
@@ -141,13 +141,13 @@ const FormAddTrade = () => {
                                             placeholder="Ingrese código de comercio"
                                         />
                                         <InputField
-                                            label="Nombre de comercio"
+                                            label="Nombre de comercio | Nombre de fantasía"
                                             name="nombre_comercio"
                                             value={registerTrade.nombre_comercio}
                                             type="text"
                                             onChange={handleAddTradeChange}
                                             error={errorsTrade.nombre_comercio}
-                                            placeholder="Ingrese nombre de comercio"
+                                            placeholder="Ingrese el nombre o nombre de fantasía"
                                         />
                                         <InputField
                                             label="Dirección de comercio"

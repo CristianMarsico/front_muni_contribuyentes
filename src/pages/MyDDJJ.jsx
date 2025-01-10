@@ -191,7 +191,7 @@ const MyDDJJ = ({ id }) => {
                                             <thead className="thead-dark">
                                                 <tr>
                                                     <th scope="col">Cuit</th>
-                                                    <th scope="col">N° Comercio</th>
+                                                    <th scope="col">Código Comercio (RAFAM)</th>
                                                     <th scope="col">Fecha</th>
                                                     <th scope="col">Monto</th>
                                                     <th scope="col">Tasa Calculada</th>

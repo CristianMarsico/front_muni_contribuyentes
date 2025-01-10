@@ -138,8 +138,8 @@ const AuthPage = () => {
 
             try {
                 const response = await axios.post(endpoint, data, { withCredentials: true });
-                if (response.status === 200) {
-                    login(response.data);
+                if (response?.status === 200) {
+                    login(response?.data);
                     navigate("/home")
                 }
             } catch (error) {
@@ -165,7 +165,7 @@ const AuthPage = () => {
 
             try {
                 const response = await axios.post(`${URL}/api/auth/register`, registroFinal);
-                if (response.status === 200) {
+                if (response?.status === 200) {
                     setModalType('register');
                     setModalShow(true);
                 }
@@ -175,11 +175,11 @@ const AuthPage = () => {
                         setError(message);
                         setTimeout(() => logout(), 3000);
                     },
-                    on404: (message) => setError(message), // Puedes pasar cualquier función específica
+                    on404: (message) =>                       
+                        setError(message), // Puedes pasar cualquier función específica
                     onOtherServerError: (message) => setError(message),
                     onConnectionError: (message) => setError(message),
                 });
-
             }
         }
     };

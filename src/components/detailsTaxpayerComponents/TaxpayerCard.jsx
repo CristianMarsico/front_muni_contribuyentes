@@ -21,8 +21,8 @@ const TaxpayerCard = ({ info, existeHabilitado }) => {
                         <InfoField label="CUIT" value={cuit} />
                         <InfoField label="EMAIL" value={email} />
                         <InfoField label="RAZÓN SOCIAL" value={razon_social} />
-                        <InfoField label="DIRECCIÓN" value={direccion} />
-                        <InfoField label="TELÉFONO" value={telefono} />
+                        <InfoField label="DIRECCIÓN PERSONAL" value={direccion} />
+                        <InfoField label="TELÉFONO | CELULAR" value={telefono} />
                     </div>
                     <div className="d-flex flex-column flex-sm-row flex-wrap justify-content-center gap-3 align-items-center">
                         <p className="mb-0 text-center text-sm-start text-wrap fs-6">

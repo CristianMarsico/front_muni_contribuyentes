@@ -148,7 +148,15 @@ const DdjjToRafam = () => {
                 setMsjModalExito(res?.data.message);
                 setShowModal(false);
                 setTimeout(() => setShowModal(true), 100);
-                setSelectedCheckbox(null);
+                setDdjj((prev) =>
+                    prev.map((item) =>
+                        item.id_contribuyente === id_contribuyente &&
+                            item.id_comercio === id_comercio &&
+                            item.fecha === fecha
+                            ? { ...item, cargada_rafam: true }
+                            : item
+                    )
+                );
                 refetch();
             }
         } catch (error) {
@@ -212,13 +220,13 @@ const DdjjToRafam = () => {
                                             <tr>
                                                 <th scope="col">#</th>
                                                 <th scope="col">CUIT</th>
-                                                <th scope="col">N° DE COMERCIO</th>
-                                                <th scope="col">NOMBRE DE COMERCIO</th>
-                                                <th scope="col">MONTO DECLARADO</th>
-                                                <th scope="col">TASA A PAGAR</th>
-                                                <th scope="col">FECHA</th>
-                                                <th scope="col">CARGADA EN FECHA</th>
-                                                <th scope="col">MARCAR ENVIADA</th>
+                                                <th scope="col">Código de Comercio (RAFAM)</th>
+                                                <th scope="col">Nombre de Comercio | Nombre Fantasía</th>
+                                                <th scope="col">Monto Declarado</th>
+                                                <th scope="col">Tasa a Abonar</th>
+                                                <th scope="col">Fecha</th>
+                                                <th scope="col">Cargada en Fecha</th>
+                                                <th scope="col">Marcar Enviada</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -263,10 +271,10 @@ const DdjjToRafam = () => {
                                                                     <input
                                                                         type="checkbox"
                                                                         className="form-check-input border-dark"
-                                                                        checked={
-                                                                            selectedCheckbox === `${ddjj?.id_contribuyente}-${ddjj?.id_comercio}-${ddjj?.fecha}`
+                                                                        checked={ddjj?.cargada_rafam || selectedCheckbox === `${ddjj?.id_contribuyente}-${ddjj?.id_comercio}-${ddjj?.fecha}`}
+                                                                        onChange={(e) =>
+                                                                            handleShowAddModal(ddjj?.id_contribuyente, ddjj?.id_comercio, ddjj?.cod_comercio, ddjj.fecha, e.target.checked)
                                                                         }
-                                                                        onChange={(e) => handleShowAddModal(ddjj?.id_contribuyente, ddjj?.id_comercio, ddjj?.cod_comercio, ddjj.fecha, e.target.checked)}
                                                                     />
                                                                 </td>
                                                             </>

@@ -43,27 +43,43 @@ const TradeCodes = ({
                         {codigos.map((comercio, index) => (
                             <div
                                 key={index}
-                                className="list-group-item d-flex flex-column flex-sm-row justify-content-between align-items-start shadow-lg p-4 mb-3 bg-light rounded"
+                                className="list-group-item shadow-lg p-4 mb-3 bg-light rounded"
                                 style={{ borderLeft: "5px solid #28a745" }} // Borde verde al lado izquierdo
                             >
-                                <div className="mb-3 mb-sm-0">
-                                    <p className="mb-2 text-muted">
-                                        <strong>Código:</strong> {comercio.codigo}
-                                    </p>
-                                    <p className="mb-2 text-muted">
-                                        <strong>Nombre:</strong> {comercio.nombre}
-                                    </p>
-                                    <p className="mb-0 text-muted">
-                                        <strong>Dirección:</strong> {comercio.direccion}
-                                    </p>
+                                <div className="card shadow-lg border-0 rounded-3 mb-3">
+                                    <div className="card-body">
+                                        <div className="text-center mb-4">
+                                            <i className="bi bi-upc-scan text-success fs-3 mb-2"></i>
+                                            <p className="text-muted mb-1">
+                                                <strong>Código Comercio (RAFAM):</strong>
+                                            </p>
+                                            <p className="mb-0">{comercio.codigo}</p>
+                                        </div>
+                                        <hr />
+                                        <div className="text-center mb-4">
+                                            <i className="bi bi-shop-window text-primary fs-3 mb-2"></i>
+                                            <p className="text-muted mb-1">
+                                                <strong>Nombre Comercio | Nombre Fantasía:</strong>
+                                            </p>
+                                            <p className="mb-0">{comercio.nombre}</p>
+                                        </div>
+                                        <hr />
+                                        <div className="text-center">
+                                            <i className="bi bi-geo-alt-fill text-danger fs-3 mb-2"></i>
+                                            <p className="text-muted mb-1">
+                                                <strong>Dirección Comercial:</strong>
+                                            </p>
+                                            <p className="mb-0">{comercio.direccion}</p>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="d-flex justify-content-start align-items-center">
+                                <div className="d-grid">
                                     <button
                                         type="button"
-                                        className="btn btn-danger btn-sm d-flex align-items-center px-3 py-2 rounded-3"
+                                        className="btn btn-danger btn-sm d-flex align-items-center justify-content-center px-3 py-2 rounded-3"
                                         onClick={() => handleEliminarComercio(comercio.codigo)}
                                     >
-                                        <i className="bi bi-trash me-2"></i> Eliminar
+                                        <i className="bi bi-trash me-2"></i> Remover
                                     </button>
                                 </div>
                             </div>
@@ -77,7 +93,7 @@ const TradeCodes = ({
                     <h5 className="text-center text-success mb-4">Registrar Nuevo Comercio</h5>
                     <div className="mt-2">
                         <InputField
-                            label="Código de Comercio"
+                            label="Código de Comercio (RAFAM)"
                             name="codigo"
                             value={nuevoComercio.codigo}
                             type="number"
@@ -87,7 +103,7 @@ const TradeCodes = ({
                             className="form-control mb-3" // Asegura que el input tenga espacio y buen estilo
                         />
                         <InputField
-                            label="Dirección de comercio"
+                            label="Dirección"
                             name="direccion"
                             value={nuevoComercio.direccion}
                             type="text"
@@ -97,13 +113,13 @@ const TradeCodes = ({
                             className="form-control mb-3" // Mantiene la coherencia del estilo
                         />
                         <InputField
-                            label="Nombre del Comercio"
+                            label="Nombre | Nombre Fantasía"
                             name="nombre"
                             value={nuevoComercio.nombre}
                             type="text"
                             onChange={handleNuevoComercioChange}
                             error={errors.nombre}
-                            placeholder="Ingrese el nombre del comercio"
+                            placeholder="Ingrese el nombre o nombre de fantasía"
                             className="form-control mb-3" // Añadido margen para los campos
                         />
 
