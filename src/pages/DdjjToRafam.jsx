@@ -75,7 +75,7 @@ const DdjjToRafam = () => {
         return cuit && codigoComercio;
     });
 
-    const exportToExcel = () => {
+    const exportToExcel = () => {       
         if (!ddjj || ddjj?.length == 0 || error) {
             setErrorMessage("No hay datos para exportar en EXCEL");
             return;
@@ -94,6 +94,7 @@ const DdjjToRafam = () => {
             { header: 'Tasa a Pagar', key: 'tasa', width: 20, style: { numFmt: '0.00' } },
             { header: 'Fecha', key: 'fecha', width: 20 },
             { header: 'Cargada en Fecha', key: 'en_tiempo', width: 20 },
+            { header: 'Enviada a RAFAM', key: 'en_rafam', width: 20 },
         ];
 
         // Agrega los datos fila por fila
@@ -107,6 +108,7 @@ const DdjjToRafam = () => {
                 tasa: parseFloat(row?.tasa_calculada) || 'N/A',
                 fecha: new Date(row?.fecha).toLocaleDateString(),
                 en_tiempo: row?.cargada_en_tiempo ? 'Sí' : 'No',
+                en_rafam: row?.cargada_rafam ? 'Sí' : 'No',
             });
         });
 
