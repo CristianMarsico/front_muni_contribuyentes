@@ -85,7 +85,7 @@ const DdjjToRafam = () => {
         return () => socket.disconnect();
     }, [URL], refetch);
 
-    const filtros = ddjj.filter((c) => {       
+    const filtros = ddjj.filter((c) => {
         if (!c?.cuit || !c?.cod_comercio || !c?.fecha) return false; // Excluir datos incompletos
         const cuit = c?.cuit.toString().includes(buscarCuit);
         const codigoComercio = c?.cod_comercio.toString().includes(buscarCodComercio);
@@ -110,14 +110,15 @@ const DdjjToRafam = () => {
         // Define las columnas de la hoja
         worksheet.columns = [
             { header: '#', key: 'id', width: 5, style: { numFmt: '0' } },
-            { header: 'CUIT', key: 'cuit', width: 20, style: { numFmt: '0' } },
+            { header: 'CUIT', key: 'cuit', width: 15, style: { numFmt: '0' } },
             { header: 'N° Comercio', key: 'cod_comercio', width: 15, style: { numFmt: '0' } },
-            { header: 'Nombre Comercio', key: 'nombre_comercio', width: 20 },
+            { header: 'Nombre Comercio / Fantasía', key: 'nombre_comercio', width: 30 },
             { header: 'Monto Declarado', key: 'monto', width: 20, style: { numFmt: '0.00' } },
-            { header: 'Tasa a Pagar', key: 'tasa', width: 20, style: { numFmt: '0.00' } },
-            { header: 'Fecha', key: 'fecha', width: 15 },
-            { header: 'Mes Correspondiente', key: 'mes_correspondiente', width: 30 },
+            { header: 'Tasa a Pagar', key: 'tasa', width: 15, style: { numFmt: '0.00' } },
+            { header: 'Fecha', key: 'fecha', width: 10 },
+            { header: 'Detalle', key: 'mes_correspondiente', width: 35 },
             { header: 'Cargada en Fecha', key: 'en_tiempo', width: 20 },
+            { header: 'Rectificada', key: 'rectificada', width: 15 },
             { header: 'Enviada a RAFAM', key: 'en_rafam', width: 20 },
         ];
 
@@ -133,6 +134,7 @@ const DdjjToRafam = () => {
                 fecha: new Date(row?.fecha).toLocaleDateString(),
                 mes_correspondiente: row?.descripcion,
                 en_tiempo: row?.cargada_en_tiempo ? 'Sí' : 'No',
+                rectificada: row?.rectificada ? 'Rectificada' : 'Sin Rectificar',
                 en_rafam: row?.cargada_rafam ? 'Sí' : 'No',
             });
         });
@@ -216,6 +218,30 @@ const DdjjToRafam = () => {
     };
 
     const handleConfirmChanges = () => {
+
+        // Inicializar un objeto de errores vacío
+        let errors = {}; 
+
+        const decimalRegex = /^\d+(\.\d{1,2})?$/;      
+
+        // Validación del monto
+        if (editedRectificar.monto.trim() === "") {
+            errors.monto = "*El monto es obligatorio.";
+        } else if (!decimalRegex.test(editedRectificar.monto)) {
+            errors.monto = "*El monto debe ser un número decimal válido con hasta 2 decimales.";
+        }
+
+        // Validar mes
+        if (!editedRectificar?.mes || editedRectificar.mes.trim() === "") {
+            errors.mes = "*Debe seleccionar un mes válido.";
+        }
+
+        // Si hay errores, actualizar el estado de errores y evitar enviar
+        if (Object.keys(errors).length > 0) {
+            setErrorsRectificar(errors);
+            return;
+        }
+
         setShowModalRectificar(false);
         handleShowModal(
             `¿Estás seguro de que deseas rectificar la DDJJ del comercio n° ${selectedRectificar.cod_comercio}?`,
@@ -224,11 +250,7 @@ const DdjjToRafam = () => {
     };
 
     const confirmRectificarChanges = async () => {
-        if (!editedRectificar?.monto || isNaN(editedRectificar.monto)) {
-            setErrorsRectificar({ monto: "Debe ingresar un monto válido." });
-            return;
-        }
-
+     
         try {
             const res = await axios.put(
                 `${URL}/api/rectificar/${selectedRectificar.id_contribuyente}/${selectedRectificar.id_comercio}/${selectedRectificar.fecha}`,
@@ -256,6 +278,16 @@ const DdjjToRafam = () => {
             setShowModalRectificar(false);
         }
     };
+
+    // Arreglo de meses
+    const meses = [
+        "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+    ];
+
+    // Obtener el mes actual (0 = Enero, 11 = Diciembre)
+    const mesActual = new Date().getMonth();
+    // const mesActual = 4;
 
     return (
         <>
@@ -293,11 +325,11 @@ const DdjjToRafam = () => {
                                 <div className="table-responsive">
                                     <table className="table table-striped table-bordered text-center w-100" style={{ textAlign: "center", verticalAlign: "middle" }}>
                                         <thead className="thead-dark">
-                                            <tr>
+                                            <tr className="text-center align-middle">
                                                 <th scope="col">#</th>
                                                 <th scope="col">CUIT</th>
                                                 <th scope="col">Código de Comercio (RAFAM)</th>
-                                                <th scope="col">Nombre de Comercio | Nombre Fantasía</th>
+                                                <th scope="col">Nombre de Comercio / Fantasía</th>
                                                 <th scope="col">Monto Declarado</th>
                                                 <th scope="col">Tasa a Abonar</th>
                                                 <th scope="col">Fecha</th>
@@ -339,30 +371,28 @@ const DdjjToRafam = () => {
                                                                 <td>$ <FormattedNumber value={ddjj?.tasa_calculada} /></td>
                                                                 <td>{new Date(ddjj?.fecha).toLocaleDateString()}</td>
                                                                 <td>
-                                                                    {ddjj?.descripcion ? (
-                                                                        <>
-                                                                            {ddjj?.cargada_en_tiempo ? (
-                                                                                <>
-                                                                                    {ddjj?.descripcion}
-                                                                                </>
-                                                                            ) : (
-                                                                                <>
-                                                                                    <i className="bi bi-exclamation-triangle text-warning"></i> {ddjj?.descripcion}
-                                                                                </>
-                                                                            )}
-                                                                        </>
-
-                                                                    ) : (
-                                                                        <span className="bg-warning px-1 rounded">
-                                                                            Sin especificar
-                                                                        </span>
-                                                                    )}
+                                                                    <>
+                                                                        {ddjj?.cargada_en_tiempo ? (
+                                                                            // Si está cargada a tiempo, solo muestra la descripción
+                                                                            <>{ddjj?.descripcion}</>
+                                                                        ) : ddjj?.rectificada ? (
+                                                                            // Si NO está cargada a tiempo pero ESTÁ rectificada, muestra con otro icono
+                                                                            <>
+                                                                                <i className="bi bi-check-circle text-success"></i> {ddjj?.descripcion}
+                                                                            </>
+                                                                        ) : (
+                                                                            // Si NO está cargada a tiempo y NO está rectificada, muestra el icono de advertencia
+                                                                            <>
+                                                                                <i className="bi bi-exclamation-triangle text-warning"></i> {ddjj?.descripcion}
+                                                                            </>
+                                                                        )}
+                                                                    </>
                                                                 </td>
                                                                 <td>
                                                                     {ddjj?.cargada_en_tiempo ? (
-                                                                        <strong className="bi bi-check-circle text-success"> Sí</strong>
+                                                                        <i className="bi bi-check-circle text-success"> Sí</i>
                                                                     ) : (
-                                                                        <strong className="bi bi-x-circle text-danger"> No </strong>
+                                                                        <i className="bi bi-x-circle text-danger"> No </i>
                                                                     )}
                                                                 </td>
                                                                 <td>
@@ -380,7 +410,7 @@ const DdjjToRafam = () => {
                                                                         onChange={(e) =>
                                                                             handleShowModal(
                                                                                 `¿Deseas enviar a RAFAM la DDJJ del comercio n° ${ddjj?.cod_comercio}?`,
-                                                                                () => handleCheckboxChange(ddjj.id_contribuyente, ddjj.id_comercio, ddjj.fecha)
+                                                                                () => handleCheckboxChange(ddjj?.id_contribuyente, ddjj?.id_comercio, ddjj?.fecha)
                                                                             )
                                                                         }
                                                                     />
@@ -421,6 +451,39 @@ const DdjjToRafam = () => {
                                         error={errorsRectificar.monto}
                                         placeholder="Ingrese monto"
                                     />
+
+                                    <div className="mb-3 position-relative">
+                                        <label className="form-label">Mes Correspondiente</label>
+                                        <select
+                                            name="mes"
+                                            value={editedRectificar.mes}
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                setEditedRectificar({ ...editedRectificar, mes: value });
+
+                                                // Si selecciona un mes válido, eliminar el error
+                                                setErrorsRectificar(prevErrors => ({
+                                                    ...prevErrors,
+                                                    mes: value ? null : "*Debe seleccionar un mes."
+                                                }));
+                                            }}
+                                            className={`form-select text-center ${errorsRectificar.mes ? "is-invalid" : ""}`}
+                                        >
+                                            <option value="">Seleccione el mes actual o posterior</option>
+                                            {meses.map((mes, index) => (
+                                                <option
+                                                    key={index}
+                                                    value={mes}
+                                                    disabled={index < mesActual} // Desactivar meses anteriores al actual
+                                                >
+                                                    {mes}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        {errorsRectificar?.mes && (
+                                            <div className="invalid-feedback">{errorsRectificar?.mes}</div>
+                                        )}
+                                    </div>
                                 </form>
                             </div>
                             <div className="modal-footer">

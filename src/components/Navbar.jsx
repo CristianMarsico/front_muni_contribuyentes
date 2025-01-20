@@ -75,7 +75,7 @@ const Navbar = () => {
                                                     }`}
                                                 to="/rafam"
                                             >
-                                                Cargar DDJJs en RAFAM
+                                                Cargar DDJJs en RAFAM / Rectificar
                                             </Link>
                                         </li>
                                         <li className="nav-item">

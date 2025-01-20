@@ -65,7 +65,7 @@ const TradesTable = ({ id_contribuyente, trades, onTradeStateChange, refetch, se
     };
 
     // Guardar cambios del comercio
-    const handleSaveChanges = async () => {        
+    const handleSaveChanges = async () => {
         const data = {
             codigo_comercio: editedTrade.cod_comercio,
             nombre_comercio: editedTrade.nombre_comercio,
@@ -77,7 +77,7 @@ const TradesTable = ({ id_contribuyente, trades, onTradeStateChange, refetch, se
             if (response?.status === 200) {
                 setShowModal(false)
                 setShowSuccessModal(false);
-                setTimeout(() => setShowSuccessModal(true), 100);               
+                setTimeout(() => setShowSuccessModal(true), 100);
                 setErrorsTrade({
                     codigo_comercio: null,
                     nombre_comercio: null,
@@ -86,7 +86,7 @@ const TradesTable = ({ id_contribuyente, trades, onTradeStateChange, refetch, se
                 setShowConfirmModal(false); // Cierra el modal de confirmación después del envío
                 refetch();
             }
-        } catch (error) {           
+        } catch (error) {
             handleError(error, {
                 on401: (message) => {
                     setError(message);
@@ -100,7 +100,7 @@ const TradesTable = ({ id_contribuyente, trades, onTradeStateChange, refetch, se
             setShowModal(false)
             setShowSuccessModal(false);
             setShowConfirmModal(false);
-        }   
+        }
     };
 
     // Manejar cambios en los campos
@@ -127,36 +127,37 @@ const TradesTable = ({ id_contribuyente, trades, onTradeStateChange, refetch, se
                     <div className="row justify-content-center">
                         <div className="card-body">
                             <div className="table-responsive">
-                                {trades.length > 0 ? (
+                                {trades?.length > 0 ? (
                                     <table className="table table-striped table-bordered text-center w-100" style={{ textAlign: "center", verticalAlign: "middle" }}>
-
                                         <thead className="thead-dark">
-                                            <tr>
+                                            <tr className="text-center align-middle">
                                                 <th>Modificar</th>
                                                 <th>Código de Comercio (RAFAM)</th>
-                                                <th>Nombre de Comercio | Nombre Fantasía</th>
+                                                <th>Nombre de Comercio / Fantasía</th>
                                                 <th>Dirección Comercial</th>
                                                 <th>Estado</th>
                                                 <th>DDJJs</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {trades.map((comercio, index) => (
+                                            {trades?.map((comercio, index) => (
                                                 <tr key={index}>
                                                     <td>
-                                                        {!comercio.estado && (
+                                                        {!comercio?.estado ? (
                                                             <i
                                                                 className="bi bi-pencil text-primary ms-2"
                                                                 role="button"
                                                                 onClick={() => handleEditClick(comercio)}
                                                             ></i>
+                                                        ) : (
+                                                            <i className="bi bi-x-circle text-danger"></i>
                                                         )}
                                                     </td>
-                                                    <td>{comercio.cod_comercio}</td>
-                                                    <td>{comercio.nombre_comercio}</td>
-                                                    <td>{comercio.direccion_comercio}</td>
+                                                    <td>{comercio?.cod_comercio}</td>
+                                                    <td>{comercio?.nombre_comercio}</td>
+                                                    <td>{comercio?.direccion_comercio}</td>
                                                     <td>
-                                                        {comercio.estado ? (
+                                                        {comercio?.estado ? (
                                                             <strong className="bi bi-check-circle text-success"> Validado</strong>
                                                         ) : (
                                                             <button
@@ -168,12 +169,12 @@ const TradesTable = ({ id_contribuyente, trades, onTradeStateChange, refetch, se
                                                         )}
                                                     </td>
                                                     <td>
-                                                        {comercio.estado ? (
+                                                        {comercio?.estado ? (
                                                             <button
                                                                 className="btn btn-warning fw-bold"
                                                                 onClick={() =>
                                                                     navigate(
-                                                                        `/ddjjContribuyente/${id_contribuyente}/${comercio.id_comercio}/${comercio.cod_comercio}`
+                                                                        `/ddjjContribuyente/${id_contribuyente}/${comercio?.id_comercio}/${comercio?.cod_comercio}`
                                                                     )
                                                                 }
                                                             >

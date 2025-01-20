@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import { useParams } from 'react-router-dom';
 import ErrorResponse from '../components/ErrorResponse';
 import { useAuth } from '../context/AuthProvider';
+import FormattedNumber from '../helpers/hooks/FormattedNumber';
 import { handleError } from '../helpers/hooks/handleError';
 
 const DdjjTaxpayer = () => {
@@ -121,7 +122,7 @@ const DdjjTaxpayer = () => {
                 {tableError ? (
                     <ErrorResponse message={tableError} />
                 ) :
-                    tableData.length > 0 && (
+                    tableData?.length > 0 && (
                         <div className="card shadow-sm">
                             <div className="card-header bg-primary text-white text-center">
                                 <h5 className="mb-0">Resultados de Declaraciones Juradas</h5>
@@ -136,28 +137,37 @@ const DdjjTaxpayer = () => {
                                                 <th scope="col">Cuit</th>
                                                 <th scope="col">Monto</th>
                                                 <th scope="col">Tasa Calculada</th>
-                                                <th scope="col">Descripción</th>
+                                                <th scope="col">Detalle</th>
                                                 <th scope="col">En Fecha</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {tableData?.map((item, index) => (
                                                 <tr key={index}>
-                                                    <td>{new Date(item.fecha).toLocaleDateString()}</td>
-                                                    <td>{item.cuit}</td>
-                                                    <td>${item.monto.toLocaleString()}</td>
-                                                    <td>${item.tasa_calculada}</td>
+                                                    <td>{new Date(item?.fecha).toLocaleDateString()}</td>
+                                                    <td>{item?.cuit}</td>
+                                                    <td>$ <FormattedNumber value={item?.monto} /></td>
+                                                    <td>$ <FormattedNumber value={item?.tasa_calculada} /></td>
                                                     <td>
-                                                        {item.descripcion ? (
-                                                            item.descripcion
-                                                        ) : (
-                                                            <span className="bg-warning px-1 rounded">
-                                                                Sin especificar
-                                                            </span>
-                                                        )}
+                                                        <>
+                                                            {item?.cargada_en_tiempo ? (
+                                                                // Si está cargada a tiempo, solo muestra la descripción
+                                                                <>{item?.descripcion}</>
+                                                            ) : item?.rectificada ? (
+                                                                // Si NO está cargada a tiempo pero ESTÁ rectificada, muestra con otro icono
+                                                                <>
+                                                                    <i className="bi bi-check-circle text-success"></i> {item?.descripcion}
+                                                                </>
+                                                            ) : (
+                                                                // Si NO está cargada a tiempo y NO está rectificada, muestra el icono de advertencia
+                                                                <>
+                                                                    <i className="bi bi-exclamation-triangle text-warning"></i> {item?.descripcion}
+                                                                </>
+                                                            )}
+                                                        </>
                                                     </td>
                                                     <td>
-                                                        {item.cargada_en_tiempo ? (
+                                                        {item?.cargada_en_tiempo ? (
                                                             <i className="bi bi-check-circle text-success"> Sí</i>
                                                         ) : (
                                                             <i className="bi bi-x-circle text-danger"> No</i>
@@ -170,7 +180,7 @@ const DdjjTaxpayer = () => {
                                 </div>
                             </div>
                             <div className="card-footer text-muted text-center">
-                                Total resultados: {tableData.length}
+                                Total resultados: {tableData?.length}
                             </div>
                         </div>
                     )}

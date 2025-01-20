@@ -106,7 +106,7 @@ const Taxpayers = () => {
                                 <div className="table-responsive">
                                     <table className="table table-striped table-bordered text-center w-100" style={{ textAlign: "center", verticalAlign: "middle" }}>
                                         <thead className="thead-dark">
-                                            <tr>
+                                            <tr className="text-center align-middle">
                                                 <th scope="col">Nombre y Apellido</th>
                                                 <th scope="col">CUIT</th>
                                                 <th scope="col">Email</th>

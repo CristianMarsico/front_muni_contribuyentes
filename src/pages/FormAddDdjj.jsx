@@ -4,6 +4,7 @@ import { io } from 'socket.io-client';
 import InputField from '../components/auth/InputField';
 import ErrorNotification from '../components/ErrorNotification';
 import ConfirmModal from '../components/modalsComponents/ConfirmModal';
+import RectificacionModal from '../components/modalsComponents/RectificacionModal';
 import SuccessModal from '../components/modalsComponents/SuccessModal';
 import WarningModal from '../components/modalsComponents/WarningModal';
 import { useAuth } from '../context/AuthProvider';
@@ -29,6 +30,7 @@ const FormAddDdjj = () => {
     monto: null,
     descripcion: null
   });
+
   const [showConfirmModal, setShowConfirmModal] = useState(false); // Cambié el valor inicial a false
 
   useEffect(() => {
@@ -122,7 +124,7 @@ const FormAddDdjj = () => {
       id_comercio: selectedComercio,
       monto: parseFloat(registroDDJJ?.monto).toFixed(2),
       descripcion: `ddjj perteneciente al mes de ${registroDDJJ?.descripcion}` || null
-    };
+    };   
     try {
       const response = await axios.post(`${URL}/api/ddjj`, data, { withCredentials: true });
       if (response?.status === 200) {
@@ -149,26 +151,26 @@ const FormAddDdjj = () => {
     }
   };
 
-  // const obtenerMesActual = () => {
-  //   const meses = [
-  //     "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-  //     "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-  //   ];
-  //   const fechaActual = new Date();
-  //   return meses[fechaActual.getMonth()]; // Obtiene el mes actual en texto
-  // };
-
-  // const mesActual = obtenerMesActual(); // Almacena el mes actual
-
   let msjWarning = `Recuerde cargar las declaraciones juradas (DDJJ) antes del <strong>dia ${res?.fecha_limite_ddjj} de cada mes</strong> para evitar inconvenientes o sanciones.`;
+  const today = new Date().getDate();   
+
+  const meses = [
+    "Enero", "Febrero", "Marzo", "Abril", "Mayo",
+    "Junio", "Julio", "Agosto", "Septiembre",
+    "Octubre", "Noviembre", "Diciembre"
+  ];
+  const mesActual = meses[new Date().getMonth()];
 
   return (
     <>
       <div className="container">
         <div className="row justify-content-center">
-          <WarningModal
-            msj={msjWarning}
-          />
+          {today < res?.fecha_limite_ddjj ?
+            <WarningModal
+              msj={msjWarning}
+            />
+            : <RectificacionModal />
+          }
           <div className="col-12 col-sm-8 col-md-6 col-lg-4">
             <div className="card shadow">
               <div className="card-body">
@@ -230,19 +232,8 @@ const FormAddDdjj = () => {
                         }}
                         className={`form-select text-center ${errorsDDJJ.descripcion ? "is-invalid" : ""}`}
                       >
-                        <option value="">Seleccione un mes</option>
-                        <option value="Enero">Enero</option>
-                        <option value="Febrero">Febrero</option>
-                        <option value="Marzo">Marzo</option>
-                        <option value="Abril">Abril</option>
-                        <option value="Mayo">Mayo</option>
-                        <option value="Junio">Junio</option>
-                        <option value="Julio">Julio</option>
-                        <option value="Agosto">Agosto</option>
-                        <option value="Septiembre">Septiembre</option>
-                        <option value="Octubre">Octubre</option>
-                        <option value="Noviembre">Noviembre</option>
-                        <option value="Diciembre">Diciembre</option>
+                        <option value="">Seleccione el mes actual</option>
+                        <option value={mesActual}>{mesActual}</option>
                       </select>
                       {errorsDDJJ?.descripcion && (
                         <div className="invalid-feedback">{errorsDDJJ?.descripcion}</div>
@@ -251,7 +242,9 @@ const FormAddDdjj = () => {
                   </div>
 
 
-                  <button type="submit" className="btn btn-primary w-100">
+                  <button type="submit"
+                    className="btn btn-primary w-100"
+                    disabled={today >= res?.fecha_limite_ddjj}>
                     Cargar DDJJ
                   </button>
                 </form>

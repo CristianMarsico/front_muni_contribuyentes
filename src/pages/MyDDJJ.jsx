@@ -189,13 +189,13 @@ const MyDDJJ = ({ id }) => {
                                     <div className="table-responsive">
                                         <table className="table table-striped table-bordered text-center">
                                             <thead className="thead-dark">
-                                                <tr>
+                                                <tr className="text-center align-middle">
                                                     <th scope="col">Cuit</th>
                                                     <th scope="col">Código Comercio (RAFAM)</th>
                                                     <th scope="col">Fecha</th>
                                                     <th scope="col">Monto</th>
                                                     <th scope="col">Tasa Calculada</th>
-                                                    <th scope="col">Mes Correspondiente</th>
+                                                    <th scope="col">Detalle</th>
                                                     <th scope="col">En Fecha</th>
                                                 </tr>
                                             </thead>
