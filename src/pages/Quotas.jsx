@@ -15,11 +15,9 @@ const Quotas = () => {
     const [editingCell, setEditingCell] = useState(null);
     const [editedValue, setEditedValue] = useState('');
     const [showConfirmModal, setShowConfirmModal] = useState(false);
-    const [isEditing, setIsEditing] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [errorMessage, setErrorMessage] = useState(null);
     const [dates, setDates] = useState([]);
-    const [pendingDate, setPendingDate] = useState(''); // Nuevo estado temporal para la fecha seleccionada
     const cuotas = data?.response;
 
     useEffect(() => {
@@ -45,22 +43,55 @@ const Quotas = () => {
         return () => socket.disconnect();
     }, [URL, refetch]);
 
-    const handleCellClick = (rowIndex, id_vencimiento, currentValue) => {
+    const handleCellClick = (id_vencimiento, currentValue, isLast) => {
         if (user?.rol === 'admin' || user?.rol === 'super_admin') {
-            setEditingCell({ rowIndex, id_vencimiento });
-            setEditedValue(currentValue);
-            setIsEditing(true);
+            let formattedValue;
+
+            if (isLast) {
+                const currentDay = currentValue.split('-')[0]; // Extraer el día
+                const nextYear = new Date().getFullYear() + 1;
+                formattedValue = `${nextYear}-01-${String(currentDay).padStart(2, '0')}`; // ISO: Año-Enero-Día
+            } else {
+                // Para las demás, formatear el valor actual
+                formattedValue = formatToISO(currentValue);
+            }
+
+            setEditingCell(id_vencimiento);
+            setEditedValue(formattedValue || '');
         }
+    };
+
+    // Función para convertir fecha al formato ISO (YYYY-MM-DD)
+    const formatToISO = (date) => {
+        if (!date) return '';
+        const parts = date.split('-');
+        if (parts.length < 2) return '';
+        const day = parts[0];
+        const month = new Date(`${parts[1]} 1`).getMonth() + 1;
+        const year = parts[2] || new Date().getFullYear();
+        return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    };
+
+    const restoreOriginalValue = (id_vencimiento) => {
+        const original = dates.find((d) => d.id_vencimiento === id_vencimiento);
+        if (original) {
+            const mes = getMonthName(original.mes, original.anio);
+            return `${original.dia}-${mes}/${original.anio}`;
+        }
+        return '';
     };
 
     const handleDateChange = (e) => {
         setEditedValue(e.target.value);
-        setPendingDate(e.target.value);
     };
 
     const handleBlur = () => {
-        if (pendingDate !== '') {
-            setShowConfirmModal(true); // Muestra el modal de confirmación después de seleccionar la fecha
+        if (!editedValue) {
+            const restoredValue = restoreOriginalValue(editingCell);
+            setEditedValue(formatToISO(restoredValue));
+            setEditingCell(null);
+        } else {
+            setShowConfirmModal(true);
         }
     };
 
@@ -69,21 +100,19 @@ const Quotas = () => {
     };
 
     const handleConfirmChange = async () => {
-        try {
+        try {           
             // Datos a enviar en la solicitud POST
             const data = {
-                id_vencimiento: editingCell?.id_vencimiento,
+                id_vencimiento: editingCell,
                 fecha: editedValue,
-            };
+            };           
             // Realizar la solicitud POST
             const response = await axios.put(`${URL}/api/expirationDates/${data.id_vencimiento}/${data.fecha}`, null, { withCredentials: true });
             if (response.status === 200) {
                 setShowSuccessModal(false);
-                setTimeout(() => setShowSuccessModal(true), 100); // Delay corto para re-renderizar
+                setTimeout(() => setShowSuccessModal(true), 100);
                 setEditingCell(null);
                 setShowConfirmModal(false);
-                setPendingDate(''); // Limpia la fecha pendiente
-                setIsEditing(false);
                 refetch();
             }
         } catch (error) {
@@ -97,16 +126,15 @@ const Quotas = () => {
                 onConnectionError: (message) => setError(message),
             });
         } finally {
-            setShowConfirmModal(false);
-            setIsEditing(false);
-            setIsEditing(false);
+            setShowConfirmModal(false);          
         }
     };
 
     const handleCancelChange = () => {
+        const restoredValue = restoreOriginalValue(editingCell);
+        setEditedValue(formatToISO(restoredValue));
         setShowConfirmModal(false);
-        setPendingDate(''); // Limpia la fecha pendiente si se cancela
-        setIsEditing(false);
+        setEditingCell(null);
     };
 
     return (
@@ -121,9 +149,9 @@ const Quotas = () => {
                             <tr>
                                 {cuotas?.map((c, index) => (
                                     <th key={index}>
-                                        {c.id_vencimiento === 1 && "1° Cuota + 1° Cuota A.V"}
-                                        {c.id_vencimiento === 2 && "2° Cuota + 2° Cuota A.V"}
-                                        {c.id_vencimiento >= 3 && `${c.id_vencimiento}° Cuota`}
+                                        {c?.id_vencimiento === 1 && "1° Cuota + 1° Cuota A.V"}
+                                        {c?.id_vencimiento === 2 && "2° Cuota + 2° Cuota A.V"}
+                                        {c?.id_vencimiento >= 3 && `${c?.id_vencimiento}° Cuota`}
                                     </th>
                                 ))}
                             </tr>
@@ -131,16 +159,18 @@ const Quotas = () => {
                         <tbody>
                             <tr>
                                 {cuotas?.map((c, index) => {
-                                    const mes = getMonthName(c.mes, c.anio);
-                                    const cellValue = c.id_vencimiento < 12 ? `${c.dia}-${mes}` : `${c.dia}-${mes}/${c.anio}`;
-                                    const isEditingCell = editingCell?.rowIndex === index;
-
+                                    const mes = getMonthName(c?.mes, c?.anio);
+                                    const cellValue = c?.id_vencimiento < 12
+                                        ? `${c?.dia}-${mes}`
+                                        : `${c?.dia}-${mes}/${c?.anio}`;
+                                    const isEditingCell = editingCell === c?.id_vencimiento;
+                                    const isLast = index === cuotas.length - 1; // Verificar si es la última celda
                                     return (
                                         <td
-                                            key={index}
-                                            onClick={() => handleCellClick(index, c.id_vencimiento, cellValue)}
+                                            key={c?.id_vencimiento}
+                                            onClick={() => handleCellClick(c?.id_vencimiento, cellValue, isLast)}
                                         >
-                                            {isEditingCell && isEditing ? (
+                                            {isEditingCell ? (
                                                 <input
                                                     type="date"
                                                     value={editedValue}

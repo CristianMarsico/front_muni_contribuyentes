@@ -4,6 +4,7 @@ import InputField from '../components/auth/InputField';
 import ErrorNotification from '../components/ErrorNotification';
 import ConfirmModal from '../components/modalsComponents/ConfirmModal';
 import SuccessModal from '../components/modalsComponents/SuccessModal';
+import WarningModal from '../components/modalsComponents/WarningModal';
 import { useAuth } from '../context/AuthProvider';
 import { handleError } from '../helpers/hooks/handleError';
 
@@ -120,15 +121,20 @@ const FormAddTrade = () => {
         }
     };
 
+    let msjWarning = `Le informamos que, una vez que registre el o los comercios en nuestro sistema, estos deberán ser revisados y validados por la administración competente.<br/>
+                        <strong>Importante:</strong> Los comercios estarán disponibles para su visualización únicamente después de haber sido aprobados.<br/>
+                        Agradecemos su comprensión y colaboración en este proceso.`
     return (
         <>
-            <div className="container mt-4">
+            <div className="container">
                 <div className="row justify-content-center">
+                    <WarningModal
+                        msj={msjWarning}
+                    />
                     <div className="col-12 col-sm-8 col-md-6 col-lg-4">
                         <div className="card shadow">
                             <div className="card-body">
                                 <h2 className="text-center mb-4">Cargar Comercio</h2>
-
                                 <form onSubmit={handleSubmit}>
                                     <div>
                                         <InputField
@@ -141,7 +147,7 @@ const FormAddTrade = () => {
                                             placeholder="Ingrese código de comercio"
                                         />
                                         <InputField
-                                            label="Nombre de comercio | Nombre de fantasía"
+                                            label="Nombre / Fantasía"
                                             name="nombre_comercio"
                                             value={registerTrade.nombre_comercio}
                                             type="text"
@@ -150,7 +156,7 @@ const FormAddTrade = () => {
                                             placeholder="Ingrese el nombre o nombre de fantasía"
                                         />
                                         <InputField
-                                            label="Dirección de comercio"
+                                            label="Dirección Comercial"
                                             name="direccion_comercio"
                                             value={registerTrade.direccion_comercio}
                                             type="text"

@@ -141,8 +141,8 @@ const TradesTable = ({ id_contribuyente, trades, onTradeStateChange, refetch, se
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {trades.map((comercio) => (
-                                                <tr key={comercio.id_comercio}>
+                                            {trades.map((comercio, index) => (
+                                                <tr key={index}>
                                                     <td>
                                                         {!comercio.estado && (
                                                             <i

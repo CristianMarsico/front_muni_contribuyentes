@@ -5,6 +5,7 @@ import InputField from '../components/auth/InputField';
 import ErrorNotification from '../components/ErrorNotification';
 import ConfirmModal from '../components/modalsComponents/ConfirmModal';
 import SuccessModal from '../components/modalsComponents/SuccessModal';
+import WarningModal from '../components/modalsComponents/WarningModal';
 import { useAuth } from '../context/AuthProvider';
 import { handleError } from '../helpers/hooks/handleError';
 import useFetch from '../helpers/hooks/useFetch';
@@ -13,6 +14,9 @@ const FormAddDdjj = () => {
   const URL = import.meta.env.VITE_API_URL;
   const { user, logout } = useAuth();
   const { data, loading, error, refetch } = useFetch(`${URL}/api/trade/${user?.id}`);
+
+  const { data: config } = useFetch(`${URL}/api/configuration`);
+  const res = config?.response[0]
   const [selectedComercio, setSelectedComercio] = useState("");
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
@@ -22,7 +26,8 @@ const FormAddDdjj = () => {
   });
 
   const [errorsDDJJ, setErrorsDDJJ] = useState({
-    monto: null
+    monto: null,
+    descripcion: null
   });
   const [showConfirmModal, setShowConfirmModal] = useState(false); // Cambié el valor inicial a false
 
@@ -76,16 +81,27 @@ const FormAddDdjj = () => {
     e.preventDefault();
 
     const decimalRegex = /^\d+(\.\d{1,2})?$/;
-    let errorMessage = null;
+    let montoError = null;
+    let mesError = null;
 
+    // Validación del monto
     if (registroDDJJ.monto.trim() === "") {
-      errorMessage = "*El monto es obligatorio.";
+      montoError = "*El monto es obligatorio.";
     } else if (!decimalRegex.test(registroDDJJ.monto)) {
-      errorMessage = "*El monto debe ser un número decimal válido con hasta 2 decimales.";
+      montoError = "*El monto debe ser un número decimal válido con hasta 2 decimales.";
     }
 
-    if (errorMessage) {
-      setErrorsDDJJ({ ...errorsDDJJ, monto: errorMessage });
+    // Validación del mes
+    if (!registroDDJJ.descripcion || registroDDJJ.descripcion.trim() === "") {
+      mesError = "*Debe seleccionar un mes.";
+    }
+
+    // Si hay errores, actualiza los estados y detén el envío
+    if (montoError || mesError) {
+      setErrorsDDJJ({
+        monto: montoError,
+        descripcion: mesError,
+      });
       return;
     }
 
@@ -105,7 +121,7 @@ const FormAddDdjj = () => {
       id_contribuyente: user.id,
       id_comercio: selectedComercio,
       monto: parseFloat(registroDDJJ?.monto).toFixed(2),
-      descripcion: registroDDJJ?.descripcion || null
+      descripcion: `ddjj perteneciente al mes de ${registroDDJJ?.descripcion}` || null
     };
     try {
       const response = await axios.post(`${URL}/api/ddjj`, data, { withCredentials: true });
@@ -117,7 +133,7 @@ const FormAddDdjj = () => {
         setErrorsDDJJ({ monto: null });
         setShowConfirmModal(false); // Cierra el modal de confirmación después del envío
       }
-    } catch (error) {     
+    } catch (error) {
       handleError(error, {
         on401: (message) => {
           setError(message);
@@ -127,16 +143,32 @@ const FormAddDdjj = () => {
         onOtherServerError: (message) => setError(message),
         onConnectionError: (message) => setError(message),
       });
-    }finally{
+    } finally {
       setShowSuccessModal(false);
       setShowConfirmModal(false);
     }
   };
 
+  // const obtenerMesActual = () => {
+  //   const meses = [
+  //     "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+  //     "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+  //   ];
+  //   const fechaActual = new Date();
+  //   return meses[fechaActual.getMonth()]; // Obtiene el mes actual en texto
+  // };
+
+  // const mesActual = obtenerMesActual(); // Almacena el mes actual
+
+  let msjWarning = `Recuerde cargar las declaraciones juradas (DDJJ) antes del <strong>dia ${res?.fecha_limite_ddjj} de cada mes</strong> para evitar inconvenientes o sanciones.`;
+
   return (
     <>
-      <div className="container mt-4">
+      <div className="container">
         <div className="row justify-content-center">
+          <WarningModal
+            msj={msjWarning}
+          />
           <div className="col-12 col-sm-8 col-md-6 col-lg-4">
             <div className="card shadow">
               <div className="card-body">
@@ -181,17 +213,43 @@ const FormAddDdjj = () => {
                       step="0.01"
                       min="0"
                     />
+                    <div className="mb-3 position-relative">
+                      <label className="form-label">Mes Correspondiente</label>
+                      <select
+                        name="descripcion"
+                        value={registroDDJJ.descripcion}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setRegistroDDJJ({ ...registroDDJJ, descripcion: value });
 
-                    <InputField
-                      label="Descripción"
-                      name="descripcion"
-                      value={registroDDJJ.descripcion}
-                      type="text"
-                      onChange={handleAddDDJJChange}
-                      error={errorsDDJJ.descripcion}
-                      placeholder="Ingrese descripción"
-                    />
+                          // Si selecciona un mes válido, eliminar el error
+                          setErrorsDDJJ(prevErrors => ({
+                            ...prevErrors,
+                            descripcion: value ? null : "*Debe seleccionar un mes."
+                          }));
+                        }}
+                        className={`form-select text-center ${errorsDDJJ.descripcion ? "is-invalid" : ""}`}
+                      >
+                        <option value="">Seleccione un mes</option>
+                        <option value="Enero">Enero</option>
+                        <option value="Febrero">Febrero</option>
+                        <option value="Marzo">Marzo</option>
+                        <option value="Abril">Abril</option>
+                        <option value="Mayo">Mayo</option>
+                        <option value="Junio">Junio</option>
+                        <option value="Julio">Julio</option>
+                        <option value="Agosto">Agosto</option>
+                        <option value="Septiembre">Septiembre</option>
+                        <option value="Octubre">Octubre</option>
+                        <option value="Noviembre">Noviembre</option>
+                        <option value="Diciembre">Diciembre</option>
+                      </select>
+                      {errorsDDJJ?.descripcion && (
+                        <div className="invalid-feedback">{errorsDDJJ?.descripcion}</div>
+                      )}
+                    </div>
                   </div>
+
 
                   <button type="submit" className="btn btn-primary w-100">
                     Cargar DDJJ

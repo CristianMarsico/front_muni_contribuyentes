@@ -12,28 +12,30 @@ import axios from 'axios';
 import Filter from '../components/Filter';
 import { handleError } from '../helpers/hooks/handleError';
 import { useAuth } from '../context/AuthProvider';
+import FormattedNumber from '../helpers/hooks/FormattedNumber';
+import InputField from '../components/auth/InputField';
 
 const DdjjToRafam = () => {
     const URL = import.meta.env.VITE_API_URL;
     const { data, loading, error, refetch } = useFetch(`${URL}/api/ddjj`);
-    const {logout} = useAuth();
+    const { logout } = useAuth();
+
+    // Estados principales
     const [ddjj, setDdjj] = useState([]);
-    // Manejo de modal de confirmación (antes de enviar pregunta)
-    const [modalConfig, setModalConfig] = useState({
-        isVisible: false,
-        message: '',
-        onConfirm: null,
-    });
-    // Manejo de modal de éxito y sus mensajes
+    const [modalConfig, setModalConfig] = useState({ isVisible: false, message: "", onConfirm: null });
     const [showModal, setShowModal] = useState(false);
     const [msjModalExito, setMsjModalExito] = useState("");
-    // Manejo de errores
     const [errorMessage, setErrorMessage] = useState(null);
-    // Obtengo los datos seleccionados
     const [selectedCheckbox, setSelectedCheckbox] = useState(null);
+    const [showModalRectificar, setShowModalRectificar] = useState(false);
+    const [selectedRectificar, setSelectedRectificar] = useState(null);
+    const [editedRectificar, setEditedRectificar] = useState({});
+    const [errorsRectificar, setErrorsRectificar] = useState({});
+
     const [buscarCuit, setBuscarCuit] = useState('');
     const [buscarCodComercio, setBuscarCodComercio] = useState('');
-    // Actualizar la lista cuando se reciben nuevos datos de la API
+    const [buscarAnio, setBuscarAnio] = useState('');
+    // Actualizar la lista con los datos de la API
     useEffect(() => {
         if (data?.response) {
             setDdjj(data?.response);
@@ -42,6 +44,7 @@ const DdjjToRafam = () => {
         }
     }, [data]);
 
+    // WebSocket para recibir actualizaciones en tiempo real
     useEffect(() => {
         const socket = io(URL);
         socket.on('nueva-ddjj', (nuevaDdjj) => {
@@ -65,17 +68,37 @@ const DdjjToRafam = () => {
             }
         });
 
+        socket.on('rectificada', (rectificada) => {
+            if (rectificada && rectificada.id_taxpayer && rectificada.id_trade) {
+                // Actualizar solo si los datos recibidos son válidos
+                setDdjj((prev) =>
+                    prev.map((item) =>
+                        item.id_contribuyente === rectificada.id_taxpayer &&
+                        item.id_comercio === rectificada.id_trade &&
+                        item.fecha === rectificada.id_date
+                    )
+                );
+                refetch();
+            }
+        });
+
         return () => socket.disconnect();
     }, [URL], refetch);
 
-    const filtros = ddjj.filter((c) => {
-        if (!c?.cuit || !c?.cod_comercio) return false; // Excluir datos incompletos
+    const filtros = ddjj.filter((c) => {       
+        if (!c?.cuit || !c?.cod_comercio || !c?.fecha) return false; // Excluir datos incompletos
         const cuit = c?.cuit.toString().includes(buscarCuit);
         const codigoComercio = c?.cod_comercio.toString().includes(buscarCodComercio);
-        return cuit && codigoComercio;
+
+        const fecha = new Date(c?.fecha);
+        const anio = fecha.getFullYear();
+
+        // Filtrar por año solo si buscarAnio tiene valor
+        const filtrarAnio = buscarAnio ? anio.toString() === buscarAnio : true;
+        return cuit && codigoComercio && filtrarAnio;
     });
 
-    const exportToExcel = () => {       
+    const exportToExcel = () => {
         if (!ddjj || ddjj?.length == 0 || error) {
             setErrorMessage("No hay datos para exportar en EXCEL");
             return;
@@ -88,11 +111,12 @@ const DdjjToRafam = () => {
         worksheet.columns = [
             { header: '#', key: 'id', width: 5, style: { numFmt: '0' } },
             { header: 'CUIT', key: 'cuit', width: 20, style: { numFmt: '0' } },
-            { header: 'N° Comercio', key: 'cod_comercio', width: 20, style: { numFmt: '0' } },
-            { header: 'Nombre Comercio', key: 'nombre_comercio', width: 30 },
+            { header: 'N° Comercio', key: 'cod_comercio', width: 15, style: { numFmt: '0' } },
+            { header: 'Nombre Comercio', key: 'nombre_comercio', width: 20 },
             { header: 'Monto Declarado', key: 'monto', width: 20, style: { numFmt: '0.00' } },
             { header: 'Tasa a Pagar', key: 'tasa', width: 20, style: { numFmt: '0.00' } },
-            { header: 'Fecha', key: 'fecha', width: 20 },
+            { header: 'Fecha', key: 'fecha', width: 15 },
+            { header: 'Mes Correspondiente', key: 'mes_correspondiente', width: 30 },
             { header: 'Cargada en Fecha', key: 'en_tiempo', width: 20 },
             { header: 'Enviada a RAFAM', key: 'en_rafam', width: 20 },
         ];
@@ -107,6 +131,7 @@ const DdjjToRafam = () => {
                 monto: parseFloat(row?.monto),
                 tasa: parseFloat(row?.tasa_calculada) || 'N/A',
                 fecha: new Date(row?.fecha).toLocaleDateString(),
+                mes_correspondiente: row?.descripcion,
                 en_tiempo: row?.cargada_en_tiempo ? 'Sí' : 'No',
                 en_rafam: row?.cargada_rafam ? 'Sí' : 'No',
             });
@@ -128,19 +153,17 @@ const DdjjToRafam = () => {
         });
     };
 
-    const handleShowAddModal = (id_contribuyente, id_comercio, cod_comercio, fecha, isChecked) => {
-        if (isChecked) {
-            setSelectedCheckbox(`${id_contribuyente}-${id_comercio}-${fecha}`);
-            setModalConfig({
-                isVisible: true,
-                message: `¿Deseas enviar a RAFAM la DDJJ del comercio n° ${cod_comercio} ?`,
-                onConfirm: () => handleCheckboxChange(id_contribuyente, id_comercio, fecha), // Función para agregar
-            });
-        } else {
-            setSelectedCheckbox(null); // Limpia el estado si el checkbox se desmarca manualmente
-        }
+    // Mostrar modal de confirmación
+    const handleShowModal = (message, onConfirm) => {
+        setModalConfig({ isVisible: true, message, onConfirm });
     };
 
+    const closeModal = () => {
+        setModalConfig({ isVisible: false, message: "", onConfirm: null });
+        setSelectedCheckbox(null);
+    };
+
+    // Enviar DDJJ a RAFAM
     const handleCheckboxChange = async (id_contribuyente, id_comercio, fecha) => {
         try {
             const res = await axios.put(`${URL}/api/ddjj/${id_contribuyente}/${id_comercio}/${fecha}`, null, {
@@ -176,10 +199,62 @@ const DdjjToRafam = () => {
         }
     };
 
-    // Cierra el modal y desmarca el checkbox seleccionado
-    const handleCancelModal = () => {
-        setModalConfig({ ...modalConfig, isVisible: false });
-        setSelectedCheckbox(null); // Resetea el estado del checkbox seleccionado
+    // Manejar la edición de una DDJJ
+    const handleRectificar = (ddjj) => {
+        setSelectedRectificar(ddjj);
+        setEditedRectificar({ ...ddjj });
+        setShowModalRectificar(true);
+    };
+
+    const handleRectificarChange = (e) => {
+        const { name, value } = e.target;
+        setEditedRectificar((prev) => ({ ...prev, [name]: value }));
+        setErrorsRectificar((prevErrors) => {
+            const { [name]: _, ...remainingErrors } = prevErrors;
+            return remainingErrors;
+        });
+    };
+
+    const handleConfirmChanges = () => {
+        setShowModalRectificar(false);
+        handleShowModal(
+            `¿Estás seguro de que deseas rectificar la DDJJ del comercio n° ${selectedRectificar.cod_comercio}?`,
+            confirmRectificarChanges
+        );
+    };
+
+    const confirmRectificarChanges = async () => {
+        if (!editedRectificar?.monto || isNaN(editedRectificar.monto)) {
+            setErrorsRectificar({ monto: "Debe ingresar un monto válido." });
+            return;
+        }
+
+        try {
+            const res = await axios.put(
+                `${URL}/api/rectificar/${selectedRectificar.id_contribuyente}/${selectedRectificar.id_comercio}/${selectedRectificar.fecha}`,
+                editedRectificar,
+                { withCredentials: true }
+            );
+
+            if (res?.status === 200) {
+                setMsjModalExito(res?.data.message);
+                setShowModal(false);
+                setTimeout(() => setShowModal(true), 100);
+                refetch();
+            }
+        } catch (error) {
+            handleError(error, {
+                on401: (message) => {
+                    setErrorMessage(message);
+                    setTimeout(() => logout(), 3000);
+                },
+                on404: (message) => setErrorMessage(message), // Puedes pasar cualquier función específica
+                onOtherServerError: (message) => setErrorMessage(message),
+                onConnectionError: (message) => setErrorMessage(message),
+            });
+        } finally {
+            setShowModalRectificar(false);
+        }
     };
 
     return (
@@ -193,12 +268,12 @@ const DdjjToRafam = () => {
                                 <h5 className="card-title text-center text-primary mb-4">Filtros</h5>
                                 <Filter search={buscarCodComercio} setSearch={setBuscarCodComercio} name="N° de Comercio" type="number" />
                                 <Filter search={buscarCuit} setSearch={setBuscarCuit} name="CUIT" type="number" />
+                                <Filter search={buscarAnio} setSearch={setBuscarAnio} name="Año de DDJJ" type="number" />
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
             <div className="d-flex justify-content-center mt-4">
                 <button
                     className="btn btn-success rounded-3"
@@ -207,7 +282,6 @@ const DdjjToRafam = () => {
                     <i className="bi bi-file-earmark-excel me-2"></i> Descargar EXCEL
                 </button>
             </div>
-
             <div className="container col-12">
                 <div className="mt-4">
                     <div className="card shadow">
@@ -227,25 +301,27 @@ const DdjjToRafam = () => {
                                                 <th scope="col">Monto Declarado</th>
                                                 <th scope="col">Tasa a Abonar</th>
                                                 <th scope="col">Fecha</th>
+                                                <th scope="col">Detalle</th>
                                                 <th scope="col">Cargada en Fecha</th>
-                                                <th scope="col">Marcar Enviada</th>
+                                                <th scope="col">Rectificar DDJJ</th>
+                                                <th scope="col">Enviada a RAFAM</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {loading ? (
                                                 <tr>
-                                                    <td colSpan="9">
+                                                    <td colSpan="11">
                                                         <div className="d-flex justify-content-center">
                                                             <Loading />
                                                         </div>
                                                     </td>
                                                 </tr>
-                                            ) : error ? (
+                                            ) : error || filtros?.length === 0 ? (
                                                 <tr>
-                                                    <td colSpan="9">
+                                                    <td colSpan="11">
                                                         <div className="text-danger">
                                                             <ErrorResponse
-                                                                message={error?.message || 'No hay DDJJs'}
+                                                                message={error?.message || 'No hay coincidencias'}
                                                             />
                                                         </div>
                                                     </td>
@@ -259,9 +335,29 @@ const DdjjToRafam = () => {
                                                                 <td>{ddjj?.cuit}</td>
                                                                 <td>{ddjj?.cod_comercio}</td>
                                                                 <td>{ddjj?.nombre_comercio}</td>
-                                                                <td>$ {ddjj?.monto}</td>
-                                                                <td>$ {ddjj?.tasa_calculada}</td>
+                                                                <td>$ <FormattedNumber value={ddjj?.monto} /></td>
+                                                                <td>$ <FormattedNumber value={ddjj?.tasa_calculada} /></td>
                                                                 <td>{new Date(ddjj?.fecha).toLocaleDateString()}</td>
+                                                                <td>
+                                                                    {ddjj?.descripcion ? (
+                                                                        <>
+                                                                            {ddjj?.cargada_en_tiempo ? (
+                                                                                <>
+                                                                                    {ddjj?.descripcion}
+                                                                                </>
+                                                                            ) : (
+                                                                                <>
+                                                                                    <i className="bi bi-exclamation-triangle text-warning"></i> {ddjj?.descripcion}
+                                                                                </>
+                                                                            )}
+                                                                        </>
+
+                                                                    ) : (
+                                                                        <span className="bg-warning px-1 rounded">
+                                                                            Sin especificar
+                                                                        </span>
+                                                                    )}
+                                                                </td>
                                                                 <td>
                                                                     {ddjj?.cargada_en_tiempo ? (
                                                                         <strong className="bi bi-check-circle text-success"> Sí</strong>
@@ -270,12 +366,22 @@ const DdjjToRafam = () => {
                                                                     )}
                                                                 </td>
                                                                 <td>
+                                                                    <i
+                                                                        className="bi bi-pencil text-primary ms-2"
+                                                                        role="button"
+                                                                        onClick={() => handleRectificar(ddjj)}
+                                                                    ></i>
+                                                                </td>
+                                                                <td>
                                                                     <input
                                                                         type="checkbox"
                                                                         className="form-check-input border-dark"
                                                                         checked={ddjj?.cargada_rafam || selectedCheckbox === `${ddjj?.id_contribuyente}-${ddjj?.id_comercio}-${ddjj?.fecha}`}
                                                                         onChange={(e) =>
-                                                                            handleShowAddModal(ddjj?.id_contribuyente, ddjj?.id_comercio, ddjj?.cod_comercio, ddjj.fecha, e.target.checked)
+                                                                            handleShowModal(
+                                                                                `¿Deseas enviar a RAFAM la DDJJ del comercio n° ${ddjj?.cod_comercio}?`,
+                                                                                () => handleCheckboxChange(ddjj.id_contribuyente, ddjj.id_comercio, ddjj.fecha)
+                                                                            )
                                                                         }
                                                                     />
                                                                 </td>
@@ -292,32 +398,69 @@ const DdjjToRafam = () => {
                     </div>
                 </div>
             </div>
+            {showModalRectificar && (
+                <div className="modal fade show d-block" role="dialog">
+                    <div className="modal-dialog">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">Rectificar DDJJ</h5>
+                                <button
+                                    type="button"
+                                    className="btn-close"
+                                    onClick={() => setShowModalRectificar(false)}
+                                ></button>
+                            </div>
+                            <div className="modal-body">
+                                <form>
+                                    <InputField
+                                        label="Nuevo monto"
+                                        name="monto"
+                                        value={editedRectificar.monto || ""}
+                                        type="number"
+                                        onChange={handleRectificarChange}
+                                        error={errorsRectificar.monto}
+                                        placeholder="Ingrese monto"
+                                    />
+                                </form>
+                            </div>
+                            <div className="modal-footer">
+                                <button
+                                    type="button"
+                                    className="btn btn-secondary"
+                                    onClick={() => setShowModalRectificar(false)}
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    type="button"
+                                    className="btn btn-primary"
+                                    onClick={handleConfirmChanges}
+                                >
+                                    Guardar Cambios
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {modalConfig.isVisible && (
                 <ConfirmModal
                     msj={modalConfig.message}
                     handleEstadoChange={() => {
                         modalConfig.onConfirm();
-                        setModalConfig({ ...modalConfig, isVisible: false });
+                        closeModal();
                     }}
-                    setShowConfirmModal={handleCancelModal}
+                    setShowConfirmModal={closeModal}
                 />
             )}
 
-            <SuccessModal
-                show={showModal}
-                message={msjModalExito}
-                duration={3000}
-            />
+            <SuccessModal show={showModal} message={msjModalExito} duration={3000} />
+            <ErrorNotification message={errorMessage} onClose={() => setErrorMessage(null)} />
 
-            <ErrorNotification
-                message={errorMessage}
-                onClose={() =>
-                    setErrorMessage(null)
-                }
-            />
+
         </>
-    )
-}
+    );
+};
 
 export default DdjjToRafam

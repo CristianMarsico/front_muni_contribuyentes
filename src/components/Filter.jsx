@@ -4,13 +4,13 @@ const Filter = ({seach, setSearch, name, type}) => {
   return (
       <div className="mb-3">
           <label htmlFor="buscarCliente" className="form-label fw-bold text-secondary">
-              <i className="bi bi-person-circle me-2"></i> Buscar {name}
+              Buscar {name}
           </label>
           <div className="input-group">
               <input
                   id="buscarCliente"
                   type={type}
-                  className="form-control rounded-3"
+                  className="form-control rounded-3 text-center"
                   placeholder="Escribe el nombre del cliente"
                   value={seach}
                   onChange={(e) => setSearch(e.target.value)}

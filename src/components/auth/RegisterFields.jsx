@@ -35,17 +35,23 @@ const RegisterFields = ({ registroData, setRegistroData, setError }) => {
         const { name, value } = e.target;
         setRegistroData({ ...registroData, [name]: value });
 
+        const onlyNumbersRegex = /^\d+$/; // Solo números (sin guiones ni letras)
         // Función para manejar los errores
         const validateField = (name, value) => {
             switch (name) {
                 case "nombre":
                 case "apellido":
-                case "direccion":
-                case "telefono":
+                case "direccion":               
                 case "razon_social":
                     if (value.trim() === "") return `*${name.charAt(0).toUpperCase() + name.slice(1)} es obligatorio.`;
                     if (value.trim().length < 4) return `*${name.charAt(0).toUpperCase() + name.slice(1)} debe tener al menos 4 caracteres.`;
                     return null;
+
+                case "telefono":
+                    if (!onlyNumbersRegex.test(value)) {
+                        return "*Solo se permiten números (sin guiones ni letras).";
+                    }
+                    break;
 
                 case "email":
                     if (value.trim() === "") {

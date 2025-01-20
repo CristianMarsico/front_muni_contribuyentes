@@ -1,6 +1,23 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import useFetch from '../helpers/hooks/useFetch';
+import { io } from 'socket.io-client';
 
 const Footer = () => {
+    const URL = import.meta.env.VITE_API_URL;// URL de la API desde las variables de entorno
+    const { data, refetch } = useFetch(`${URL}/api/configuration`);
+    const res = data?.response[0]
+   
+    const [values, setValues] = useState([]);
+
+    useEffect(() => {
+        const socket = io(URL);// Establece la conexión con el servidor WebSocket
+        socket.on('new-info', (nuevoValor) => {// Escucha el evento 'nuevos-valores' desde el servidor
+            setValues((prev) => [...prev, nuevoValor]);// Actualiza el estado 'values' con el nuevo valor recibido
+            refetch();// Vuelve a hacer la solicitud para obtener los datos actualizados
+        });
+        return () => socket.disconnect();// Desconecta el WebSocket cuando el componente se desmonta
+    }, [URL, refetch]);
+
     return (
         <footer className="bg-dark text-white py-4 mt-4">
             <div className="container">
@@ -40,13 +57,14 @@ const Footer = () => {
                     </div>
 
                     {/* Columna Centro */}
-                    <div className="col-md-4 mb-4 mb-md-0">
+                    <div className="col-md-4 mb-4 mb-md-0" id="footer-contact">
                         <div className="text-center">
                             <p className="fw-bold mb-2">Municipio de Lobería</p>
-                            <p className="mb-1">Avenida San Martín 51</p>
+                            <p className="mb-1"><i className="bi bi-geo-alt-fill text-danger me-2"></i>{res?.direccion}</p>
                             <p className="mb-1">Lobería, Prov. de Buenos Aires, Argentina</p>
-                            <p className="mb-1">Conmutador: 02261 44-2126 y 44-3900</p>
-                            <p className="mb-0">Interno 1013</p>
+                            <p className="mb-1"><i className="bi bi-whatsapp text-success me-2"></i> {res?.whatsapp}</p>                            
+                            <p className="mb-1"><i className="bi bi-telephone-fill text-secondary me-2"></i> {res?.telefono}</p>
+                            <p className="mb-0"><i className="bi bi-envelope-fill text-secondary me-2"></i> {res?.email}</p>
                         </div>
                     </div>
 
@@ -56,7 +74,7 @@ const Footer = () => {
                             <p className="fw-bold mb-2">Redes sociales</p>
                             <div className="d-flex justify-content-center justify-content-md-end">
                                 <a
-                                    href="https://www.facebook.com/municipalidadloberia"
+                                    href={`https://${res?.facebook}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="text-white me-3"
@@ -64,7 +82,7 @@ const Footer = () => {
                                     <i className="bi bi-facebook fs-3"></i>
                                 </a>
                                 <a
-                                    href="https://www.instagram.com/muniloberia"
+                                    href={`https://${res?.instagram}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="text-white me-3"

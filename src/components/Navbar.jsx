@@ -1,10 +1,29 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import { io } from 'socket.io-client';
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthProvider'
+import useFetch from '../helpers/hooks/useFetch';
 
 const Navbar = () => {
+    const URL = import.meta.env.VITE_API_URL;// URL de la API desde las variables de entorno
+    const { data, refetch } = useFetch(`${URL}/api/configuration`);
+   
     const { logout, user } = useAuth();
     const location = useLocation(); // Obtener la ubicación actual
+
+    const res = data?.response[0]
+
+    const [values, setValues] = useState([]);
+
+    useEffect(() => {
+        const socket = io(URL);// Establece la conexión con el servidor WebSocket
+        socket.on('new-info', (nuevoValor) => {// Escucha el evento 'nuevos-valores' desde el servidor
+            setValues((prev) => [...prev, nuevoValor]);// Actualiza el estado 'values' con el nuevo valor recibido
+            refetch();// Vuelve a hacer la solicitud para obtener los datos actualizados
+        });
+        return () => socket.disconnect();// Desconecta el WebSocket cuando el componente se desmonta
+    }, [URL, refetch]);
+
     // Función para determinar si un enlace está activo
     const isActive = (path) => location.pathname === path;
     return (
@@ -134,7 +153,7 @@ const Navbar = () => {
                     {/* Redes sociales */}
                     <div className="d-flex justify-content-center mt-3 mt-lg-0">
                         <a
-                            href="https://www.facebook.com/municipalidadloberia"
+                            href={`https://${res?.facebook}`}
                             className="text-white me-3"
                             target="_blank"
                             rel="noopener noreferrer"
@@ -143,7 +162,7 @@ const Navbar = () => {
                             <i className="bi bi-facebook fs-4"></i>
                         </a>
                         <a
-                            href="https://www.instagram.com/muniloberia"
+                            href={`https://${res?.instagram}`}
                             className="text-white"
                             target="_blank"
                             rel="noopener noreferrer"

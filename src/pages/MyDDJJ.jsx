@@ -6,7 +6,7 @@ import Loading from "../components/Loading";
 import ErrorResponse from "../components/ErrorResponse";
 import useFetch from "../helpers/hooks/useFetch";
 import { handleError } from "../helpers/hooks/handleError";
-
+import FormattedNumber from '../helpers/hooks/FormattedNumber';
 
 const MyDDJJ = ({ id }) => {
     const URL = import.meta.env.VITE_API_URL;
@@ -179,7 +179,7 @@ const MyDDJJ = ({ id }) => {
                     : tableError ? (
                         <ErrorResponse message={tableError} />
                     ) :
-                        tableData.length > 0 && (
+                        tableData?.length > 0 && (
                             <div className="card shadow-sm">
                                 <div className="card-header bg-primary text-white text-center">
                                     <h5 className="mb-0">Resultados de Declaraciones Juradas</h5>
@@ -195,21 +195,32 @@ const MyDDJJ = ({ id }) => {
                                                     <th scope="col">Fecha</th>
                                                     <th scope="col">Monto</th>
                                                     <th scope="col">Tasa Calculada</th>
-                                                    <th scope="col">Descripción</th>
+                                                    <th scope="col">Mes Correspondiente</th>
                                                     <th scope="col">En Fecha</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 {tableData?.map((item, index) => (
                                                     <tr key={index}>
-                                                        <td>{item.cuit}</td>
-                                                        <td>{item.cod_comercio}</td>
-                                                        <td>{new Date(item.fecha).toLocaleDateString()}</td>
-                                                        <td>${item.monto.toLocaleString()}</td>
-                                                        <td>${item.tasa_calculada}</td>
+                                                        <td>{item?.cuit}</td>
+                                                        <td>{item?.cod_comercio}</td>
+                                                        <td>{new Date(item?.fecha).toLocaleDateString()}</td>
+                                                        <td>$ <FormattedNumber value={item?.monto} /></td>
+                                                        <td>$ <FormattedNumber value={item?.tasa_calculada} /></td>
                                                         <td>
-                                                            {item.descripcion ? (
-                                                                item.descripcion
+                                                            {item?.descripcion ? (
+                                                                <>
+                                                                    {item?.cargada_en_tiempo ? (
+                                                                        <>
+                                                                            {item?.descripcion}
+                                                                        </>
+                                                                    ) : (
+                                                                        <>
+                                                                            <i className="bi bi-exclamation-triangle text-warning"></i> {item?.descripcion}
+                                                                        </>
+                                                                    )}
+                                                                </>
+
                                                             ) : (
                                                                 <span className="bg-warning px-1 rounded">
                                                                     Sin especificar
@@ -217,7 +228,7 @@ const MyDDJJ = ({ id }) => {
                                                             )}
                                                         </td>
                                                         <td>
-                                                            {item.cargada_en_tiempo ? (
+                                                            {item?.cargada_en_tiempo ? (
                                                                 <i className="bi bi-check-circle text-success"> Sí</i>
                                                             ) : (
                                                                 <i className="bi bi-x-circle text-danger"> No</i>
@@ -230,7 +241,7 @@ const MyDDJJ = ({ id }) => {
                                     </div>
                                 </div>
                                 <div className="card-footer text-muted text-center">
-                                    Total resultados: {tableData.length}
+                                    Total resultados: {tableData?.length}
                                 </div>
                             </div>
                         )}

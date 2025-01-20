@@ -1,24 +1,28 @@
-import React, { useEffect, useState } from 'react'
 import axios from 'axios';
-import { io } from 'socket.io-client';
-import { useAuth } from '../context/AuthProvider';
-import useFetch from '../helpers/hooks/useFetch';
+import React, { useEffect, useState } from 'react'
 import InputField from '../components/auth/InputField';
+import ErrorNotification from '../components/ErrorNotification';
 import ConfirmModal from '../components/modalsComponents/ConfirmModal';
 import SuccessModal from '../components/modalsComponents/SuccessModal';
-import ErrorNotification from '../components/ErrorNotification';
+import { useAuth } from '../context/AuthProvider';
 import { handleError } from '../helpers/hooks/handleError';
+import useFetch from '../helpers/hooks/useFetch';
+import { io } from 'socket.io-client';
 
-const DataTableConfig = () => {
+const FormInfoMunicipal = () => {
+
     const URL = import.meta.env.VITE_API_URL;// URL de la API desde las variables de entorno
     const { data, refetch } = useFetch(`${URL}/api/configuration`);// Hook personalizado para obtener los datos de configuración
     const { logout } = useAuth();
 
     // Estado que almacena la configuración general
     const [configuracionGeneral, setConfiguracionGeneral] = useState({
-        fecha_limite_ddjj: '',
-        monto_ddjj_defecto: '',
-        tasa_actual: ''      
+        whatsapp: '',
+        email: '',
+        telefono: '',
+        direccion: '',
+        facebook: '',
+        instagram: ''
     });
     // Estado que almacena los valores iniciales de configuración para comparar con los actuales
     const [initialConfig, setInitialConfig] = useState(null);
@@ -49,27 +53,23 @@ const DataTableConfig = () => {
     // Este useEffect maneja la conexión con el servidor usando WebSockets (socket.io)
     useEffect(() => {
         const socket = io(URL);// Establece la conexión con el servidor WebSocket
-        socket.on('nuevos-valores', (nuevoValor) => {// Escucha el evento 'nuevos-valores' desde el servidor
+        socket.on('new-info', (nuevoValor) => {// Escucha el evento 'nuevos-valores' desde el servidor
             setValues((prev) => [...prev, nuevoValor]);// Actualiza el estado 'values' con el nuevo valor recibido
             refetch();// Vuelve a hacer la solicitud para obtener los datos actualizados
         });
         return () => socket.disconnect();// Desconecta el WebSocket cuando el componente se desmonta
     }, [URL, refetch]);
 
-    // Mensajes de error para cada campo
-    const errorMessages = {
-        fecha_limite_ddjj: "*Especifique el día límite para cargar DDJJ.",
-        tasa_actual: "*La tasa actual es obligatoria y debe ser un número decimal válido.",
-        monto_ddjj_defecto: "*El monto por defecto es obligatorio y debe ser un número decimal válido."
-    };
-
     // Este useEffect establece la configuración inicial cuando los datos de la API se cargan
     useEffect(() => {
         if (data?.response[0]) {
             const initialData = {
-                fecha_limite_ddjj: data.response[0].fecha_limite_ddjj || '',
-                tasa_actual: data.response[0].tasa_actual || '',
-                monto_ddjj_defecto: data.response[0].monto_defecto || ''
+                whatsapp: data?.response[0].whatsapp || '',
+                telefono: data?.response[0].telefono || '',
+                email: data?.response[0].email || '',
+                direccion: data?.response[0].direccion || '',
+                facebook: data?.response[0].facebook || '',
+                instagram: data?.response[0].instagram || '',
             };
             setConfiguracionGeneral(initialData);// Actualiza el estado con la configuración obtenida
             setInitialConfig(initialData); // Guarda los valores iniciales para comparar más tarde
@@ -78,14 +78,37 @@ const DataTableConfig = () => {
 
     // Función para validar los campos de configuración
     const validateField = (name, value) => {
-        const decimalRegex = /^\d+(\.\d{1,2})?$/;// Expresión regular para validar números decimales con hasta 2 decimales
         let errorMessage = null;
 
-        // Verifica si el campo está vacío
-        if (value.trim() === "") {
-            errorMessage = errorMessages[name] || "*Este campo es obligatorio.";
-        } else if (!decimalRegex.test(value)) {
-            errorMessage = "*El valor debe ser un número decimal válido con hasta 2 decimales.";
+        // Expresiones regulares para validaciones
+        const onlyNumbersRegex = /^\d+$/; // Solo números (sin guiones ni letras)
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Formato de email válido
+
+        switch (name) {
+            case "whatsapp":
+            case "telefono":
+                if (!onlyNumbersRegex.test(value)) {
+                    errorMessage = "*Solo se permiten números (sin guiones ni letras).";
+                }
+                break;
+
+            case "email": // Corrección: debería ser "email" en toda la aplicación
+                if (!emailRegex.test(value)) {
+                    errorMessage = "*Ingrese un email válido.";
+                }
+                break;
+
+            case "direccion":
+            case "facebook":
+            case "instagram":
+                if (value.trim().length < 5) {
+                    errorMessage = "*El campo debe tener al menos 5 caracteres.";
+                }
+                break;
+
+            default:
+                errorMessage = "*Este campo es obligatorio.";
+                break;
         }
 
         return errorMessage;
@@ -117,7 +140,7 @@ const DataTableConfig = () => {
     const handleConfigData = async () => {
         let id = data?.response[0].id_configuracion;// Obtiene el ID de la configuración actual
         try {
-            const response = await axios.put(`${URL}/api/configuration/${id}`, configuracionGeneral, {
+            const response = await axios.put(`${URL}/api/configurationInfo/${id}`, configuracionGeneral, {
                 withCredentials: true,
             });
             if (response.status === 200) {
@@ -143,6 +166,13 @@ const DataTableConfig = () => {
         }
     };
 
+    const handleCancel = () => {
+        // Restablece el formulario a los valores iniciales
+        setConfiguracionGeneral(initialConfig);
+        setIsModified(false); // Deshabilita el estado de modificación
+        setShowConfirmModal(false); // Cierra el modal de confirmación
+    };
+
     return (
         <>
             <div className="container">
@@ -152,33 +182,56 @@ const DataTableConfig = () => {
                             <div className="card-body">
                                 <form>
                                     <InputField
-                                        label="Tasa actual"
-                                        name="tasa_actual"
-                                        value={configuracionGeneral.tasa_actual}
+                                        label="Número de whatsapp"
+                                        name="whatsapp"
+                                        value={configuracionGeneral.whatsapp}
                                         type="number"
                                         onChange={handleConfigChange}
-                                        error={errorsConfig.tasa_actual}
-                                        step="0.01"
-                                        min="0"
+                                        error={errorsConfig.whatsapp}
                                     />
                                     <InputField
-                                        label="N° de día límite para cargar DDJJ"
-                                        name="fecha_limite_ddjj"
-                                        value={configuracionGeneral.fecha_limite_ddjj}
-                                        type="number"
+                                        label="Email"
+                                        name="email"
+                                        value={configuracionGeneral.email}
+                                        type="text"
                                         onChange={handleConfigChange}
-                                        error={errorsConfig.fecha_limite_ddjj}
+                                        error={errorsConfig.email}
                                     />
                                     <InputField
-                                        label="Monto DDJJ por Defecto"
-                                        name="monto_ddjj_defecto"
-                                        value={configuracionGeneral.monto_ddjj_defecto}
+                                        label="Número teléfono"
+                                        name="telefono"
+                                        value={configuracionGeneral.telefono}
                                         type="number"
                                         onChange={handleConfigChange}
-                                        error={errorsConfig.monto_ddjj_defecto}
-                                        step="0.01"
-                                        min="0"
-                                    />                                    
+                                        error={errorsConfig.telefono}
+                                    />
+
+                                    <InputField
+                                        label="Direccíon de oficina"
+                                        name="direccion"
+                                        value={configuracionGeneral.direccion}
+                                        type="text"
+                                        onChange={handleConfigChange}
+                                        error={errorsConfig.direccion}
+                                    />
+
+                                    <InputField
+                                        label="Facebook"
+                                        name="facebook"
+                                        value={configuracionGeneral.facebook}
+                                        type="text"
+                                        onChange={handleConfigChange}
+                                        error={errorsConfig.facebook}
+                                    />
+
+                                    <InputField
+                                        label="Instagram"
+                                        name="instagram"
+                                        value={configuracionGeneral.instagram}
+                                        type="text"
+                                        onChange={handleConfigChange}
+                                        error={errorsConfig.instagram}
+                                    />
                                 </form>
                                 {/* Botón para confirmar cambios */}
                                 <button
@@ -198,7 +251,7 @@ const DataTableConfig = () => {
                 <ConfirmModal
                     msj="¿Seguro desea cambiar la configuración?"
                     handleEstadoChange={handleConfigData}
-                    setShowConfirmModal={setShowConfirmModal}
+                    setShowConfirmModal={handleCancel}
                 />
             )}
             <SuccessModal
@@ -214,4 +267,4 @@ const DataTableConfig = () => {
     );
 };
 
-export default DataTableConfig;
+export default FormInfoMunicipal

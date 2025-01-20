@@ -31,7 +31,7 @@ function App() {
           <Navbar />
           <div className="flex-grow-1 m-0">
             <Routes>
-              <Route path="/" element={<AuthPage />} />
+              <Route path="/" element={<PublicRoutes><AuthPage /></PublicRoutes>} />
 
               {/* Rutas privadas (requieren que el usuario esté autenticado). Usamos el componente PrivateRoutes para protegerlas. */}
               <Route path="/home" element={<PrivateRoutes><Home /></PrivateRoutes>} />

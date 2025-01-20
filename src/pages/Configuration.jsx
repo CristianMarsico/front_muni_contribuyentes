@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useAuth } from '../context/AuthProvider';
-import DataTableConfig from './DataTableConfig';
+import FormInfoMunicipal from './FormInfoMunicipal';
+import FormValuesMunicipal from './FormValuesMunicipal';
 import Quotas from './Quotas';
 import Users from './Users';
 
@@ -40,13 +41,19 @@ const Configuration = () => {
 
                                 )
                             }
+                            <button
+                                className={`btn px-4 py-2 text-white ${activeSection === 'informacion' ? 'btn-primary border border-light' : ''}`}
+                                onClick={() => setActiveSection('informacion')}
+                            >
+                                CONFIGURAR INFORMACIÓN
+                            </button>
                         </div>
                     </div>
                 </nav>
                 {/* Contenido de las Secciones */}
                 {activeSection === 'general' && (
                     <div className="card-body container d-flex flex-column align-items-center">
-                        <DataTableConfig />
+                        <FormValuesMunicipal />
                     </div>
                 )}
 
@@ -63,6 +70,12 @@ const Configuration = () => {
                             <Users />
                         </div>
                     )
+                )}
+                {activeSection === 'informacion' && (
+                    <div className="card-body container d-flex flex-column align-items-center">
+                        <FormInfoMunicipal />
+                    </div>
+
                 )}
             </div>
         </>

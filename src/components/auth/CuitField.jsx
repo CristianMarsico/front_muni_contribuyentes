@@ -10,7 +10,7 @@ const CuitField = ({ cuit, errors, onChange }) => {
                 {/* Esta columna ocupa 12 en móviles, 4 en pantallas pequeñas y 3 en pantallas grandes. */}
                 <div className="col-12 col-sm-4 col-md-3">
                     <input
-                        type="number"
+                        type="text"
                         name="prefijoCuit"
                         className={`form-control ${errors.prefijoCuit ? "is-invalid" : ""}`}
                         value={cuit.prefijoCuit}
@@ -25,7 +25,7 @@ const CuitField = ({ cuit, errors, onChange }) => {
                 {/* Esta columna ocupa 12 en móviles, 4 en pantallas pequeñas y 6 en pantallas grandes. */}
                 <div className="col-12 col-sm-4 col-md-6">
                     <input
-                        type="number"
+                        type="text"
                         name="numeroCuit"
                         className={`form-control ${errors.numeroCuit ? "is-invalid" : ""}`}
                         value={cuit.numeroCuit}
@@ -40,7 +40,7 @@ const CuitField = ({ cuit, errors, onChange }) => {
                 {/* Esta columna ocupa 12 en móviles, 4 en pantallas pequeñas y 3 en pantallas grandes. */}
                 <div className="col-12 col-sm-4 col-md-3">
                     <input
-                        type="number"
+                        type="text"
                         name="verificadorCuit"
                         className={`form-control ${errors.verificadorCuit ? "is-invalid" : ""}`}
                         value={cuit.verificadorCuit}
