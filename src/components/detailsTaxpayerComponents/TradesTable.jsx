@@ -199,17 +199,17 @@ const TradesTable = ({ id_contribuyente, trades, onTradeStateChange, refetch, se
                 {/* Modal para editar */}
                 {showModal && !showConfirmModal && (
                     <div className="modal fade show d-block" role="dialog">
-                        <div className="modal-dialog">
-                            <div className="modal-content">
-                                <div className="modal-header">
+                        <div className="modal-dialog modal-dialog-centered">
+                            <div className="modal-content shadow-lg rounded-4">
+                                <div className="modal-header bg-primary text-white rounded-top-4">
                                     <h5 className="modal-title">Editar Comercio</h5>
                                     <button
                                         type="button"
-                                        className="btn-close"
+                                        className="btn-close btn-close-white"
                                         onClick={() => setShowModal(false)}
                                     ></button>
                                 </div>
-                                <div className="modal-body">
+                                <div className="modal-body p-4">
                                     <form>
                                         <InputField
                                             label="Código de comercio (RAFAM)"
@@ -240,10 +240,10 @@ const TradesTable = ({ id_contribuyente, trades, onTradeStateChange, refetch, se
                                         />
                                     </form>
                                 </div>
-                                <div className="modal-footer">
+                                <div className="modal-footer bg-light rounded-bottom-4 d-flex justify-content-end gap-3">
                                     <button
                                         type="button"
-                                        className="btn btn-secondary"
+                                        className="btn btn-outline-secondary"
                                         onClick={() => setShowModal(false)}
                                     >
                                         Cancelar

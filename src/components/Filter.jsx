@@ -1,6 +1,6 @@
 import React from 'react'
 
-const Filter = ({seach, setSearch, name, type}) => {
+const Filter = ({ seach, setSearch, name, type, placeholder }) => {
   return (
       <div className="mb-3">
           <label htmlFor="buscarCliente" className="form-label fw-bold text-secondary">
@@ -11,7 +11,7 @@ const Filter = ({seach, setSearch, name, type}) => {
                   id="buscarCliente"
                   type={type}
                   className="form-control rounded-3 text-center"
-                  placeholder="Escribe el nombre del cliente"
+                  placeholder={placeholder}
                   value={seach}
                   onChange={(e) => setSearch(e.target.value)}
               />

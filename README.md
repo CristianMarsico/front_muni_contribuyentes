@@ -12,12 +12,24 @@ Antes de ejecutar los comandos bash, asegúrate de tener instalados los siguient
 
 ### Instalar las dependencias
 
-Ejecuta el siguiente comando para instalar todas las dependencias necesarias para el proyecto:
+Asegúrate de haber descargado o clonado el repositorio del proyecto. Una vez hecho esto, abre una terminal y navega hasta la carpeta raíz del proyecto. Por ejemplo:
+
+```bash
+cd ruta/del/proyecto
+```
+
+Con la terminal abierta y ubicada en la carpeta del proyecto, ejecuta el siguiente comando para instalar las dependencias necesarias:
 
 ```bash
 npm install
 ```
+Este comando descargará e instalará automáticamente todas las librerías y paquetes requeridos, que están especificados en el archivo package.json. Estas se guardarán en una carpeta llamada node_modules.
 
+Si deseas levantar el proyecto en desarrollo, primero debes crear la base de datos y segundo debes tener funcionado el backend. Una vez realizado ésto acceder a la raiz del proyecto (front-end), abrir la terminal y ejecutar el siguiente comando
+
+```bash
+npm run dev
+```
 ### Crear una versión optimizada
 
 Genera una versión optimizada de la aplicación ejecutando:

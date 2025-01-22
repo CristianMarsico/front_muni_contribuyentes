@@ -86,8 +86,8 @@ const Taxpayers = () => {
                         <div className="card shadow-lg rounded-4 border-0">
                             <div className="card-body p-4">
                                 <h5 className="card-title text-center text-primary mb-4">Filtros</h5>
-                                <Filter search={buscarApellido} setSearch={setBuscarApellido} name="Apellido" type="text" />
-                                <Filter search={buscarCuit} setSearch={setBuscarCuit} name="CUIT" type="number" />
+                                <Filter search={buscarApellido} setSearch={setBuscarApellido} name="Apellido" type="text" placeholder="Ingrese apellido" />
+                                <Filter search={buscarCuit} setSearch={setBuscarCuit} name="CUIT" type="number" placeholder="Ingrese CUIT" />
                             </div>
                         </div>
                     </div>

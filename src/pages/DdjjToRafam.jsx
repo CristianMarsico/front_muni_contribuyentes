@@ -286,8 +286,7 @@ const DdjjToRafam = () => {
     ];
 
     // Obtener el mes actual (0 = Enero, 11 = Diciembre)
-    const mesActual = new Date().getMonth();
-    // const mesActual = 4;
+    const mesActual = new Date().getMonth();    
 
     return (
         <>
@@ -298,9 +297,9 @@ const DdjjToRafam = () => {
                         <div className="card shadow-lg rounded-4 border-0">
                             <div className="card-body p-4">
                                 <h5 className="card-title text-center text-primary mb-4">Filtros</h5>
-                                <Filter search={buscarCodComercio} setSearch={setBuscarCodComercio} name="N° de Comercio" type="number" />
-                                <Filter search={buscarCuit} setSearch={setBuscarCuit} name="CUIT" type="number" />
-                                <Filter search={buscarAnio} setSearch={setBuscarAnio} name="Año de DDJJ" type="number" />
+                                <Filter search={buscarCodComercio} setSearch={setBuscarCodComercio} name="N° de Comercio" type="number" placeholder="Ingrese cod comercio" />
+                                <Filter search={buscarCuit} setSearch={setBuscarCuit} name="CUIT" type="number" placeholder="Ingrese CUIT" />
+                                <Filter search={buscarAnio} setSearch={setBuscarAnio} name="Año de DDJJ" type="number" placeholder="Ingrese año que desea buscar" />
                             </div>
                         </div>
                     </div>
@@ -430,17 +429,17 @@ const DdjjToRafam = () => {
             </div>
             {showModalRectificar && (
                 <div className="modal fade show d-block" role="dialog">
-                    <div className="modal-dialog">
-                        <div className="modal-content">
-                            <div className="modal-header">
-                                <h5 className="modal-title">Rectificar DDJJ</h5>
+                    <div className="modal-dialog modal-dialog-centered">
+                        <div className="modal-content shadow-lg rounded-4">
+                            <div className="modal-header bg-primary text-white rounded-top-4">
+                                <h5 className="modal-title">Rectificar Declaración Jurada</h5>                                
                                 <button
                                     type="button"
-                                    className="btn-close"
+                                    className="btn-close btn-close-white"
                                     onClick={() => setShowModalRectificar(false)}
                                 ></button>
                             </div>
-                            <div className="modal-body">
+                            <div className="modal-body p-4">
                                 <form>
                                     <InputField
                                         label="Nuevo monto"
@@ -452,8 +451,8 @@ const DdjjToRafam = () => {
                                         placeholder="Ingrese monto"
                                     />
 
-                                    <div className="mb-3 position-relative">
-                                        <label className="form-label">Mes Correspondiente</label>
+                                    <div className="mb-4 position-relative">
+                                        <label className="form-label fw-semibold">Mes Correspondiente</label>
                                         <select
                                             name="mes"
                                             value={editedRectificar.mes}
@@ -467,7 +466,7 @@ const DdjjToRafam = () => {
                                                     mes: value ? null : "*Debe seleccionar un mes."
                                                 }));
                                             }}
-                                            className={`form-select text-center ${errorsRectificar.mes ? "is-invalid" : ""}`}
+                                            className={`form-select text-center ${errorsRectificar.mes ? "is-invalid border-danger" : ""}`}
                                         >
                                             <option value="">Seleccione el mes actual o posterior</option>
                                             {meses.map((mes, index) => (
@@ -486,10 +485,10 @@ const DdjjToRafam = () => {
                                     </div>
                                 </form>
                             </div>
-                            <div className="modal-footer">
+                            <div className="modal-footer bg-light rounded-bottom-4 d-flex justify-content-end gap-3">
                                 <button
                                     type="button"
-                                    className="btn btn-secondary"
+                                    className="btn btn-outline-secondary"
                                     onClick={() => setShowModalRectificar(false)}
                                 >
                                     Cancelar
