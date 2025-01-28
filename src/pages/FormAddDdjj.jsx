@@ -169,7 +169,9 @@ const FormAddDdjj = () => {
             <WarningModal
               msj={msjWarning}
             />
-            : <RectificacionModal />
+            : <RectificacionModal 
+              fecha={res?.fecha_limite_ddjj - 1}
+            />
           }
           <div className="col-12 col-sm-8 col-md-6 col-lg-4">
             <div className="card shadow">

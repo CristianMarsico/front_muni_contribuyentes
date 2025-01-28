@@ -208,24 +208,22 @@ const MyDDJJ = ({ id }) => {
                                                         <td>$ <FormattedNumber value={item?.monto} /></td>
                                                         <td>$ <FormattedNumber value={item?.tasa_calculada} /></td>
                                                         <td>
-                                                            {item?.descripcion ? (
-                                                                <>
-                                                                    {item?.cargada_en_tiempo ? (
-                                                                        <>
-                                                                            {item?.descripcion}
-                                                                        </>
-                                                                    ) : (
-                                                                        <>
-                                                                            <i className="bi bi-exclamation-triangle text-warning"></i> {item?.descripcion}
-                                                                        </>
-                                                                    )}
-                                                                </>
-
-                                                            ) : (
-                                                                <span className="bg-warning px-1 rounded">
-                                                                    Sin especificar
-                                                                </span>
-                                                            )}
+                                                            <>
+                                                                {item?.cargada_en_tiempo ? (
+                                                                    // Si está cargada a tiempo, solo muestra la descripción
+                                                                    <>{item?.descripcion}</>
+                                                                ) : item?.rectificada ? (
+                                                                    // Si NO está cargada a tiempo pero ESTÁ rectificada, muestra con otro icono
+                                                                    <>
+                                                                        <i className="bi bi-check-circle text-success"></i> {item?.descripcion}
+                                                                    </>
+                                                                ) : (
+                                                                    // Si NO está cargada a tiempo y NO está rectificada, muestra el icono de advertencia
+                                                                    <>
+                                                                        <i className="bi bi-exclamation-triangle text-warning"></i> {item?.descripcion}
+                                                                    </>
+                                                                )}
+                                                            </>
                                                         </td>
                                                         <td>
                                                             {item?.cargada_en_tiempo ? (

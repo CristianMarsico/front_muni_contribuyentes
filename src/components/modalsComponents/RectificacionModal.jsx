@@ -1,6 +1,6 @@
 import React from 'react'
 
-const RectificacionModal = () => {
+const RectificacionModal = ({fecha}) => {
     return (
             <div className="container mt-4">
                 <div className="alert alert-danger shadow-lg p-3 text-center" role="alert">
@@ -11,8 +11,8 @@ const RectificacionModal = () => {
                         </h4>
                     </div>
                     <p className="text-muted">
-                        Ha superado el plazo para la carga de su Declaración Jurada.
-                        Si necesita realizar una rectificación, por favor diríjase a
+                    Ha superado el plazo para la carga de su Declaración Jurada <strong>( día {fecha} de cada mes )</strong>.
+                        Si desea rectificar, por favor diríjase a
                         nuestras oficinas o póngase en contacto con un asesor.
                     </p>
                     <div className="text-center mb-2">
