@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import { handleError } from '../../helpers/hooks/handleError';
+import InputDecimal from '../auth/InputDecimal';
 import InputField from '../auth/InputField';
 import ErrorNotification from '../ErrorNotification';
 import ConfirmModal from '../modalsComponents/ConfirmModal';
@@ -211,15 +212,15 @@ const TradesTable = ({ id_contribuyente, trades, onTradeStateChange, refetch, se
                                 </div>
                                 <div className="modal-body p-4">
                                     <form>
-                                        <InputField
+                                        <InputDecimal
                                             label="Código de comercio (RAFAM)"
                                             name="cod_comercio"
                                             value={editedTrade.cod_comercio || ''}
-                                            type="text"
+                                            type="number"
                                             onChange={handleTradeChange}
                                             error={errorsTrade.cod_comercio}
                                             placeholder="Ingrese código de comercio"
-                                        />
+                                        />                                        
                                         <InputField
                                             label="Nombre de comercio | Nombre de fantasía"
                                             name="nombre_comercio"

@@ -20,6 +20,7 @@ import Footer from './components/Footer';
 import DdjjToRafam from './pages/DdjjToRafam';
 import RecoverPassword from './pages/RecoverPassword';
 import FormAddTrade from './pages/FormAddTrade';
+import Profile from './pages/Profile';
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
 
               {/* Rutas privadas (requieren que el usuario esté autenticado). Usamos el componente PrivateRoutes para protegerlas. */}
               <Route path="/home" element={<PrivateRoutes><Home /></PrivateRoutes>} />
+              <Route path="/perfil" element={<PrivateRoutes><Profile /></PrivateRoutes>} />
               <Route path="/cargarDDJJ" element={<PrivateRoutes><FormAddDdjj /></PrivateRoutes>} />
               <Route path="/contribuyente/:id" element={<PrivateRoutes><DetailsTaxpayer /></PrivateRoutes>} />
               <Route path="/ddjjContribuyente/:id_contribuyente/:id_comercio/:cod_comercio" element={<PrivateRoutes><DdjjTaxpayer /></PrivateRoutes>} />

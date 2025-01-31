@@ -75,7 +75,7 @@ const Navbar = () => {
                                                     }`}
                                                 to="/rafam"
                                             >
-                                                Cargar DDJJs en RAFAM / Rectificar
+                                                RAFAM / Rectificar
                                             </Link>
                                         </li>
                                         <li className="nav-item">
@@ -136,6 +136,18 @@ const Navbar = () => {
                                         </>
                                     )
                                 )}
+                                {user?.rol === 'super_admin' &&
+                                    <li className="nav-item">
+                                        <Link
+                                            className={`btn btn-dark text-uppercase me-2 ${isActive('/perfil')
+                                                && 'btn-outline-light'
+                                                }`}
+                                            to="/perfil"
+                                        >
+                                            Perfil
+                                        </Link>
+                                    </li>
+                                }
                                 <li className="nav-item">
                                     <Link
                                         className={`btn btn-dark text-uppercase me-2 ${isActive('/')

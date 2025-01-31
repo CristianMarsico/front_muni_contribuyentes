@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import InputDecimal from "./InputDecimal";
 import InputField from "./InputField";
 
 // Componente TradeCodes que maneja la lista de comercios y la adición/eliminación de nuevos comercios
@@ -92,7 +93,18 @@ const TradeCodes = ({
                 <div className="bg-light p-4 rounded shadow-sm">
                     <h5 className="text-center text-success mb-4">Registrar Nuevo Comercio</h5>
                     <div className="mt-2">
-                        <InputField
+
+                        <InputDecimal
+                            label="Código de Comercio (RAFAM)"
+                            name="codigo"
+                            value={nuevoComercio.codigo}
+                            type="number"
+                            onChange={handleNuevoComercioChange}
+                            error={errors.codigo}
+                            placeholder="Ingrese código de comercio"
+                            className="form-control mb-3"
+                        />
+                        {/* <InputField
                             label="Código de Comercio (RAFAM)"
                             name="codigo"
                             value={nuevoComercio.codigo}
@@ -101,7 +113,7 @@ const TradeCodes = ({
                             error={errors.codigo}
                             placeholder="Ingrese código de comercio"
                             className="form-control mb-3" // Asegura que el input tenga espacio y buen estilo
-                        />
+                        /> */}
                         <InputField
                             label="Dirección"
                             name="direccion"

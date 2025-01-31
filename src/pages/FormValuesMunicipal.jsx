@@ -8,6 +8,7 @@ import ConfirmModal from '../components/modalsComponents/ConfirmModal';
 import SuccessModal from '../components/modalsComponents/SuccessModal';
 import ErrorNotification from '../components/ErrorNotification';
 import { handleError } from '../helpers/hooks/handleError';
+import InputDecimal from '../components/auth/InputDecimal';
 
 const FormValuesMunicipal = () => {
     const URL = import.meta.env.VITE_API_URL;// URL de la API desde las variables de entorno
@@ -157,7 +158,7 @@ const FormValuesMunicipal = () => {
                         <div className="card shadow p-3">
                             <div className="card-body">
                                 <form>
-                                    <InputField
+                                    <InputDecimal
                                         label="Tasa actual"
                                         name="tasa_actual"
                                         value={configuracionGeneral.tasa_actual}
@@ -166,7 +167,7 @@ const FormValuesMunicipal = () => {
                                         error={errorsConfig.tasa_actual}
                                         step="0.01"
                                         min="0"
-                                    />
+                                    />                                    
                                     <InputField
                                         label="N° de día límite para cargar DDJJ"
                                         name="fecha_limite_ddjj"
@@ -175,7 +176,7 @@ const FormValuesMunicipal = () => {
                                         onChange={handleConfigChange}
                                         error={errorsConfig.fecha_limite_ddjj}
                                     />
-                                    <InputField
+                                    <InputDecimal
                                         label="Monto DDJJ por Defecto"
                                         name="monto_ddjj_defecto"
                                         value={configuracionGeneral.monto_ddjj_defecto}

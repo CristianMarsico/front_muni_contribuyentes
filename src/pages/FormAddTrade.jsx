@@ -1,5 +1,6 @@
 import axios from 'axios';
 import React, { useState } from 'react'
+import InputDecimal from '../components/auth/InputDecimal';
 import InputField from '../components/auth/InputField';
 import ErrorNotification from '../components/ErrorNotification';
 import ConfirmModal from '../components/modalsComponents/ConfirmModal';
@@ -137,7 +138,7 @@ const FormAddTrade = () => {
                                 <h2 className="text-center mb-4">Cargar Comercio</h2>
                                 <form onSubmit={handleSubmit}>
                                     <div>
-                                        <InputField
+                                        <InputDecimal
                                             label="Código de comercio (RAFAM)"
                                             name="codigo_comercio"
                                             value={registerTrade.codigo_comercio}
@@ -145,7 +146,7 @@ const FormAddTrade = () => {
                                             onChange={handleAddTradeChange}
                                             error={errorsTrade.codigo_comercio}
                                             placeholder="Ingrese código de comercio"
-                                        />
+                                        />                                        
                                         <InputField
                                             label="Nombre / Fantasía"
                                             name="nombre_comercio"

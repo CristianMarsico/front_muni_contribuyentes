@@ -1,6 +1,7 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
+import InputDecimal from '../components/auth/InputDecimal';
 import InputField from '../components/auth/InputField';
 import ErrorNotification from '../components/ErrorNotification';
 import ConfirmModal from '../components/modalsComponents/ConfirmModal';
@@ -204,9 +205,8 @@ const FormAddDdjj = () => {
                             ))
                         )}
                       </select>
-                    </div>
-
-                    <InputField
+                    </div>                    
+                    <InputDecimal
                       label="Monto"
                       name="monto"
                       value={registroDDJJ.monto}

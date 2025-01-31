@@ -4,51 +4,48 @@ import React, { useState } from 'react'
 //minimo 6 parametros (label, name, type, value, onChange, error).
 //al poner ...rest puede seguir recibiendo X cantidad de valores.
 const InputField = ({ label, name, type, value, onChange, error, ...rest }) => {
-    // Estado para controlar si la contraseña debe ser visible u oculta.
+    // Estado para alternar la visibilidad de la contraseña
     const [showPassword, setShowPassword] = useState(false);
+
     return (
-        <>
-            <div className="mb-3 position-relative">
-                <label htmlFor={name} className="form-label">{label}</label>
-                <input
-                    id={name}
-                    name={name}
-                    type={showPassword ? "text" : type}
-                    value={value}
-                    onChange={onChange}
-                    className={`form-control ${error ? "is-invalid" : ""}`}
-                    {...rest}
-                />
-                {/* Si hay un error, mostramos un mensaje de error debajo del campo */}
-                {error && <div className="invalid-feedback">{error}</div>}
+        <div className="mb-3 position-relative">
+            <label htmlFor={name} className="form-label">{label}</label>
+            <input
+                id={name}
+                name={name}
+                type={type === "password" && showPassword ? "text" : type}
+                value={value}
+                onChange={onChange}
+                // Removemos la clase is-invalid para el tipo password
+                className={`form-control ${error ? "has-error" : ""}`}
+                {...rest}
+            />
+            {/* Mensaje de error mostrado manualmente */}
+            {error && (
+                <div style={{ color: "red", fontSize: "0.875em", marginTop: "0.25em" }}>
+                    {error}
+                </div>
+            )}
 
-                {/* Si el tipo es 'password' y no hay error, mostramos un ícono para mostrar u ocultar la contraseña */}
-                {
-                    type === "password" && !error && (
-                        <div
-                            // Usamos estos estilos para acomodar el icono del ojo
-                            style={{
-                                position: "absolute",
-                                top: "74%",
-                                right: "10px",
-                                transform: "translateY(-50%)",
-                                cursor: "pointer",
-                                fontSize: "18px",
-                                color: "#333333",
-                                zIndex: 1, // Asegura que el ícono quede sobre el input
-                            }}
-                            // Al hacer clic, cambia el estado de showPassword para alternar entre mostrar/ocultar la contraseña.
-                            onClick={() => setShowPassword(!showPassword)}  // Cambiar el estado
-                        >
-                            {/* // Dependiendo del estado showPassword, cambiamos el ícono entre 'bi-eye' (ojo abierto) y 'bi-eye-slash' (ojo cerrado). */}
-                            <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`} />
-                        </div>
-                    )
-                }
-            </div>
-
-        </>
+            {/* Si el campo es contraseña, mostramos el ícono para alternar visibilidad */}
+            {type === "password" && (
+                <div
+                    style={{
+                        position: "absolute",
+                        top: "3.2rem",
+                        right: "10px",
+                        transform: "translateY(-50%)",
+                        cursor: "pointer",
+                        fontSize: "18px",
+                        color: "#333333",
+                        zIndex: 1,
+                    }}
+                    onClick={() => setShowPassword(!showPassword)}
+                >
+                    <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`} />
+                </div>
+            )}
+        </div>
     );
 };
-
 export default InputField

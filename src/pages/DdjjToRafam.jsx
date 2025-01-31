@@ -14,6 +14,7 @@ import { handleError } from '../helpers/hooks/handleError';
 import { useAuth } from '../context/AuthProvider';
 import FormattedNumber from '../helpers/hooks/FormattedNumber';
 import InputField from '../components/auth/InputField';
+import InputDecimal from '../components/auth/InputDecimal';
 
 const DdjjToRafam = () => {
     const URL = import.meta.env.VITE_API_URL;
@@ -441,7 +442,7 @@ const DdjjToRafam = () => {
                             </div>
                             <div className="modal-body p-4">
                                 <form>
-                                    <InputField
+                                    <InputDecimal
                                         label="Nuevo monto"
                                         name="monto"
                                         value={editedRectificar.monto || ""}
@@ -450,7 +451,6 @@ const DdjjToRafam = () => {
                                         error={errorsRectificar.monto}
                                         placeholder="Ingrese monto"
                                     />
-
                                     <div className="mb-4 position-relative">
                                         <label className="form-label fw-semibold">Mes Correspondiente</label>
                                         <select
