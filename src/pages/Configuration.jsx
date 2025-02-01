@@ -28,7 +28,7 @@ const Configuration = () => {
                                 className={`btn px-4 py-2 text-white ${activeSection === 'vencimientos' ? 'btn-primary border border-light' : ''}`}
                                 onClick={() => setActiveSection('vencimientos')}
                             >
-                                CONFIGURACIÓN DE VENCIMINETOS
+                                CONFIGURACIÓN DE VENCIMIENTOS
                             </button>
                             {
                                 user.rol === 'super_admin' && (
