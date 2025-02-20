@@ -287,8 +287,7 @@ const DdjjToRafam = () => {
     ];
 
     // Obtener el mes actual (0 = Enero, 11 = Diciembre)
-    const mesActual = new Date().getMonth();    
-
+    const mesActual = meses[(new Date().getMonth() - 1 + 12) % 12];
     return (
         <>
             {/* Sección de filtros */}
@@ -468,16 +467,8 @@ const DdjjToRafam = () => {
                                             }}
                                             className={`form-select text-center ${errorsRectificar.mes ? "is-invalid border-danger" : ""}`}
                                         >
-                                            <option value="">Seleccione el mes actual o posterior</option>
-                                            {meses.map((mes, index) => (
-                                                <option
-                                                    key={index}
-                                                    value={mes}
-                                                    disabled={index < mesActual} // Desactivar meses anteriores al actual
-                                                >
-                                                    {mes}
-                                                </option>
-                                            ))}
+                                            <option value="">Seleccione el mes correspondiente</option>                                            
+                                            <option value={mesActual}>{mesActual}</option>
                                         </select>
                                         {errorsRectificar?.mes && (
                                             <div className="invalid-feedback">{errorsRectificar?.mes}</div>

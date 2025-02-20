@@ -126,8 +126,7 @@ const Profile = () => {
         }
         try {
             const res = await axios.put(`${URL}/api/user/${data.id}`, data, { withCredentials: true });
-            if (res?.status === 200) {
-                console.log(res)           
+            if (res?.status === 200) {                        
                 setMsjModalExito(res?.data.message);
                 setShowConfirmModal(false);
                 setShowSuccessModal(false);

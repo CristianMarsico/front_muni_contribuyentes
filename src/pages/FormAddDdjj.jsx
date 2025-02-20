@@ -159,8 +159,8 @@ const FormAddDdjj = () => {
     "Enero", "Febrero", "Marzo", "Abril", "Mayo",
     "Junio", "Julio", "Agosto", "Septiembre",
     "Octubre", "Noviembre", "Diciembre"
-  ];
-  const mesActual = meses[new Date().getMonth()];
+  ]; 
+  const mesActual = meses[(new Date().getMonth() - 1 + 12) % 12];
 
   return (
     <>
@@ -182,7 +182,7 @@ const FormAddDdjj = () => {
                 <form onSubmit={handleSubmit}>
                   <div>
                     <div className="col-md-12 mb-3">
-                      <label htmlFor="comercio" className="form-label">Seleccione Comercio:</label>
+                      <label htmlFor="comercio" className="form-label">Seleccione Comercio</label>
                       <select
                         id="comercio"
                         className="form-select text-center"
@@ -207,7 +207,7 @@ const FormAddDdjj = () => {
                       </select>
                     </div>                    
                     <InputDecimal
-                      label="Monto"
+                      label="Monto (impuesto determinado para los ingresos brutos declarados ante ARBA)"
                       name="monto"
                       value={registroDDJJ.monto}
                       type="number"
