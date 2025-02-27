@@ -1,15 +1,25 @@
 import React from 'react'
-import CuitField from './CuitField';
 import InputField from './InputField';
 
-const LoginTaxpayer = ({ loginTaxpayer, handleLoginTaxpayerChange, handleCuitChange, errorTaxpayer }) => {
+const LoginTaxpayer = ({ loginTaxpayer, handleLoginTaxpayerChange, errorTaxpayer }) => {
     return (
         <>
-            {/* Componente CuitField para el campo del CUIT */}
-            <CuitField
-                cuit={loginTaxpayer.cuit}
-                errors={errorTaxpayer.cuit}
-                onChange={handleCuitChange} />
+            <InputField label="CUIT"
+                name="cuit"
+                value={loginTaxpayer.cuit}
+                type="number"
+                onChange={handleLoginTaxpayerChange}
+                error={errorTaxpayer.cuit}
+                placeholder="Ingrese CUIT"
+                onKeyDown={(e) => {
+                    if (e.key === "e" || e.key === "E" || e.key === "-" || e.key === "+" || e.key === ".") {
+                        e.preventDefault();
+                    }
+                }}
+                inputMode="numeric"
+                min="0"
+                maxLength="11"
+                />
 
             {/* Componente InputField para el campo de la Contraseña */}
             <InputField label="Contraseña"

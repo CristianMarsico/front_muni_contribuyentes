@@ -11,16 +11,18 @@ const TradeCodes = ({
     nuevoComercio,
     handleNuevoComercioChange,
     handleRegistrarComercio,
-}) => {
-
+    setNuevoComercio
+}) => {    
     // Estado para almacenar los errores de validación
     const [errors, setErrors] = useState({});
     // Función para validar los campos del formulario antes de registrar el comercio
     const validateFields = () => {
         const newErrors = {};
-        if (!nuevoComercio.codigo) newErrors.codigo = "*El código del comercio es obligatorio";
-        if (!nuevoComercio.direccion) newErrors.direccion = "*La dirección del comercio es obligatoria";
-        if (!nuevoComercio.nombre) newErrors.nombre = "*El nombre del comercio es obligatorio";
+        if (!nuevoComercio.codigo || nuevoComercio.codigo.replace(/\./g, '').replace(',', '.') === "") {
+            newErrors.codigo = "*El código del comercio es obligatorio.";
+        }
+        if (!nuevoComercio.direccion) newErrors.direccion = "*La dirección del comercio es obligatoria.";
+        if (!nuevoComercio.nombre) newErrors.nombre = "*El nombre del comercio es obligatorio.";
         setErrors(newErrors);
 
         return Object.keys(newErrors).length === 0; // Devuelve true si no hay errores
@@ -101,19 +103,8 @@ const TradeCodes = ({
                             type="number"
                             onChange={handleNuevoComercioChange}
                             error={errors.codigo}
-                            placeholder="Ingrese código de comercio"
-                            className="form-control mb-3"
-                        />
-                        {/* <InputField
-                            label="Código de Comercio (RAFAM)"
-                            name="codigo"
-                            value={nuevoComercio.codigo}
-                            type="number"
-                            onChange={handleNuevoComercioChange}
-                            error={errors.codigo}
-                            placeholder="Ingrese código de comercio"
-                            className="form-control mb-3" // Asegura que el input tenga espacio y buen estilo
-                        /> */}
+                            placeholder="Ingrese código de comercio"                           
+                        />                       
                         <InputField
                             label="Dirección"
                             name="direccion"
@@ -121,8 +112,7 @@ const TradeCodes = ({
                             type="text"
                             onChange={handleNuevoComercioChange}
                             error={errors.direccion}
-                            placeholder="Ingrese la dirección comercial"
-                            className="form-control mb-3" // Mantiene la coherencia del estilo
+                            placeholder="Ingrese la dirección comercial"                           
                         />
                         <InputField
                             label="Nombre | Nombre Fantasía"
@@ -131,8 +121,7 @@ const TradeCodes = ({
                             type="text"
                             onChange={handleNuevoComercioChange}
                             error={errors.nombre}
-                            placeholder="Ingrese el nombre o nombre de fantasía"
-                            className="form-control mb-3" // Añadido margen para los campos
+                            placeholder="Ingrese el nombre o nombre de fantasía"                            
                         />
 
                         {/* Botones para registrar o cancelar */}
@@ -148,9 +137,9 @@ const TradeCodes = ({
                             <button
                                 type="button"
                                 className="btn btn-secondary w-100 w-sm-auto py-2"
-                                onClick={() => setShowComercioForm(false)} // Cierra el formulario cuando se hace click
+                                onClick={() => setNuevoComercio({ codigo: "", direccion: "", nombre: "" })} // Cierra el formulario cuando se hace click
                             >
-                                Cancelar
+                                Limpiar Campos
                             </button>
                         </div>
                     </div>

@@ -1,7 +1,5 @@
 import React, { useState } from "react";
-import CuitField from "./CuitField";
 import InputField from "./InputField";
-
 import TradeCodes from "./TradeCodes";
 
 const RegisterFields = ({ registroData, setRegistroData, setError }) => {
@@ -23,11 +21,7 @@ const RegisterFields = ({ registroData, setRegistroData, setError }) => {
         direccion: null,
         telefono: null,
         razon_social: null,
-        cuit: {
-            prefijoCuit: null,
-            numeroCuit: null,
-            verificadorCuit: null,
-        },
+        cuit: null,
     });
 
     // Validación y actualización de datos personales
@@ -93,31 +87,20 @@ const RegisterFields = ({ registroData, setRegistroData, setError }) => {
     // Validación y actualización de CUIT
     const handleCuitChange = (e) => {
         const { name, value } = e.target;
-        // Actualizar valores del CUIT
-        setRegistroData({
-            ...registroData,
-            cuit: {
-                ...registroData.cuit,
-                [name]: value,
-            },
-        });
 
-        // Validar cada parte del CUIT
-        const cuitErrors = { ...errors.cuit };
-        if (name === "prefijoCuit") {
-            cuitErrors.prefijoCuit = value.length === 2 ? null : "Sólo 2 dígitos";
-        } else if (name === "numeroCuit") {
-            cuitErrors.numeroCuit =
-                value.length >= 8 && value.length <= 9 ? null : "Entre 8 o 9 dígitos";
-        } else {
-            cuitErrors.verificadorCuit =
-                value.length === 1 ? null : "Sólo 1 dígito";
+        if (name === "cuit") {
+            // Permitir solo números y restringir a 11 caracteres
+            const numericValue = value.replace(/\D/g, "").slice(0, 11);
+            setRegistroData({ ...registroData, [name]: numericValue });
+
+            // Validación del CUIT
+            let errorMessage = null;
+            if (numericValue.length !== 11) {
+                errorMessage = "*El CUIT debe contener exactamente 11 dígitos.";
+            }
+
+            setErrors({ ...errors, cuit: errorMessage });
         }
-
-        setErrors({
-            ...errors,
-            cuit: cuitErrors,
-        });
     };
 
     // Validar y registrar un nuevo comercio
@@ -145,7 +128,7 @@ const RegisterFields = ({ registroData, setRegistroData, setError }) => {
             setNuevoComercio({ codigo: "", direccion: "", nombre: "" });
             setShowComercioForm(false);
         } else {
-            setError("Por favor completa todos los campos del comercio.");
+            setError("*Por favor completa todos los campos del comercio.");
         }
     };
 
@@ -161,62 +144,45 @@ const RegisterFields = ({ registroData, setRegistroData, setError }) => {
 
     // Navegación entre pasos
     const handleNextStep = () => {
-        const newErrors = { ...errors, cuit: { ...errors.cuit } };
+        const newErrors = { ...errors };
 
         if (currentStep === 0) {
             if (!registroData.nombre || registroData.nombre.trim() === "") {
-                newErrors.nombre = "*Nombre es obligatorio";
+                newErrors.nombre = "*Nombre es obligatorio.";
             }
 
             if (!registroData.apellido || registroData.apellido.trim() === "") {
-                newErrors.apellido = "*Apellido es obligatorio";
+                newErrors.apellido = "*Apellido es obligatorio.";
             }
 
             if (!registroData.direccion || registroData.direccion.trim() === "") {
-                newErrors.direccion = "*Dirección obligatoria";
+                newErrors.direccion = "*Dirección obligatoria.";
             }
             if (!registroData.telefono || registroData.telefono.trim() === "") {
-                newErrors.telefono = "*Teléfono o celular obligatorio";
+                newErrors.telefono = "*Teléfono o celular obligatorio.";
             }
             if (!registroData.email || registroData.email.trim() === "") {
-                newErrors.email = "*Email obligatorio";
+                newErrors.email = "*Email obligatorio.";
             }
         } else if (currentStep === 1) {
             if (!registroData.password || registroData.password.trim() === "") {
-                newErrors.password = "*Contraseña obligatoria";
+                newErrors.password = "*Contraseña obligatoria.";
             }
             if (!registroData.rePassword || registroData.rePassword.trim() === "") {
-                newErrors.rePassword = "*Contraseña obligatoria";
+                newErrors.rePassword = "*Contraseña obligatoria.";
             }
             if (!registroData.razon_social || registroData.razon_social.trim() === "") {
-                newErrors.razon_social = "*Razón social obligatoria";
+                newErrors.razon_social = "*Razón social obligatoria.";
             }
 
             // Validar CUIT
-            if (!registroData.cuit.prefijoCuit || registroData.cuit.prefijoCuit.length !== 2) {
-                newErrors.cuit.prefijoCuit = "Sólo 2 dígitos";
-            }
-            if (!registroData.cuit.numeroCuit || registroData.cuit.numeroCuit.length < 8 || registroData.cuit.numeroCuit.length > 9) {
-                newErrors.cuit.numeroCuit = "Entre 8 o 9 dígitos";
-            }
-            if (!registroData.cuit.verificadorCuit || registroData.cuit.verificadorCuit.length !== 1) {
-                newErrors.cuit.verificadorCuit = "Sólo 1 dígito";
+            if (!registroData.cuit || registroData.cuit.length !== 11) {
+                newErrors.cuit = "*El CUIT debe contener exactamente 11 dígitos.";
             }
         }
+
         // Si hay errores, mostrarlos
-        if (
-            newErrors.nombre ||
-            newErrors.apellido ||
-            newErrors.password ||
-            newErrors.rePassword ||
-            newErrors.email ||
-            newErrors.direccion ||
-            newErrors.telefono ||
-            newErrors.razon_social ||
-            newErrors.cuit.prefijoCuit ||
-            newErrors.cuit.numeroCuit ||
-            newErrors.cuit.verificadorCuit
-        ) {
+        if (Object.values(newErrors).some((error) => error !== undefined && error !== null)) {
             setErrors(newErrors);
             return;
         }
@@ -251,7 +217,6 @@ const RegisterFields = ({ registroData, setRegistroData, setError }) => {
                             error={errors.apellido}
                             placeholder="Ingrese apellido" />
 
-
                         <InputField label="Email"
                             name="email"
                             value={registroData.email}
@@ -259,8 +224,6 @@ const RegisterFields = ({ registroData, setRegistroData, setError }) => {
                             onChange={handleRegistroChange}
                             error={errors.email}
                             placeholder="Ingrese email" />
-
-
 
                         <InputField label="Dirección"
                             name="direccion"
@@ -276,7 +239,13 @@ const RegisterFields = ({ registroData, setRegistroData, setError }) => {
                             type="number"
                             onChange={handleRegistroChange}
                             error={errors.telefono}
-                            placeholder="Ingrese teléfono" />
+                            placeholder="Ingrese teléfono"
+                            onKeyDown={(e) => {
+                                if (e.key === "e" || e.key === "E" || e.key === "-" || e.key === "+" || e.key === ".") {
+                                    e.preventDefault();
+                                }
+                            }}
+                            inputMode="numeric" />
 
                     </div>
                 );
@@ -299,13 +268,26 @@ const RegisterFields = ({ registroData, setRegistroData, setError }) => {
                             onChange={handleRegistroChange}
                             error={errors.rePassword}
                             placeholder="Vuelva a ingresar contraseña" />
+                 
+                        <InputField label="CUIT"
+                            name="cuit"
+                            value={registroData.cuit}
+                            type="number"
+                            onChange={handleCuitChange}
+                            error={errors.cuit}
+                            placeholder="Ingrese CUIT"
+                            onKeyDown={(e) => {
+                                if (e.key === "e" || e.key === "E" || e.key === "-" || e.key === "+" || e.key === ".") {
+                                    e.preventDefault();
+                                }
+                            }}
+                            inputMode="numeric"
+                            min="0"
+                            maxLength="11"
+                        />
 
-                        <CuitField
-                            cuit={registroData.cuit}
-                            errors={errors.cuit}
-                            onChange={handleCuitChange} />
-
-                        <InputField label="Razón Social"
+                        <InputField 
+                            label="Razón Social"
                             name="razon_social"
                             value={registroData.razon_social}
                             type="text"
@@ -326,6 +308,7 @@ const RegisterFields = ({ registroData, setRegistroData, setError }) => {
                             nuevoComercio={nuevoComercio}
                             handleNuevoComercioChange={handleNuevoComercioChange}
                             handleRegistrarComercio={handleRegistrarComercio}
+                            setNuevoComercio={setNuevoComercio}
                         />
                     </div>
                 )
