@@ -53,6 +53,11 @@ const DdjjToRafam = () => {
             refetch();
         });
 
+        socket.on('comercio-editado', (comercioEditado) => {
+            setDdjj((prev) => [...prev, comercioEditado]);
+            refetch();
+        });
+
         socket.on('ddjj-newState', (newState) => {
             if (newState && newState.id_taxpayer && newState.id_trade) {
                 // Actualizar solo si los datos recibidos son válidos

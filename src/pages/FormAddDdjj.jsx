@@ -48,6 +48,18 @@ const FormAddDdjj = () => {
       refetch();
     });
 
+    socket.on('estado-inactivo', (nuevoComercio) => {
+      const id_comercio = nuevoComercio;
+      setSelectedComercio(id_comercio); // Actualiza el estado con un valor único
+      refetch();
+    });
+
+    socket.on('comercio-editado', (comercioEditado) => {
+      const id_comercio = comercioEditado;
+      setSelectedComercio(id_comercio);
+      refetch();
+    });
+
     return () => socket.disconnect();
   }, [URL], refetch);
 

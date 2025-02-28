@@ -23,6 +23,12 @@ const DetailsTaxpayer = () => {
         confirmTaxpayer: false,
         success: false,
     });
+
+    const [disabled, setDisabled] = useState({
+        confirmDisabled: false,
+        confirmTaxpayer: false,
+        success: false,
+    });
     const [selectedEstado, setSelectedEstado] = useState(null);
     const [trades, setTrades] = useState([]);
     const taxpayerInfo = data?.response[0];
@@ -44,6 +50,11 @@ const DetailsTaxpayer = () => {
             refetch();
         });
 
+        socket.on('estado-inactivo', (nuevoComercio) => {
+            setTrades((prev) => [...prev, nuevoComercio]);
+            refetch();
+        });
+
         socket.on('estado-actualizado', (habilitado) => {
             setTrades((prev) => prev.map(trade =>
                 trade.id_comercio === habilitado.id_comercio
@@ -59,11 +70,54 @@ const DetailsTaxpayer = () => {
         setModals((prev) => ({ ...prev, [type]: state }));
     };
 
+    const toggleDisabled = (type, state) => {
+        setDisabled((prev) => ({ ...prev, [type]: state }));
+    };
+
+
     const setError = (message) => {
         setErrorMessage(message); // Establece el mensaje de error en el estado
     };
 
-    const handleTradeStateChange = async () => {
+    const handleTradeDisabled = async () =>{
+        toggleDisabled('success', false);
+        try {
+            const response = await axios.put(`${URL}/api/trades/${selectedEstado.id_comercio}`, null, {
+                withCredentials: true,
+            });
+            if (response.status === 200) {
+                toggleDisabled('success', true);
+                // Actualiza el estado local de los comercios
+                const updatedTrades = trades.map((trade) =>
+                    trade.id_comercio === selectedEstado.id_comercio ? { ...trade, estado: true } : trade
+                );
+                setTrades(updatedTrades);
+
+                // Verificar si este es el primer comercio habilitado
+                const algunComercioHabilitado = updatedTrades.some((trade) => trade.estado);
+                if (algunComercioHabilitado && !isTaxpayerEnabled) {
+                    // Habilita al contribuyente si es necesario
+                    await handleTaxpayerStateChange();
+                }
+
+                refetch();
+            }
+        } catch (error) {
+            handleError(error, {
+                on401: (message) => {
+                    setError(message);
+                    setTimeout(() => logout(), 3000);
+                },
+                on404: (message) => setError(message), // Puedes pasar cualquier función específica
+                onOtherServerError: (message) => setError(message),
+                onConnectionError: (message) => setError(message),
+            });
+        } finally {
+            toggleDisabled('confirmDisabled', false);
+        }
+    }
+
+    const handleTradeStateChange = async () => {       
         toggleModal('success', false);
         try {
             const response = await axios.put(`${URL}/api/trade/${selectedEstado.id_comercio}`, null, {
@@ -142,6 +196,10 @@ const DetailsTaxpayer = () => {
                     setSelectedEstado(comercio);
                     toggleModal('confirmTrade', true);
                 }}
+                disabledTrade={(comercio) => {
+                    setSelectedEstado(comercio);
+                    toggleDisabled('confirmDisabled', true);
+                }}
                 refetch={refetch}
                 setTrades={setTrades}
                 URL={URL}
@@ -155,11 +213,30 @@ const DetailsTaxpayer = () => {
                     setShowConfirmModal={() => toggleModal('confirmTrade', false)}
                 />
             )}
-            <SuccessModal
-                show={modals.success}
-                message="Dado de alta exitosamente."
-                duration={3000}
-            />
+
+            {disabled.confirmDisabled && (
+                <ConfirmModal
+                    msj={`Desea dejar inactivo al comercio n° ${selectedEstado?.cod_comercio} ?`}
+                    handleEstadoChange={handleTradeDisabled}
+                    setShowConfirmModal={() => toggleDisabled('confirmDisabled', false)}
+                />
+            )}
+            {modals.success &&(
+                <SuccessModal
+                    show={modals.success}
+                    message="Dado de alta exitosamente."
+                    duration={3000}
+                />
+            )}
+
+            {disabled.success && (
+                <SuccessModal
+                    show={disabled.success}
+                    message="Ha sido inhablitado exitosamente."
+                    duration={3000}
+                />
+            )}
+
             <ErrorNotification
                 message={errorMessage}
                 onClose={() => setErrorMessage(null)}

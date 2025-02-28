@@ -9,7 +9,7 @@ import ErrorNotification from '../ErrorNotification';
 import ConfirmModal from '../modalsComponents/ConfirmModal';
 import SuccessModal from '../modalsComponents/SuccessModal';
 
-const TradesTable = ({ id_contribuyente, trades, onTradeStateChange, refetch, setTrades, URL, logout }) => {
+const TradesTable = ({ id_contribuyente, trades, onTradeStateChange, disabledTrade, refetch, setTrades, URL, logout }) => {
     const navigate = useNavigate();
     const [showModal, setShowModal] = useState(false);
     const [selectedTrade, setSelectedTrade] = useState(null);
@@ -70,7 +70,8 @@ const TradesTable = ({ id_contribuyente, trades, onTradeStateChange, refetch, se
         const data = {
             codigo_comercio: editedTrade.cod_comercio,
             nombre_comercio: editedTrade.nombre_comercio,
-            direccion_comercio: editedTrade.direccion_comercio
+            direccion_comercio: editedTrade.direccion_comercio,
+            id_contribuyente : id_contribuyente
         };
 
         try {
@@ -138,21 +139,18 @@ const TradesTable = ({ id_contribuyente, trades, onTradeStateChange, refetch, se
                                                 <th>Dirección Comercial</th>
                                                 <th>Estado</th>
                                                 <th>DDJJs</th>
+                                                <th>Inhabilitar</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {trades?.map((comercio, index) => (
                                                 <tr key={index}>
                                                     <td>
-                                                        {!comercio?.estado ? (
-                                                            <i
-                                                                className="bi bi-pencil text-primary ms-2"
-                                                                role="button"
-                                                                onClick={() => handleEditClick(comercio)}
-                                                            ></i>
-                                                        ) : (
-                                                            <i className="bi bi-x-circle text-danger"></i>
-                                                        )}
+                                                        <i
+                                                            className="bi bi-pencil text-primary ms-2"
+                                                            role="button"
+                                                            onClick={() => handleEditClick(comercio)}
+                                                        ></i>
                                                     </td>
                                                     <td>{comercio?.cod_comercio}</td>
                                                     <td>{comercio?.nombre_comercio}</td>
@@ -170,19 +168,27 @@ const TradesTable = ({ id_contribuyente, trades, onTradeStateChange, refetch, se
                                                         )}
                                                     </td>
                                                     <td>
+                                                        <button
+                                                            className="btn btn-warning fw-bold"
+                                                            onClick={() =>
+                                                                navigate(
+                                                                    `/ddjjContribuyente/${id_contribuyente}/${comercio?.id_comercio}/${comercio?.cod_comercio}`
+                                                                )
+                                                            }
+                                                        >
+                                                            Ver
+                                                        </button>
+                                                    </td>
+                                                    <td>
                                                         {comercio?.estado ? (
                                                             <button
-                                                                className="btn btn-warning fw-bold"
-                                                                onClick={() =>
-                                                                    navigate(
-                                                                        `/ddjjContribuyente/${id_contribuyente}/${comercio?.id_comercio}/${comercio?.cod_comercio}`
-                                                                    )
-                                                                }
+                                                                className="btn btn-outline-danger flex-grow-1 fw-bold"
+                                                                onClick={() => disabledTrade(comercio)}
                                                             >
-                                                                Ver DDJJs
+                                                                inhabilitar
                                                             </button>
                                                         ) : (
-                                                            <strong className="bi bi-x-circle text-danger"> Sin habilitar</strong>
+                                                            <strong className="bi bi-x-circle text-danger"> Inactivo</strong>
                                                         )}
                                                     </td>
                                                 </tr>
@@ -220,7 +226,7 @@ const TradesTable = ({ id_contribuyente, trades, onTradeStateChange, refetch, se
                                             onChange={handleTradeChange}
                                             error={errorsTrade.cod_comercio}
                                             placeholder="Ingrese código de comercio"
-                                        />                                        
+                                        />
                                         <InputField
                                             label="Nombre de comercio | Nombre de fantasía"
                                             name="nombre_comercio"
