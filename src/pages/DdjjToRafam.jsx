@@ -255,8 +255,7 @@ const DdjjToRafam = () => {
         );
     };
 
-    const confirmRectificarChanges = async () => {
-     
+    const confirmRectificarChanges = async () => {        
         try {
             const res = await axios.put(
                 `${URL}/api/rectificar/${selectedRectificar.id_contribuyente}/${selectedRectificar.id_comercio}/${selectedRectificar.fecha}`,
@@ -292,7 +291,9 @@ const DdjjToRafam = () => {
     ];
 
     // Obtener el mes actual (0 = Enero, 11 = Diciembre)
-    const mesActual = meses[(new Date().getMonth() - 1 + 12) % 12];
+     const mesActualIndex = (new Date().getMonth() - 1 + 12) % 12;
+   
+   
     return (
         <>
             {/* Sección de filtros */}
@@ -472,8 +473,12 @@ const DdjjToRafam = () => {
                                             }}
                                             className={`form-select text-center ${errorsRectificar.mes ? "is-invalid border-danger" : ""}`}
                                         >
-                                            <option value="">Seleccione el mes correspondiente</option>                                            
-                                            <option value={mesActual}>{mesActual}</option>
+                                            <option value="">Seleccione el mes correspondiente</option>                                           
+                                            {Array.from({ length: mesActualIndex + 1 }, (_, i) => {
+                                                const index = mesActualIndex - i;
+                                                return <option key={index} value={meses[index]}>{meses[index]}</option>;
+                                            })}
+                                            
                                         </select>
                                         {errorsRectificar?.mes && (
                                             <div className="invalid-feedback">{errorsRectificar?.mes}</div>
