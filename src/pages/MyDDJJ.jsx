@@ -57,9 +57,6 @@ const MyDDJJ = ({ id }) => {
     }, [URL], refetch);
 
 
-
-
-
     const handleComercioChange = (e) => {
         setSelectedTrade(e.target.value);
     };

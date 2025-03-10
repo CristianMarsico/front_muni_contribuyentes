@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { io } from 'socket.io-client';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import SuccessModal from '../components/modalsComponents/SuccessModal';
 import ConfirmModal from '../components/modalsComponents/ConfirmModal';
 import useFetch from '../helpers/hooks/useFetch';
@@ -14,6 +14,9 @@ import { handleError } from '../helpers/hooks/handleError';
 const DetailsTaxpayer = () => {
     const URL = import.meta.env.VITE_API_URL;
     const { id } = useParams();
+    const location = useLocation();
+    const contribuyente = location.state?.contribuyente;
+    
     const { data, refetch } = useFetch(`${URL}/api/taxpayer/${id}`);
     const { logout } = useAuth();
 
@@ -31,7 +34,7 @@ const DetailsTaxpayer = () => {
     });
     const [selectedEstado, setSelectedEstado] = useState(null);
     const [trades, setTrades] = useState([]);
-    const taxpayerInfo = data?.response[0];
+   
     const [isTaxpayerEnabled, setIsTaxpayerEnabled] = useState(false);   
 
     const existeHabilitado = data?.response.some(comercio => comercio.estado);
@@ -185,7 +188,7 @@ const DetailsTaxpayer = () => {
         <div className="container mt-4">
             {/* Información del contribuyente */}
             <TaxpayerCard
-                info={taxpayerInfo}
+                info={contribuyente}
                 existeHabilitado={existeHabilitado}
             />
             {/* Lista de Comercios */}
