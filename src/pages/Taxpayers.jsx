@@ -62,6 +62,14 @@ const Taxpayers = () => {
             refetch();
         });
 
+        // Evento: elimina un contribuyente
+        socket.on('borrado', (eliminado) => {
+            setTaxpayers((prevTaxpayers) =>
+                prevTaxpayers.filter((t) => t.id_contribuyente !== eliminado.id_contribuyente)
+            );
+            refetch();
+        });
+
         // Evento: actualizar estado de un contribuyente
         socket.on('estado-actualizado', (contribuyenteActualizado) => {
             if (contribuyenteActualizado && contribuyenteActualizado.id_contribuyente) {
@@ -168,6 +176,7 @@ const Taxpayers = () => {
                                     <table className="table table-striped table-bordered text-center w-100" style={{ textAlign: "center", verticalAlign: "middle" }}>
                                         <thead className="thead-dark">
                                             <tr className="text-center align-middle">
+                                                <th scope="col">#</th>
                                                 <th scope="col">Nombre y Apellido</th>
                                                 <th scope="col">CUIT</th>
                                                 <th scope="col">Email</th>
@@ -198,8 +207,9 @@ const Taxpayers = () => {
                                                     </td>
                                                 </tr>
                                             ) : (
-                                                filtros.map((c) => (
+                                                    filtros.map((c, index) => (
                                                     <tr key={c?.id_contribuyente || Math.random()}>
+                                                        <th>{index + 1}</th>
                                                         <td>{c?.nombre} {c?.apellido}</td>
                                                         <td>{c?.cuit}</td>
                                                         <td>{c?.email}</td>

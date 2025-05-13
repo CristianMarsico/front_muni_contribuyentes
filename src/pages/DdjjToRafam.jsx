@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import { io } from 'socket.io-client';
-import ExcelJS from 'exceljs';
-import { saveAs } from 'file-saver';
 import useFetch from '../helpers/hooks/useFetch';
 import Loading from '../components/Loading';
 import ErrorResponse from '../components/ErrorResponse';
@@ -9,12 +7,14 @@ import ConfirmModal from '../components/modalsComponents/ConfirmModal';
 import SuccessModal from '../components/modalsComponents/SuccessModal';
 import ErrorNotification from '../components/ErrorNotification';
 import axios from 'axios';
-import Filter from '../components/Filter';
 import { handleError } from '../helpers/hooks/handleError';
 import { useAuth } from '../context/AuthProvider';
 import FormattedNumber from '../helpers/hooks/FormattedNumber';
-import InputField from '../components/auth/InputField';
-import InputDecimal from '../components/auth/InputDecimal';
+import FormRectificar from './FormRectificar';
+import ExportExcelComponents from '../components/ExportExcelComponents';
+import FiltersRafam from '../components/FiltersRafam';
+import CheckboxRafam from '../components/CheckboxRafam';
+import CheckboxRectificar from '../components/CheckboxRectificar';
 
 const DdjjToRafam = () => {
     const URL = import.meta.env.VITE_API_URL;
@@ -28,14 +28,19 @@ const DdjjToRafam = () => {
     const [msjModalExito, setMsjModalExito] = useState("");
     const [errorMessage, setErrorMessage] = useState(null);
     const [selectedCheckbox, setSelectedCheckbox] = useState(null);
+    
+    // Estados para rectificar una ddjj
     const [showModalRectificar, setShowModalRectificar] = useState(false);
     const [selectedRectificar, setSelectedRectificar] = useState(null);
     const [editedRectificar, setEditedRectificar] = useState({});
     const [errorsRectificar, setErrorsRectificar] = useState({});
 
+     // Estados para los filtros
     const [buscarCuit, setBuscarCuit] = useState('');
     const [buscarCodComercio, setBuscarCodComercio] = useState('');
     const [buscarAnio, setBuscarAnio] = useState('');
+    const [buscarMes, setBuscarMes] = useState('');
+
     // Actualizar la lista con los datos de la API
     useEffect(() => {
         if (data?.response) {
@@ -44,7 +49,7 @@ const DdjjToRafam = () => {
             setDdjj([]);
         }
     }, [data]);
-
+  
     // WebSocket para recibir actualizaciones en tiempo real
     useEffect(() => {
         const socket = io(URL);
@@ -74,6 +79,24 @@ const DdjjToRafam = () => {
             }
         });
 
+        socket.on('ddjj-rectificar', (newState) => {
+            console.log(newState)
+            if (newState && newState.id_taxpayer && newState.id_trade && newState.id_rectificacion) {
+                // Actualizar solo si los datos recibidos son válidos
+                setDdjj((prev) =>
+                    prev.map((item) =>
+                        item.id_contribuyente === newState.id_taxpayer &&
+                            item.id_comercio === newState.id_trade &&
+                            item.fecha === newState.id_date &&
+                            item.id_rectificacion === newState.id_rectificacion
+                            ? { ...item, enviada: newState.enviada }
+                            : item
+                    )
+                );
+                refetch();
+            }
+        });
+
         socket.on('rectificada', (rectificada) => {
             if (rectificada && rectificada.id_taxpayer && rectificada.id_trade) {
                 // Actualizar solo si los datos recibidos son válidos
@@ -89,77 +112,44 @@ const DdjjToRafam = () => {
         });
 
         return () => socket.disconnect();
-    }, [URL], refetch);
+    }, [URL, refetch]);
 
+    // Arreglo que almacena objetos
+    //Guarda todos los nombres de los meses y el value representa el numero de mes.
+    const mesesSelect = [
+        { value: 1, label: "Enero" },
+        { value: 2, label: "Febrero" },
+        { value: 3, label: "Marzo" },
+        { value: 4, label: "Abril" },
+        { value: 5, label: "Mayo" },
+        { value: 6, label: "Junio" },
+        { value: 7, label: "Julio" },
+        { value: 8, label: "Agosto" },
+        { value: 9, label: "Septiembre" },
+        { value: 10, label: "Octubre" },
+        { value: 11, label: "Noviembre" },
+        { value: 12, label: "Diciembre" }
+    ];
+
+    // Función js para los filtros de busqueda.
     const filtros = ddjj.filter((c) => {
-        if (!c?.cuit || !c?.cod_comercio || !c?.fecha) return false; // Excluir datos incompletos
+        if (!c?.cuit || !c?.cod_comercio || !c?.fecha) return false;
+
         const cuit = c?.cuit.toString().includes(buscarCuit);
         const codigoComercio = c?.cod_comercio.toString().includes(buscarCodComercio);
 
         const fecha = new Date(c?.fecha);
-        const anio = fecha.getFullYear();
+        const fechaDeclarada = new Date(fecha);
+        fechaDeclarada.setMonth(fechaDeclarada.getMonth() - 1); // desfase de un mes
 
-        // Filtrar por año solo si buscarAnio tiene valor
+        const mes = fechaDeclarada.getMonth(); // 0 = Enero
+        const anio = fechaDeclarada.getFullYear();
+
         const filtrarAnio = buscarAnio ? anio.toString() === buscarAnio : true;
-        return cuit && codigoComercio && filtrarAnio;
+        const filtrarMes = buscarMes ? mes === (parseInt(buscarMes) - 1) : true;
+
+        return cuit && codigoComercio && filtrarAnio && filtrarMes;
     });
-
-    const exportToExcel = () => {
-        if (!ddjj || ddjj?.length == 0 || error) {
-            setErrorMessage("No hay datos para exportar en EXCEL");
-            return;
-        }
-        // Crea un nuevo libro de Excel (workbook)
-        const workbook = new ExcelJS.Workbook();
-        const worksheet = workbook.addWorksheet('Administradores');
-
-        // Define las columnas de la hoja
-        worksheet.columns = [
-            { header: '#', key: 'id', width: 5, style: { numFmt: '0' } },
-            { header: 'CUIT', key: 'cuit', width: 15, style: { numFmt: '0' } },
-            { header: 'N° Comercio', key: 'cod_comercio', width: 15, style: { numFmt: '0' } },
-            { header: 'Nombre Comercio / Fantasía', key: 'nombre_comercio', width: 30 },
-            { header: 'Monto Declarado', key: 'monto', width: 20, style: { numFmt: '0.00' } },
-            { header: 'Tasa a Pagar', key: 'tasa', width: 15, style: { numFmt: '0.00' } },
-            { header: 'Fecha', key: 'fecha', width: 10 },
-            { header: 'Detalle', key: 'mes_correspondiente', width: 35 },
-            { header: 'Cargada en Fecha', key: 'en_tiempo', width: 20 },
-            { header: 'Rectificada', key: 'rectificada', width: 15 },
-            { header: 'Enviada a RAFAM', key: 'en_rafam', width: 20 },
-        ];
-
-        // Agrega los datos fila por fila
-        ddjj?.forEach((row, index) => {
-            worksheet.addRow({
-                id: parseFloat(index + 1),
-                cuit: parseFloat(row?.cuit),
-                cod_comercio: parseFloat(row?.cod_comercio),
-                nombre_comercio: row?.nombre_comercio,
-                monto: parseFloat(row?.monto),
-                tasa: parseFloat(row?.tasa_calculada) || 'N/A',
-                fecha: new Date(row?.fecha).toLocaleDateString(),
-                mes_correspondiente: row?.descripcion,
-                en_tiempo: row?.cargada_en_tiempo ? 'Sí' : 'No',
-                rectificada: row?.rectificada ? 'Rectificada' : 'Sin Rectificar',
-                en_rafam: row?.cargada_rafam ? 'Sí' : 'No',
-            });
-        });
-
-        // Estilo opcional para el encabezado
-        worksheet.getRow(1).font = { bold: true };
-
-        // Genera el archivo Excel en un buffer
-        workbook.xlsx.writeBuffer().then((buffer) => {
-            const blob = new Blob([buffer], {
-                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            });
-
-            // Guarda el archivo con FileSaver
-            saveAs(blob, 'Administradores.xlsx');
-        }).catch((err) => {
-            setErrorMessage('Error al generar el archivo Excel:', err);
-        });
-    };
 
     // Mostrar modal de confirmación
     const handleShowModal = (message, onConfirm) => {
@@ -171,42 +161,6 @@ const DdjjToRafam = () => {
         setSelectedCheckbox(null);
     };
 
-    // Enviar DDJJ a RAFAM
-    const handleCheckboxChange = async (id_contribuyente, id_comercio, fecha) => {
-        try {
-            const res = await axios.put(`${URL}/api/ddjj/${id_contribuyente}/${id_comercio}/${fecha}`, null, {
-                withCredentials: true,
-            });
-            if (res?.status === 200) {
-                setMsjModalExito(res?.data.message);
-                setShowModal(false);
-                setTimeout(() => setShowModal(true), 100);
-                setDdjj((prev) =>
-                    prev.map((item) =>
-                        item.id_contribuyente === id_contribuyente &&
-                            item.id_comercio === id_comercio &&
-                            item.fecha === fecha
-                            ? { ...item, cargada_rafam: true }
-                            : item
-                    )
-                );
-                refetch();
-            }
-        } catch (error) {
-            handleError(error, {
-                on401: (message) => {
-                    setErrorMessage(message);
-                    setTimeout(() => logout(), 3000);
-                },
-                on404: (message) => setErrorMessage(message), // Puedes pasar cualquier función específica
-                onOtherServerError: (message) => setErrorMessage(message),
-                onConnectionError: (message) => setErrorMessage(message),
-            });
-        } finally {
-            setSelectedCheckbox(null)
-        }
-    };
-
     // Manejar la edición de una DDJJ
     const handleRectificar = (ddjj) => {
         setSelectedRectificar(ddjj);
@@ -214,21 +168,12 @@ const DdjjToRafam = () => {
         setShowModalRectificar(true);
     };
 
-    const handleRectificarChange = (e) => {
-        const { name, value } = e.target;
-        setEditedRectificar((prev) => ({ ...prev, [name]: value }));
-        setErrorsRectificar((prevErrors) => {
-            const { [name]: _, ...remainingErrors } = prevErrors;
-            return remainingErrors;
-        });
-    };
-
     const handleConfirmChanges = () => {
 
         // Inicializar un objeto de errores vacío
-        let errors = {}; 
+        let errors = {};
 
-        const decimalRegex = /^\d+(\.\d{1,2})?$/;      
+        const decimalRegex = /^\d+(\.\d{1,2})?$/;
 
         // Validación del monto
         if (editedRectificar.monto.trim() === "") {
@@ -255,7 +200,8 @@ const DdjjToRafam = () => {
         );
     };
 
-    const confirmRectificarChanges = async () => {        
+    // Enviar datos de ddjj a RECTIFICAR
+    const confirmRectificarChanges = async () => {
         try {
             const res = await axios.put(
                 `${URL}/api/rectificar/${selectedRectificar.id_contribuyente}/${selectedRectificar.id_comercio}/${selectedRectificar.fecha}`,
@@ -290,35 +236,27 @@ const DdjjToRafam = () => {
         "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
     ];
 
-    // Obtener el mes actual (0 = Enero, 11 = Diciembre)
-     const mesActualIndex = (new Date().getMonth() - 1 + 12) % 12;
-   
-   
     return (
         <>
             {/* Sección de filtros */}
-            <div className="container mt-4">
-                <div className="row justify-content-center">
-                    <div className="col-12 col-sm-8 col-md-6 col-lg-4">
-                        <div className="card shadow-lg rounded-4 border-0">
-                            <div className="card-body p-4">
-                                <h5 className="card-title text-center text-primary mb-4">Filtros</h5>
-                                <Filter search={buscarCodComercio} setSearch={setBuscarCodComercio} name="N° de Comercio" type="number" placeholder="Ingrese cod comercio" />
-                                <Filter search={buscarCuit} setSearch={setBuscarCuit} name="CUIT" type="number" placeholder="Ingrese CUIT" />
-                                <Filter search={buscarAnio} setSearch={setBuscarAnio} name="Año de DDJJ" type="number" placeholder="Ingrese año que desea buscar" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div className="d-flex justify-content-center mt-4">
-                <button
-                    className="btn btn-success rounded-3"
-                    onClick={exportToExcel}
-                >
-                    <i className="bi bi-file-earmark-excel me-2"></i> Descargar EXCEL
-                </button>
-            </div>
+            <FiltersRafam 
+                buscarCodComercio={buscarCodComercio}
+                setBuscarCodComercio={setBuscarCodComercio}
+                buscarCuit={buscarCuit}
+                setBuscarCuit={setBuscarCuit}
+                buscarMes={buscarMes}
+                setBuscarMes={setBuscarMes}
+                mesesSelect={mesesSelect}
+                buscarAnio={buscarAnio}
+                setBuscarAnio={setBuscarAnio}
+            />            
+
+            {/* Sección de botón descargar Excel */}
+            <ExportExcelComponents
+                ddjj={ddjj} error={error} setErrorMessage={setErrorMessage}
+            />
+
+            {/* Sección tabla */}
             <div className="container col-12">
                 <div className="mt-4">
                     <div className="card shadow">
@@ -364,10 +302,12 @@ const DdjjToRafam = () => {
                                                     </td>
                                                 </tr>
                                             ) : (
-                                                filtros?.map((ddjj, index) => (
-                                                    <tr key={index}>
-                                                        {
-                                                            <>
+                                                filtros?.map((ddjj, index) => {
+                                                    const partesDescripcion = ddjj?.descripcion?.split('.') || [];
+
+                                                    return (
+                                                        <React.Fragment key={index}>
+                                                            <tr>
                                                                 <th>{index + 1}</th>
                                                                 <td>{ddjj?.cuit}</td>
                                                                 <td>{ddjj?.cod_comercio}</td>
@@ -376,22 +316,17 @@ const DdjjToRafam = () => {
                                                                 <td>$ <FormattedNumber value={ddjj?.tasa_calculada} /></td>
                                                                 <td>{new Date(ddjj?.fecha).toLocaleDateString()}</td>
                                                                 <td>
-                                                                    <>
-                                                                        {ddjj?.cargada_en_tiempo ? (
-                                                                            // Si está cargada a tiempo, solo muestra la descripción
-                                                                            <>{ddjj?.descripcion}</>
-                                                                        ) : ddjj?.rectificada ? (
-                                                                            // Si NO está cargada a tiempo pero ESTÁ rectificada, muestra con otro icono
-                                                                            <>
-                                                                                <i className="bi bi-check-circle text-success"></i> {ddjj?.descripcion}
-                                                                            </>
-                                                                        ) : (
-                                                                            // Si NO está cargada a tiempo y NO está rectificada, muestra el icono de advertencia
-                                                                            <>
-                                                                                <i className="bi bi-exclamation-triangle text-warning"></i> {ddjj?.descripcion}
-                                                                            </>
-                                                                        )}
-                                                                    </>
+                                                                    {ddjj?.cargada_en_tiempo ? (
+                                                                        <>{partesDescripcion[0]}</>
+                                                                    ) : ddjj?.rectificada ? (
+                                                                        <>
+                                                                            <i className="bi bi-check-circle text-success"></i> {partesDescripcion[0]}
+                                                                        </>
+                                                                    ) : (
+                                                                        <>
+                                                                            <i className="bi bi-exclamation-triangle text-warning"></i> {partesDescripcion[0]}
+                                                                        </>
+                                                                    )}
                                                                 </td>
                                                                 <td>
                                                                     {ddjj?.cargada_en_tiempo ? (
@@ -408,23 +343,56 @@ const DdjjToRafam = () => {
                                                                     ></i>
                                                                 </td>
                                                                 <td>
-                                                                    <input
-                                                                        type="checkbox"
-                                                                        className="form-check-input border-dark"
-                                                                        checked={ddjj?.cargada_rafam || selectedCheckbox === `${ddjj?.id_contribuyente}-${ddjj?.id_comercio}-${ddjj?.fecha}`}
-                                                                        onChange={(e) =>
-                                                                            handleShowModal(
-                                                                                `¿Deseas enviar a RAFAM la DDJJ del comercio n° ${ddjj?.cod_comercio}?`,
-                                                                                () => handleCheckboxChange(ddjj?.id_contribuyente, ddjj?.id_comercio, ddjj?.fecha)
-                                                                            )
-                                                                        }
-                                                                    />
+                                                                    <CheckboxRafam
+                                                                        ddjj={ddjj}
+                                                                        selectedCheckbox={selectedCheckbox}
+                                                                        setSelectedCheckbox={setSelectedCheckbox}
+                                                                        setDdjj={setDdjj}
+                                                                        refetch={refetch}
+                                                                        handleShowModal={handleShowModal}
+                                                                        setMsjModalExito={setMsjModalExito}
+                                                                        setShowModal={setShowModal}                                                                       
+                                                                        setErrorMessage={setErrorMessage}
+                                                                        logout={logout}
+                                                                        URL={URL}
+                                                                    />                                                                    
                                                                 </td>
-                                                            </>
-                                                        }
-                                                    </tr>
-                                                ))
-                                            )}
+                                                            </tr>
+
+                                                            {/* Si no está rectificada, agregamos una fila debajo */}
+                                                            {!ddjj?.enviada && ddjj?.cantidad_rectificaciones !== null && (
+                                                                <tr className="bg-white border-top border-secondary-subtle">
+                                                                    <td colSpan="11">
+                                                                        <div className="d-flex justify-content-between align-items-center px-3 py-2 text-secondary small" style={{ fontStyle: 'italic' }}>
+                                                                            <span><strong>Total Rectificaciones:</strong> {ddjj?.cantidad_rectificaciones}</span>
+                                                                            <span><strong>Monto rectificado:</strong> <FormattedNumber value={ddjj?.monto} /></span>
+                                                                            <span><strong>Tasa a abonar:</strong> <FormattedNumber value={ddjj?.tasa_calculada} /></span>
+                                                                            <span><strong>Rectificado el:</strong> {partesDescripcion[1]}</span>
+                                                                            <span>
+                                                                                <strong>Procesada : </strong>
+                                                                                <CheckboxRectificar
+                                                                                    ddjj={ddjj}
+                                                                                    selectedCheckbox={selectedCheckbox}
+                                                                                    setSelectedCheckbox={setSelectedCheckbox}
+                                                                                    setDdjj={setDdjj}
+                                                                                    refetch={refetch}
+                                                                                    handleShowModal={handleShowModal}
+                                                                                    setMsjModalExito={setMsjModalExito}
+                                                                                    setShowModal={setShowModal}
+                                                                                    setErrorMessage={setErrorMessage}
+                                                                                    logout={logout}
+                                                                                    URL={URL}
+                                                                                />                                                                               
+                                                                            </span>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                            )}
+                                                        </React.Fragment>
+                                                    );
+                                                })
+                                            )
+                                            }
                                         </tbody>
                                     </table>
                                 </div>
@@ -433,80 +401,22 @@ const DdjjToRafam = () => {
                     </div>
                 </div>
             </div>
-            {showModalRectificar && (
-                <div className="modal fade show d-block" role="dialog">
-                    <div className="modal-dialog modal-dialog-centered">
-                        <div className="modal-content shadow-lg rounded-4">
-                            <div className="modal-header bg-primary text-white rounded-top-4">
-                                <h5 className="modal-title">Rectificar Declaración Jurada</h5>                                
-                                <button
-                                    type="button"
-                                    className="btn-close btn-close-white"
-                                    onClick={() => setShowModalRectificar(false)}
-                                ></button>
-                            </div>
-                            <div className="modal-body p-4">
-                                <form>
-                                    <InputDecimal
-                                        label="Nuevo monto"
-                                        name="monto"
-                                        value={editedRectificar.monto || ""}
-                                        type="number"
-                                        onChange={handleRectificarChange}
-                                        error={errorsRectificar.monto}
-                                        placeholder="Ingrese monto"
-                                    />
-                                    <div className="mb-4 position-relative">
-                                        <label className="form-label fw-semibold">Mes Correspondiente</label>
-                                        <select
-                                            name="mes"
-                                            value={editedRectificar.mes}
-                                            onChange={(e) => {
-                                                const value = e.target.value;
-                                                setEditedRectificar({ ...editedRectificar, mes: value });
 
-                                                // Si selecciona un mes válido, eliminar el error
-                                                setErrorsRectificar(prevErrors => ({
-                                                    ...prevErrors,
-                                                    mes: value ? null : "*Debe seleccionar un mes."
-                                                }));
-                                            }}
-                                            className={`form-select text-center ${errorsRectificar.mes ? "is-invalid border-danger" : ""}`}
-                                        >
-                                            <option value="">Seleccione el mes correspondiente</option>                                           
-                                            {Array.from({ length: mesActualIndex + 1 }, (_, i) => {
-                                                const index = mesActualIndex - i;
-                                                return <option key={index} value={meses[index]}>{meses[index]}</option>;
-                                            })}
-                                            
-                                        </select>
-                                        {errorsRectificar?.mes && (
-                                            <div className="invalid-feedback">{errorsRectificar?.mes}</div>
-                                        )}
-                                    </div>
-                                </form>
-                            </div>
-                            <div className="modal-footer bg-light rounded-bottom-4 d-flex justify-content-end gap-3">
-                                <button
-                                    type="button"
-                                    className="btn btn-outline-secondary"
-                                    onClick={() => setShowModalRectificar(false)}
-                                >
-                                    Cancelar
-                                </button>
-                                <button
-                                    type="button"
-                                    className="btn btn-primary"
-                                    onClick={handleConfirmChanges}
-                                >
-                                    Guardar Cambios
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            {/* Sección formulario rectificar */}
+            {showModalRectificar && (
+                <FormRectificar
+                    show={showModalRectificar}
+                    onClose={() => setShowModalRectificar(false)}
+                    onConfirm={handleConfirmChanges}
+                    editedData={editedRectificar}
+                    setEditedData={setEditedRectificar}
+                    errors={errorsRectificar}
+                    setErrors={setErrorsRectificar}
+                    meses={meses}
+                />
             )}
 
+            {/* Sección carteles para el usuario*/}
             {modalConfig.isVisible && (
                 <ConfirmModal
                     msj={modalConfig.message}
@@ -520,8 +430,6 @@ const DdjjToRafam = () => {
 
             <SuccessModal show={showModal} message={msjModalExito} duration={3000} />
             <ErrorNotification message={errorMessage} onClose={() => setErrorMessage(null)} />
-
-
         </>
     );
 };

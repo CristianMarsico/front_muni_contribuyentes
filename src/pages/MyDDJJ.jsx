@@ -7,6 +7,11 @@ import ErrorResponse from "../components/ErrorResponse";
 import useFetch from "../helpers/hooks/useFetch";
 import { handleError } from "../helpers/hooks/handleError";
 import FormattedNumber from '../helpers/hooks/FormattedNumber';
+// import InputDecimal from "../components/auth/InputDecimal";
+import ConfirmModal from "../components/modalsComponents/ConfirmModal";
+import SuccessModal from "../components/modalsComponents/SuccessModal";
+import ErrorNotification from "../components/ErrorNotification";
+import FormRectificar from "./FormRectificar";
 
 const MyDDJJ = ({ id }) => {
     const URL = import.meta.env.VITE_API_URL;
@@ -21,14 +26,37 @@ const MyDDJJ = ({ id }) => {
     const [selectedYear, setSelectedYear] = useState(currentYear);
     const [selectedMonth, setSelectedMonth] = useState("");
     const [tableData, setTableData] = useState([]); // Estado para datos de la tabla
+    
     const [tableError, setTableError] = useState(null); // Estado para errores
 
     const meses = [
         "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
     ];
 
+    const [modalConfig, setModalConfig] = useState({ isVisible: false, message: "", onConfirm: null });
+    const [showModal, setShowModal] = useState(false);
+    const [msjModalExito, setMsjModalExito] = useState("");
+    const [errorMessage, setErrorMessage] = useState(null);
+    const [selectedCheckbox, setSelectedCheckbox] = useState(null);
+    const [showModalRectificar, setShowModalRectificar] = useState(false);
+    const [selectedRectificar, setSelectedRectificar] = useState(null);
+    const [editedRectificar, setEditedRectificar] = useState({});
+    const [errorsRectificar, setErrorsRectificar] = useState({});
+
+    const handleRectificar = (ddjj) => {
+        setSelectedRectificar(ddjj);
+        setEditedRectificar({ ...ddjj });
+        setShowModalRectificar(true);
+    };
+
+    // useEffect(() => {
+    //     if (data?.response?.length > 0) {
+    //         setSelectedTrade(data.response[0].id_comercio);
+    //     }
+    // }, [data]);
+
     useEffect(() => {
-        if (data?.response?.length > 0) {
+        if (!selectedTrade && data?.response?.length > 0) {
             setSelectedTrade(data.response[0].id_comercio);
         }
     }, [data]);
@@ -48,24 +76,128 @@ const MyDDJJ = ({ id }) => {
         });
 
         socket.on('comercio-editado', (comercioEditado) => {
-            const id_comercio = comercioEditado; 
+            const id_comercio = comercioEditado;
             setSelectedTrade(id_comercio);
             refetch();
         });
 
-        return () => socket.disconnect();
-    }, [URL], refetch);
+        socket.on("rectificada", (rectificada) => {
+            const formatDate = (date) => new Date(date).toISOString().slice(0, 10);
+            const formattedDate = formatDate(rectificada.id_date);
 
+            const mismaFecha = !selectedMonth || new Date(rectificada.id_date).getMonth() + 1 === Number(selectedMonth);
+            const mismoAnio = new Date(rectificada.id_date).getFullYear() === Number(selectedYear);
+            const mismoComercio = rectificada.id_trade.toString() === selectedTrade.toString();
+
+            if (mismaFecha && mismoAnio && mismoComercio) {
+                // Actualiza ese item
+                setTableData((prev) =>
+                    prev.map((item) => {
+                        const fechaIgual = formatDate(item.fecha) === formattedDate;
+                        const mismoIdComercio = item.id_comercio.toString() === rectificada.id_trade.toString();
+                        const mismoIdContribuyente = item.id_contribuyente.toString() === rectificada.id_taxpayer.toString();
+
+                        if (fechaIgual && mismoIdComercio && mismoIdContribuyente) {
+                            return {
+                                ...item,
+                                ...rectificada,
+                                id_contribuyente: rectificada.id_taxpayer,
+                                id_comercio: rectificada.id_trade,
+                                fecha: rectificada.id_date,
+                            };
+                        }
+                        return item;
+                    })
+                );
+            }
+        });
+
+        return () => socket.disconnect();
+    }, [URL, refetch]);   
+
+    const handleConfirmChanges = () => {
+
+        // Inicializar un objeto de errores vacío
+        let errors = {};
+
+        const decimalRegex = /^\d+(\.\d{1,2})?$/;
+
+        // Validación del monto
+        if (editedRectificar.monto.trim() === "") {
+            errors.monto = "*El monto es obligatorio.";
+        } else if (!decimalRegex.test(editedRectificar.monto)) {
+            errors.monto = "*El monto debe ser un número decimal válido con hasta 2 decimales.";
+        }
+
+        // Validar mes
+        if (!editedRectificar?.mes || editedRectificar.mes.trim() === "") {
+            errors.mes = "*Debe seleccionar un mes válido.";
+        }
+
+        // Si hay errores, actualizar el estado de errores y evitar enviar
+        if (Object.keys(errors).length > 0) {
+            setErrorsRectificar(errors);
+            return;
+        }
+
+        setShowModalRectificar(false);
+        handleShowModal(
+            `¿Estás seguro de que deseas rectificar la DDJJ del comercio n° ${selectedRectificar.cod_comercio}?`,
+            confirmRectificarChanges
+        );
+    };
+
+    const handleShowModal = (message, onConfirm) => {
+        setModalConfig({ isVisible: true, message, onConfirm });
+    };
+
+    const closeModal = () => {
+        setModalConfig({ isVisible: false, message: "", onConfirm: null });
+        setSelectedCheckbox(null);
+    };
+
+    const confirmRectificarChanges = async () => {        
+        try {
+            const res = await axios.put(
+                `${URL}/api/rectificar/${selectedRectificar.id_contribuyente}/${selectedRectificar.id_comercio}/${selectedRectificar.fecha}`,
+                editedRectificar,
+                { withCredentials: true }
+            );
+
+            if (res?.status === 200) {                
+                setMsjModalExito(res?.data.message);
+                setShowModal(false);
+                setTimeout(() => setShowModal(true), 100);
+                await handleButtonClick();
+                // handleButtonClick();
+            }
+        } catch (error) {
+            handleError(error, {
+                on401: (message) => {
+                    setErrorMessage(message);
+                    setTimeout(() => logout(), 3000);
+                },
+                on404: (message) => setErrorMessage(message), // Puedes pasar cualquier función específica
+                onOtherServerError: (message) => setErrorMessage(message),
+                onConnectionError: (message) => setErrorMessage(message),
+            });
+        } finally {
+            setShowModalRectificar(false);
+        }
+    }; 
 
     const handleComercioChange = (e) => {
+        setTableData([])
         setSelectedTrade(e.target.value);
     };
 
     const handleYearChange = (e) => {
+        setTableData([])
         setSelectedYear(e.target.value);
     };
 
     const handleMonthChange = (e) => {
+        setTableData([])
         setSelectedMonth(e.target.value);
     };
 
@@ -76,16 +208,16 @@ const MyDDJJ = ({ id }) => {
         }
         try {
             const response = await axios.get(_url, { withCredentials: true });
-            if (response.status === 200) {
-                const responseData = response.data.response;
-                if (responseData.length > 0) {
-                    setTableData(responseData);
+            if (response?.status === 200) {
+                const responseData = response?.data.response;               
+                if (responseData.length > 0) {                   
+                    setTableData(responseData);                    
                     setTableError(null);
                 } else {
                     setTableData([]);
                     setTableError("No hay declaraciones juradas para los criterios seleccionados.");
                 }
-            }
+            }           
         } catch (error) {
             setTableData([]);
             handleError(error, {
@@ -99,7 +231,7 @@ const MyDDJJ = ({ id }) => {
             });
         }
     };
-
+   
     return (
         <div className="container mt-4 text-center">
             <h1>Declaraciones Juradas</h1>
@@ -210,6 +342,7 @@ const MyDDJJ = ({ id }) => {
                                                     <th scope="col">Tasa Calculada</th>
                                                     <th scope="col">Detalle</th>
                                                     <th scope="col">En Fecha</th>
+                                                    <th scope="col">Rectificar DDJJ</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -218,6 +351,8 @@ const MyDDJJ = ({ id }) => {
                                                         <td>{item?.cuit}</td>
                                                         <td>{item?.cod_comercio}</td>
                                                         <td>{new Date(item?.fecha).toLocaleDateString()}</td>
+                                                        {/* <td>$ {item?.monto}</td>
+                                                        <td>$ {item?.tasa_calculada}</td> */}
                                                         <td>$ <FormattedNumber value={item?.monto} /></td>
                                                         <td>$ <FormattedNumber value={item?.tasa_calculada} /></td>
                                                         <td>
@@ -245,6 +380,13 @@ const MyDDJJ = ({ id }) => {
                                                                 <i className="bi bi-x-circle text-danger"> No</i>
                                                             )}
                                                         </td>
+                                                        <td>
+                                                            <i
+                                                                className="bi bi-pencil text-primary ms-2"
+                                                                role="button"
+                                                                onClick={() => handleRectificar(item)}
+                                                            ></i>
+                                                        </td>
                                                     </tr>
                                                 ))}
                                             </tbody>
@@ -257,7 +399,36 @@ const MyDDJJ = ({ id }) => {
                             </div>
                         )}
             </div>
+
+            {showModalRectificar && (
+                <FormRectificar
+                    show={showModalRectificar}
+                    onClose={() => setShowModalRectificar(false)}
+                    onConfirm={handleConfirmChanges}
+                    editedData={editedRectificar}
+                    setEditedData={setEditedRectificar}
+                    errors={errorsRectificar}
+                    setErrors={setErrorsRectificar}
+                    meses={meses}
+                />                
+            )}
+
+            {modalConfig.isVisible && (
+                <ConfirmModal
+                    msj={modalConfig.message}
+                    handleEstadoChange={() => {
+                        modalConfig.onConfirm();
+                        closeModal();
+                    }}
+                    setShowConfirmModal={closeModal}
+                />
+            )}
+
+            <SuccessModal show={showModal} message={msjModalExito} duration={3000} />
+            <ErrorNotification message={errorMessage} onClose={() => setErrorMessage(null)} />
         </div>
+
+        
     );
 };
 

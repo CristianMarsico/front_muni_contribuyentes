@@ -61,7 +61,7 @@ const FormAddDdjj = () => {
     });
 
     return () => socket.disconnect();
-  }, [URL], refetch);
+  }, [URL, refetch] );
 
   const setError = (message) => {
     setErrorMessage(message);
@@ -164,26 +164,36 @@ const FormAddDdjj = () => {
     }
   };
 
-  let msjWarning = `Recuerde cargar las declaraciones juradas (DDJJ) antes del <strong>dia ${res?.fecha_limite_ddjj} de cada mes</strong> para evitar inconvenientes o sanciones.`;
-  const today = new Date().getDate();   
+  // let msjWarning = `Recuerde cargar las declaraciones juradas (DDJJ) antes del <strong>día ${res?.fecha_limite_ddjj} de cada mes, hasta las 23:50 hs</strong> para evitar inconvenientes o sanciones.`;
+  let msjWarning = `Recuerde cargar las declaraciones juradas (DDJJ) el <strong>anteúltimo día hábil de cada mes</strong> para evitar inconvenientes o sanciones.`;
+  
+  const today = new Date();   
+  const diaLimite = parseInt(res?.fecha_limite_ddjj); // Número (ej. 25)
+
+  const fechaLimite = new Date(
+    today.getFullYear(),
+    today.getMonth(),      // Mes actual (0-11)
+    diaLimite,
+    23, 59, 59, 999         // Hora: 23:59:59.999
+  );
 
   const meses = [
     "Enero", "Febrero", "Marzo", "Abril", "Mayo",
     "Junio", "Julio", "Agosto", "Septiembre",
     "Octubre", "Noviembre", "Diciembre"
-  ]; 
+  ];
   const mesActual = meses[(new Date().getMonth() - 1 + 12) % 12];
 
   return (
     <>
       <div className="container">
         <div className="row justify-content-center">
-          {today < res?.fecha_limite_ddjj ?
+          {today < fechaLimite ?
             <WarningModal
               msj={msjWarning}
             />
             : <RectificacionModal 
-              fecha={res?.fecha_limite_ddjj - 1}
+              fecha={res?.fecha_limite_ddjj}
             />
           }
           <div className="col-12 col-sm-8 col-md-6 col-lg-4">
@@ -258,7 +268,7 @@ const FormAddDdjj = () => {
 
                   <button type="submit"
                     className="btn btn-primary w-100"
-                    disabled={today >= res?.fecha_limite_ddjj}>
+                    disabled={today >= fechaLimite}>
                     Cargar DDJJ
                   </button>
                 </form>

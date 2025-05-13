@@ -11,7 +11,8 @@ const WarningModal = ({ msj }) => {
                     </h4>
                 </div>
                 <p className="text-muted m-0" dangerouslySetInnerHTML={{ __html: msj }}></p>
-                <p className="text-muted">La tasa a abonar no podrá ser inferior a lo que establezca ARCA para la cat G de monotributo considerando el impuesto por la venta de cosas muebles</p>
+                <p className="text-muted">La tasa a abonar no podrá ser inferior a lo que establezca ARCA para la categoría G de monotributo considerando el impuesto por la venta de cosas muebles</p>
+                <p className="text-muted">En caso de ser BUEN CONTRIBUYENTE, Ud. accede a un descuento del 15%.</p>
                 <div className="text-center mb-2">
                     <h6 className="mb-1">
                         <i className="bi bi-info-circle text-primary me-2"></i>

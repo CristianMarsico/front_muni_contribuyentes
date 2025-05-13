@@ -1,7 +1,6 @@
 import React from 'react'
 
-const FormattedNumber = ({ value }) => {
-    
+const FormattedNumber = ({ value }) => {  
     const numericValue = typeof value === 'string' ? parseFloat(value) : value;
 
     // Formatear manualmente el número
