@@ -4,7 +4,7 @@ import { saveAs } from 'file-saver';
 
 // Componente para descargar archivo Excel de las DDJJ que han sido cargadas
 const ExportExcelComponents = ({ ddjj, error, setErrorMessage }) => {
-
+   
     const exportToExcel = () => {
         if (!ddjj || ddjj?.length == 0 || error) {
             setErrorMessage("No hay datos para exportar en EXCEL");
@@ -23,7 +23,7 @@ const ExportExcelComponents = ({ ddjj, error, setErrorMessage }) => {
             { header: 'Monto Declarado', key: 'monto', width: 20, style: { numFmt: '0.00' } },
             { header: 'Tasa a Pagar', key: 'tasa', width: 15, style: { numFmt: '0.00' } },
             { header: 'Fecha', key: 'fecha', width: 10 },
-            { header: 'Detalle', key: 'mes_correspondiente', width: 35 },
+            { header: 'Mes Correspondiente', key: 'mes_correspondiente', width: 35 },
             { header: 'Cargada en Fecha', key: 'en_tiempo', width: 20 },
             { header: 'Rectificada', key: 'rectificada', width: 15 },
             { header: 'Enviada a RAFAM', key: 'en_rafam', width: 20 },
@@ -36,10 +36,10 @@ const ExportExcelComponents = ({ ddjj, error, setErrorMessage }) => {
                 cuit: parseFloat(row?.cuit),
                 cod_comercio: parseFloat(row?.cod_comercio),
                 nombre_comercio: row?.nombre_comercio,
-                monto: parseFloat(row?.monto),
+                monto: parseFloat(row?.monto_ddjj),
                 tasa: parseFloat(row?.tasa_calculada) || 'N/A',
                 fecha: new Date(row?.fecha).toLocaleDateString(),
-                mes_correspondiente: row?.descripcion,
+                mes_correspondiente: row?.descripcion_ddjj,
                 en_tiempo: row?.cargada_en_tiempo ? 'Sí' : 'No',
                 rectificada: row?.rectificada ? 'Rectificada' : 'Sin Rectificar',
                 en_rafam: row?.cargada_rafam ? 'Sí' : 'No',

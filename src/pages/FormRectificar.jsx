@@ -1,9 +1,8 @@
-// components/modalsComponents/RectificarModal.jsx
 import React from "react";
 import InputDecimal from "../components/auth/InputDecimal";
 
-
-const FormRectificar = ({show,
+const FormRectificar = ({
+    show,
     onClose,
     onConfirm,
     editedData,
@@ -13,8 +12,8 @@ const FormRectificar = ({show,
     meses
 }) => {
     if (!show) return null;
-
-    const handleChange = (e) => {
+      
+    const handleChange = (e) => {       
         const { name, value } = e.target;
         setEditedData((prev) => ({ ...prev, [name]: value }));
 
@@ -24,7 +23,22 @@ const FormRectificar = ({show,
         });
     };
 
-    const mesActualIndex = (new Date().getMonth() - 1 + 12) % 12;
+    const fecha = new Date(editedData?.fecha);
+    const mesActualIndex = (fecha.getMonth() - 1 + 12) % 12;
+
+    // Cálculos automáticos de tasa
+    const tasaAnual = 0.08;
+    const montoPorDefecto = 9999;
+    const montoIngresado = parseFloat(editedData?.monto) || 0;
+    const resultadoCalculado = montoIngresado * tasaAnual;
+
+    const resultadoFinal = resultadoCalculado < montoPorDefecto
+        ? montoPorDefecto
+        : resultadoCalculado;
+
+    const mensajeResultado = resultadoCalculado < montoPorDefecto
+        ? "Ud. deberá abonar la tasa mínima."
+        : "Se aplica el monto calculado con la tasa correspondiente.";
 
     return (
         <div className="modal fade show d-block" role="dialog">
@@ -32,48 +46,48 @@ const FormRectificar = ({show,
                 <div className="modal-content shadow-lg rounded-4">
                     <div className="modal-header bg-primary text-white rounded-top-4">
                         <h5 className="modal-title">Rectificar Declaración Jurada</h5>
-                        <button
-                            type="button"
-                            className="btn-close btn-close-white"
-                            onClick={onClose}
-                        ></button>
+                        <button type="button" className="btn-close btn-close-white" onClick={onClose}></button>
                     </div>
                     <div className="modal-body p-4">
                         <form>
                             <InputDecimal
                                 label="Nuevo monto"
                                 name="monto"
-                                value={editedData.monto || ""}
+                                value={editedData?.monto || ""}
                                 type="number"
                                 onChange={handleChange}
                                 error={errors.monto}
                                 placeholder="Ingrese monto"
                             />
+
                             <div className="mb-4 position-relative">
                                 <label className="form-label fw-semibold">Mes Correspondiente</label>
                                 <select
                                     name="mes"
-                                    value={editedData.mes}
+                                    value={editedData.mes || ""} // Maneja el estado dinámicamente
                                     onChange={(e) => {
                                         const value = e.target.value;
-                                        setEditedData({ ...editedData, mes: value });
-
+                                        setEditedData((prev) => ({ ...prev, mes: value })); // Actualiza el estado
                                         setErrors((prev) => ({
                                             ...prev,
-                                            mes: value ? null : "*Debe seleccionar un mes.",
+                                            mes: value ? null : "*Debe seleccionar un mes.", // Valida el cambio
                                         }));
                                     }}
                                     className={`form-select text-center ${errors.mes ? "is-invalid border-danger" : ""}`}
                                 >
-                                    <option value="">Seleccione el mes correspondiente</option>
-                                    {Array.from({ length: mesActualIndex + 1 }, (_, i) => (
-                                        <option key={i} value={meses[i]}>
-                                            {meses[i]}
-                                        </option>
-                                    ))}
+                                    <option value="">Seleccione un mes</option> {/* Opción predeterminada */}
+                                    <option value={editedData.mes || meses[mesActualIndex]}>{meses[mesActualIndex]}</option> {/* Habilitas solo Enero */}
                                 </select>
                                 {errors.mes && <div className="invalid-feedback">{errors.mes}</div>}
                             </div>
+
+                            {/* Mensaje de resultado */}
+                            {montoIngresado > 0 && (
+                                <div className="alert alert-info text-center">
+                                    <strong>Monto calculado:</strong> ${resultadoFinal.toFixed(2)}<br />
+                                    {mensajeResultado}
+                                </div>
+                            )}
                         </form>
                     </div>
                     <div className="modal-footer d-flex justify-content-center">

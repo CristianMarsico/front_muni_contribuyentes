@@ -41,6 +41,10 @@ const DdjjToRafam = () => {
     const [buscarAnio, setBuscarAnio] = useState('');
     const [buscarMes, setBuscarMes] = useState('');
 
+     // Desplegable para las rectificaciones
+    const [expandedRows, setExpandedRows] = useState({});
+
+
     // Actualizar la lista con los datos de la API
     useEffect(() => {
         if (data?.response) {
@@ -49,7 +53,8 @@ const DdjjToRafam = () => {
             setDdjj([]);
         }
     }, [data]);
-  
+
+    
     // WebSocket para recibir actualizaciones en tiempo real
     useEffect(() => {
         const socket = io(URL);
@@ -63,7 +68,7 @@ const DdjjToRafam = () => {
             refetch();
         });
 
-        socket.on('ddjj-newState', (newState) => {
+        socket.on('ddjj-newState', (newState) => {            
             if (newState && newState.id_taxpayer && newState.id_trade) {
                 // Actualizar solo si los datos recibidos son válidos
                 setDdjj((prev) =>
@@ -79,40 +84,54 @@ const DdjjToRafam = () => {
             }
         });
 
-        socket.on('ddjj-rectificar', (newState) => {
-            console.log(newState)
-            if (newState && newState.id_taxpayer && newState.id_trade && newState.id_rectificacion) {
-                // Actualizar solo si los datos recibidos son válidos
-                setDdjj((prev) =>
-                    prev.map((item) =>
-                        item.id_contribuyente === newState.id_taxpayer &&
-                            item.id_comercio === newState.id_trade &&
-                            item.fecha === newState.id_date &&
-                            item.id_rectificacion === newState.id_rectificacion
-                            ? { ...item, enviada: newState.enviada }
-                            : item
-                    )
-                );
-                refetch();
+        socket.on("addRectificacion", (newRectificacion) => {
+            const rectificada = newRectificacion.rectificada;
+            
+            if (!rectificada || !rectificada.id_comercio || !rectificada.id_contribuyente || !rectificada.fecha) {
+                return;
             }
-        });
 
-        socket.on('rectificada', (rectificada) => {
-            if (rectificada && rectificada.id_taxpayer && rectificada.id_trade) {
-                // Actualizar solo si los datos recibidos son válidos
-                setDdjj((prev) =>
-                    prev.map((item) =>
-                        item.id_contribuyente === rectificada.id_taxpayer &&
-                        item.id_comercio === rectificada.id_trade &&
-                        item.fecha === rectificada.id_date
-                    )
+            setDdjj((prev) =>
+                prev.map((item) => {
+                    if (
+                        item.id_comercio === rectificada.id_comercio &&
+                        item.id_contribuyente === rectificada.id_contribuyente &&
+                        new Date(item.fecha).toISOString() === new Date(rectificada.fecha).toISOString()
+                    ) {
+                        return {
+                            ...item,
+                            rectificaciones: [...item.rectificaciones, rectificada],
+                        };
+                    }
+                    return item;
+                })
                 );
-                refetch();
-            }
+                refetch(); // Para verificar el estado después de la actualización
+
         });
+        // socket.on('rectificada', (rectificada) => {
+        //     if (rectificada && rectificada.id_taxpayer && rectificada.id_trade) {
+        //         // Actualizar solo si los datos recibidos son válidos
+        //         setDdjj((prev) =>
+        //             prev.map((item) =>
+        //                 item.id_contribuyente === rectificada.id_taxpayer &&
+        //                 item.id_comercio === rectificada.id_trade &&
+        //                 item.fecha === rectificada.id_date
+        //             )
+        //         );
+        //         refetch();
+        //     }
+        // });
 
         return () => socket.disconnect();
     }, [URL, refetch]);
+
+    const toggleExpand = (id) => {
+        setExpandedRows((prev) => ({
+            ...prev,
+            [id]: !prev[id],
+        }));
+    };
 
     // Arreglo que almacena objetos
     //Guarda todos los nombres de los meses y el value representa el numero de mes.
@@ -168,20 +187,20 @@ const DdjjToRafam = () => {
         setShowModalRectificar(true);
     };
 
-    const handleConfirmChanges = () => {
-
+    const handleConfirmChanges = () => {    
         // Inicializar un objeto de errores vacío
         let errors = {};
 
         const decimalRegex = /^\d+(\.\d{1,2})?$/;
 
         // Validación del monto
-        if (editedRectificar.monto.trim() === "") {
+        if (!editedRectificar?.monto || editedRectificar?.monto.trim() === "") {
             errors.monto = "*El monto es obligatorio.";
         } else if (!decimalRegex.test(editedRectificar.monto)) {
-            errors.monto = "*El monto debe ser un número decimal válido con hasta 2 decimales.";
+            errors.monto = "*El monto debe ser un número válido (máx. 2 decimales).";
+        } else if (parseFloat(editedRectificar.monto) <= 0) {
+            errors.monto = "*El monto debe ser mayor a cero.";
         }
-
         // Validar mes
         if (!editedRectificar?.mes || editedRectificar.mes.trim() === "") {
             errors.mes = "*Debe seleccionar un mes válido.";
@@ -303,7 +322,7 @@ const DdjjToRafam = () => {
                                                 </tr>
                                             ) : (
                                                 filtros?.map((ddjj, index) => {
-                                                    const partesDescripcion = ddjj?.descripcion?.split('.') || [];
+                                                    const partesDescripcion = ddjj?.descripcion_ddjj?.split('.') || [];
 
                                                     return (
                                                         <React.Fragment key={index}>
@@ -312,7 +331,7 @@ const DdjjToRafam = () => {
                                                                 <td>{ddjj?.cuit}</td>
                                                                 <td>{ddjj?.cod_comercio}</td>
                                                                 <td>{ddjj?.nombre_comercio}</td>
-                                                                <td>$ <FormattedNumber value={ddjj?.monto} /></td>
+                                                                <td>$ <FormattedNumber value={ddjj?.monto_ddjj} /></td>
                                                                 <td>$ <FormattedNumber value={ddjj?.tasa_calculada} /></td>
                                                                 <td>{new Date(ddjj?.fecha).toLocaleDateString()}</td>
                                                                 <td>
@@ -360,34 +379,71 @@ const DdjjToRafam = () => {
                                                             </tr>
 
                                                             {/* Si no está rectificada, agregamos una fila debajo */}
-                                                            {!ddjj?.enviada && ddjj?.cantidad_rectificaciones !== null && (
-                                                                <tr className="bg-white border-top border-secondary-subtle">
-                                                                    <td colSpan="11">
-                                                                        <div className="d-flex justify-content-between align-items-center px-3 py-2 text-secondary small" style={{ fontStyle: 'italic' }}>
-                                                                            <span><strong>Total Rectificaciones:</strong> {ddjj?.cantidad_rectificaciones}</span>
-                                                                            <span><strong>Monto rectificado:</strong> <FormattedNumber value={ddjj?.monto} /></span>
-                                                                            <span><strong>Tasa a abonar:</strong> <FormattedNumber value={ddjj?.tasa_calculada} /></span>
-                                                                            <span><strong>Rectificado el:</strong> {partesDescripcion[1]}</span>
-                                                                            <span>
-                                                                                <strong>Procesada : </strong>
-                                                                                <CheckboxRectificar
-                                                                                    ddjj={ddjj}
-                                                                                    selectedCheckbox={selectedCheckbox}
-                                                                                    setSelectedCheckbox={setSelectedCheckbox}
-                                                                                    setDdjj={setDdjj}
-                                                                                    refetch={refetch}
-                                                                                    handleShowModal={handleShowModal}
-                                                                                    setMsjModalExito={setMsjModalExito}
-                                                                                    setShowModal={setShowModal}
-                                                                                    setErrorMessage={setErrorMessage}
-                                                                                    logout={logout}
-                                                                                    URL={URL}
-                                                                                />                                                                               
-                                                                            </span>
-                                                                        </div>
-                                                                    </td>
-                                                                </tr>
+                                                            {ddjj.rectificaciones?.length > 0 && (
+                                                                <>
+                                                                    {/* <tr className="bg-light border-top border-secondary-subtle">
+                                                                        <td colSpan="11" className="px-3 py-2 text-secondary small d-flex justify-content-between align-items-center" style={{ fontStyle: 'italic' }}>
+                                                                            <div>
+                                                                                <strong>Total de rectificaciones:</strong> {ddjj.rectificaciones.length}
+                                                                            </div>
+                                                                            <button
+                                                                                className="btn btn-sm btn-outline-secondary"
+                                                                                onClick={() => toggleExpand(ddjj.id_comercio)}
+                                                                            >
+                                                                                {expandedRows[ddjj.id_comercio] ? 'Ocultar' : 'Ver detalles'}
+                                                                            </button>
+                                                                        </td>
+                                                                    </tr> */}
+
+                                                                    <tr>
+                                                                        <td colSpan="11" className="text-center position-relative py-2">
+                                                                            <div className="fw-bold btn btn-sm btn-outline-primary" onClick={() => toggleExpand(index)}>
+                                                                                {expandedRows[index]
+                                                                                    ? 'Ocultar'
+                                                                                    : `Ver rectificaciones, total: ${ddjj.rectificaciones.length}`}
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+
+
+                                                                    {expandedRows[index] &&
+                                                                    ddjj.rectificaciones.map((d, index) => {
+                                                                        const partesDescripcion = d.descripcion?.split('.'); // asegurar que esto esté adentro
+
+                                                                        return (
+                                                                            <tr key={d.id_rectificacion} className="bg-white border-top border-secondary-subtle">
+                                                                                <td colSpan="11" >
+                                                                                    <div className="d-flex justify-content-between align-items-center px-3 py-2 text-secondary small" style={{ fontStyle: 'italic', background: "#FFAE69" }}>
+                                                                                        <span><strong>Rectificativa n° </strong> {index +1} </span>
+                                                                                        <span><strong>Monto rectificado:</strong> <FormattedNumber value={d.monto} /></span>
+                                                                                        <span><strong>Tasa a abonar:</strong> <FormattedNumber value={d?.tasa} /></span>
+                                                                                        <span><strong>Rectificado el:</strong> {partesDescripcion?.[1]}</span>
+                                                                                        <span>
+                                                                                            <strong>Procesada : </strong>
+                                                                                            <CheckboxRectificar
+                                                                                                ddjj={d}
+                                                                                                selectedCheckbox={selectedCheckbox}
+                                                                                                setSelectedCheckbox={setSelectedCheckbox}
+                                                                                                setDdjj={setDdjj}
+                                                                                                refetch={refetch}
+                                                                                                handleShowModal={handleShowModal}
+                                                                                                setMsjModalExito={setMsjModalExito}
+                                                                                                setShowModal={setShowModal}
+                                                                                                setErrorMessage={setErrorMessage}
+                                                                                                logout={logout}
+                                                                                                URL={URL}
+                                                                                            />
+                                                                                        </span>
+                                                                                    </div>
+                                                                                </td>
+                                                                            </tr>
+                                                                        );
+                                                                    })
+                                                                }
+                                                                    
+                                                                </>
                                                             )}
+
                                                         </React.Fragment>
                                                     );
                                                 })

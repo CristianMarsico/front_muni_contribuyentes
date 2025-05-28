@@ -49,12 +49,6 @@ const MyDDJJ = ({ id }) => {
         setShowModalRectificar(true);
     };
 
-    // useEffect(() => {
-    //     if (data?.response?.length > 0) {
-    //         setSelectedTrade(data.response[0].id_comercio);
-    //     }
-    // }, [data]);
-
     useEffect(() => {
         if (!selectedTrade && data?.response?.length > 0) {
             setSelectedTrade(data.response[0].id_comercio);
@@ -79,37 +73,6 @@ const MyDDJJ = ({ id }) => {
             const id_comercio = comercioEditado;
             setSelectedTrade(id_comercio);
             refetch();
-        });
-
-        socket.on("rectificada", (rectificada) => {
-            const formatDate = (date) => new Date(date).toISOString().slice(0, 10);
-            const formattedDate = formatDate(rectificada.id_date);
-
-            const mismaFecha = !selectedMonth || new Date(rectificada.id_date).getMonth() + 1 === Number(selectedMonth);
-            const mismoAnio = new Date(rectificada.id_date).getFullYear() === Number(selectedYear);
-            const mismoComercio = rectificada.id_trade.toString() === selectedTrade.toString();
-
-            if (mismaFecha && mismoAnio && mismoComercio) {
-                // Actualiza ese item
-                setTableData((prev) =>
-                    prev.map((item) => {
-                        const fechaIgual = formatDate(item.fecha) === formattedDate;
-                        const mismoIdComercio = item.id_comercio.toString() === rectificada.id_trade.toString();
-                        const mismoIdContribuyente = item.id_contribuyente.toString() === rectificada.id_taxpayer.toString();
-
-                        if (fechaIgual && mismoIdComercio && mismoIdContribuyente) {
-                            return {
-                                ...item,
-                                ...rectificada,
-                                id_contribuyente: rectificada.id_taxpayer,
-                                id_comercio: rectificada.id_trade,
-                                fecha: rectificada.id_date,
-                            };
-                        }
-                        return item;
-                    })
-                );
-            }
         });
 
         return () => socket.disconnect();
@@ -233,6 +196,7 @@ const MyDDJJ = ({ id }) => {
     };
    
     return (
+        <>
         <div className="container mt-4 text-center">
             <h1>Declaraciones Juradas</h1>
             <div className="card">
@@ -398,36 +362,39 @@ const MyDDJJ = ({ id }) => {
                                 </div>
                             </div>
                         )}
-            </div>
+            </div>            
+        </div>
+        {
+        showModalRectificar && (
+            <FormRectificar
+                show={showModalRectificar}
+                onClose={() => setShowModalRectificar(false)}
+                onConfirm={handleConfirmChanges}
+                editedData={editedRectificar}
+                setEditedData={setEditedRectificar}
+                errors={errorsRectificar}
+                setErrors={setErrorsRectificar}
+                meses={meses}
+            />
+        )
+    }
 
-            {showModalRectificar && (
-                <FormRectificar
-                    show={showModalRectificar}
-                    onClose={() => setShowModalRectificar(false)}
-                    onConfirm={handleConfirmChanges}
-                    editedData={editedRectificar}
-                    setEditedData={setEditedRectificar}
-                    errors={errorsRectificar}
-                    setErrors={setErrorsRectificar}
-                    meses={meses}
-                />                
-            )}
-
-            {modalConfig.isVisible && (
-                <ConfirmModal
-                    msj={modalConfig.message}
-                    handleEstadoChange={() => {
-                        modalConfig.onConfirm();
-                        closeModal();
-                    }}
-                    setShowConfirmModal={closeModal}
-                />
-            )}
+    {
+        modalConfig.isVisible && (
+            <ConfirmModal
+                msj={modalConfig.message}
+                handleEstadoChange={() => {
+                    modalConfig.onConfirm();
+                    closeModal();
+                }}
+                setShowConfirmModal={closeModal}
+            />
+        )
+    }
 
             <SuccessModal show={showModal} message={msjModalExito} duration={3000} />
             <ErrorNotification message={errorMessage} onClose={() => setErrorMessage(null)} />
-        </div>
-
+</>
         
     );
 };

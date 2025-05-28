@@ -21,6 +21,7 @@ import DdjjToRafam from './pages/DdjjToRafam';
 import RecoverPassword from './pages/RecoverPassword';
 import FormAddTrade from './pages/FormAddTrade';
 import Profile from './pages/Profile';
+import TutorialRectificar from './pages/TutorialRectificar';
 
 function App() {
   return (
@@ -45,6 +46,7 @@ function App() {
               <Route path="/rafam" element={<PrivateRoutes><DdjjToRafam /></PrivateRoutes>} />
               <Route path="/cargarComercio" element={<PrivateRoutes><FormAddTrade /></PrivateRoutes>} />
               <Route path="/recuperar" element={<PublicRoutes><RecoverPassword /></PublicRoutes>} />
+              <Route path="/tutorial" element={<PrivateRoutes><TutorialRectificar /></PrivateRoutes>} />
 
               {/* Ruta para la página de error cuando la URL no coincide con ninguna de las anteriores. */}
               <Route path="*" element={<Error />} />

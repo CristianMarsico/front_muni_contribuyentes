@@ -15,6 +15,7 @@ const CheckboxRafam = ({
     logout,
     URL,
 }) => {
+
     const handleCheckSendToRafam = async (id_contribuyente, id_comercio, fecha) => {
         try {
             const res = await axios.put(`${URL}/api/ddjj/${id_contribuyente}/${id_comercio}/${fecha}`, null, {

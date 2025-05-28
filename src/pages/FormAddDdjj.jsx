@@ -2,7 +2,6 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import InputDecimal from '../components/auth/InputDecimal';
-import InputField from '../components/auth/InputField';
 import ErrorNotification from '../components/ErrorNotification';
 import ConfirmModal from '../components/modalsComponents/ConfirmModal';
 import RectificacionModal from '../components/modalsComponents/RectificacionModal';
@@ -164,7 +163,6 @@ const FormAddDdjj = () => {
     }
   };
 
-  // let msjWarning = `Recuerde cargar las declaraciones juradas (DDJJ) antes del <strong>día ${res?.fecha_limite_ddjj} de cada mes, hasta las 23:50 hs</strong> para evitar inconvenientes o sanciones.`;
   let msjWarning = `Recuerde cargar las declaraciones juradas (DDJJ) el <strong>anteúltimo día hábil de cada mes</strong> para evitar inconvenientes o sanciones.`;
   
   const today = new Date();   
@@ -191,6 +189,7 @@ const FormAddDdjj = () => {
           {today < fechaLimite ?
             <WarningModal
               msj={msjWarning}
+              mostrarDetalles={true}
             />
             : <RectificacionModal 
               fecha={res?.fecha_limite_ddjj}
@@ -203,7 +202,7 @@ const FormAddDdjj = () => {
 
                 <form onSubmit={handleSubmit}>
                   <div>
-                    <div className="col-md-12 mb-3">
+                    <div className="col-md-12 mb-3 fw-semibold">
                       <label htmlFor="comercio" className="form-label">Seleccione Comercio</label>
                       <select
                         id="comercio"
@@ -239,7 +238,7 @@ const FormAddDdjj = () => {
                       step="0.01"
                       min="0"
                     />
-                    <div className="mb-3 position-relative">
+                    <div className="mb-3 position-relative fw-semibold">
                       <label className="form-label">Mes Correspondiente</label>
                       <select
                         name="descripcion"
@@ -264,8 +263,6 @@ const FormAddDdjj = () => {
                       )}
                     </div>
                   </div>
-
-
                   <button type="submit"
                     className="btn btn-primary w-100"
                     disabled={today >= fechaLimite}>

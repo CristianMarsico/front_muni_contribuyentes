@@ -1,6 +1,6 @@
 import React from 'react'
 
-const WarningModal = ({ msj }) => {
+const WarningModal = ({ msj, mostrarDetalles = false }) => {
     return (
         <div className="container mt-4">
             <div className="alert alert-warning shadow-lg p-3 text-center" role="alert">
@@ -11,8 +11,16 @@ const WarningModal = ({ msj }) => {
                     </h4>
                 </div>
                 <p className="text-muted m-0" dangerouslySetInnerHTML={{ __html: msj }}></p>
-                <p className="text-muted">La tasa a abonar no podrá ser inferior a lo que establezca ARCA para la categoría G de monotributo considerando el impuesto por la venta de cosas muebles</p>
-                <p className="text-muted">En caso de ser BUEN CONTRIBUYENTE, Ud. accede a un descuento del 15%.</p>
+                {mostrarDetalles && (
+                    <>
+                        <p className="text-muted">
+                            La tasa a abonar no podrá ser inferior a lo que establezca ARCA para la categoría G de monotributo considerando el impuesto por la venta de cosas muebles
+                        </p>
+                        <p className="text-muted">
+                            En caso de ser BUEN CONTRIBUYENTE, Ud. accede a un descuento del 15%.
+                        </p>
+                    </>
+                )}
                 <div className="text-center mb-2">
                     <h6 className="mb-1">
                         <i className="bi bi-info-circle text-primary me-2"></i>

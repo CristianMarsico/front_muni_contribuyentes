@@ -1,28 +1,29 @@
 import React, { useEffect, useState } from 'react'
-import { io } from 'socket.io-client';
+// import { io } from 'socket.io-client';
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthProvider'
-import useFetch from '../helpers/hooks/useFetch';
+// import useFetch from '../helpers/hooks/useFetch';
+import NotificationComponents from './NotificationComponents';
 
 const Navbar = () => {
     const URL = import.meta.env.VITE_API_URL;// URL de la API desde las variables de entorno
-    const { data, refetch } = useFetch(`${URL}/api/configuration`);
-   
+    // const { data, refetch } = useFetch(`${URL}/api/configuration`);
+
     const { logout, user } = useAuth();
     const location = useLocation(); // Obtener la ubicación actual
 
-    const res = data?.response[0]
+    // const res = data?.response[0]
 
-    const [values, setValues] = useState([]);
+    // const [values, setValues] = useState([]);
 
-    useEffect(() => {
-        const socket = io(URL);// Establece la conexión con el servidor WebSocket
-        socket.on('new-info', (nuevoValor) => {// Escucha el evento 'nuevos-valores' desde el servidor
-            setValues((prev) => [...prev, nuevoValor]);// Actualiza el estado 'values' con el nuevo valor recibido
-            refetch();// Vuelve a hacer la solicitud para obtener los datos actualizados
-        });
-        return () => socket.disconnect();// Desconecta el WebSocket cuando el componente se desmonta
-    }, [URL, refetch]);
+    // useEffect(() => {
+    //     const socket = io(URL);// Establece la conexión con el servidor WebSocket
+    //     socket.on('new-info', (nuevoValor) => {// Escucha el evento 'nuevos-valores' desde el servidor
+    //         setValues((prev) => [...prev, nuevoValor]);// Actualiza el estado 'values' con el nuevo valor recibido
+    //         refetch();// Vuelve a hacer la solicitud para obtener los datos actualizados
+    //     });
+    //     return () => socket.disconnect();// Desconecta el WebSocket cuando el componente se desmonta
+    // }, [URL, refetch]);
 
     // Función para determinar si un enlace está activo
     const isActive = (path) => location.pathname === path;
@@ -125,6 +126,16 @@ const Navbar = () => {
                                             </li>
                                             <li className="nav-item">
                                                 <Link
+                                                        className={`btn btn-dark text-uppercase me-2 ${isActive('/tutorial')
+                                                        && 'btn-outline-light'
+                                                        }`}
+                                                    to="/tutorial"
+                                                >
+                                                    Cómo Rectificar
+                                                </Link>
+                                            </li>
+                                            <li className="nav-item">
+                                                <Link
                                                     className={`btn btn-dark text-uppercase me-2 ${isActive('/vencimientos')
                                                         && 'btn-outline-light'
                                                         }`}
@@ -137,16 +148,21 @@ const Navbar = () => {
                                     )
                                 )}
                                 {user?.rol === 'super_admin' &&
-                                    <li className="nav-item">
-                                        <Link
-                                            className={`btn btn-dark text-uppercase me-2 ${isActive('/perfil')
-                                                && 'btn-outline-light'
-                                                }`}
-                                            to="/perfil"
-                                        >
-                                            Perfil
-                                        </Link>
-                                    </li>
+                                    <>
+                                        <li className="nav-item">
+                                            <Link
+                                                className={`btn btn-dark text-uppercase me-2 ${isActive('/perfil')
+                                                    && 'btn-outline-light'
+                                                    }`}
+                                                to="/perfil"
+                                            >
+                                                Perfil
+                                            </Link>
+                                        </li>
+                                        <li>
+                                            <NotificationComponents />
+                                        </li>
+                                    </>
                                 }
                                 <li className="nav-item">
                                     <Link
@@ -163,7 +179,7 @@ const Navbar = () => {
                     </ul>
 
                     {/* Redes sociales */}
-                    <div className="d-flex justify-content-center mt-3 mt-lg-0">
+                    {/* <div className="d-flex justify-content-center mt-3 mt-lg-0">
                         <a
                             href={`https://${res?.facebook}`}
                             className="text-white me-3"
@@ -182,7 +198,7 @@ const Navbar = () => {
                         >
                             <i className="bi bi-instagram fs-4"></i>
                         </a>
-                    </div>
+                    </div> */}
                 </div>
             </div>
         </nav>
