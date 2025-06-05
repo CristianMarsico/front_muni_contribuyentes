@@ -11,7 +11,7 @@ const NotificationComponents = () => {
     const [notificaciones, setNotificaciones] = useState([]);
     const [mostrarDropdown, setMostrarDropdown] = useState(false);
     const [errorNotificacion, setErrorNotificacion] = useState(null);
-
+ 
     useEffect(() => {
         if (data?.response) {
             setNotificaciones(data?.response);

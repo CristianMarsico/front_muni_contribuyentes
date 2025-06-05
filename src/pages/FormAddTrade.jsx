@@ -122,9 +122,17 @@ const FormAddTrade = () => {
         }
     };
 
-    let msjWarning = `Le informamos que, una vez que registre el o los comercios en nuestro sistema, estos deberán ser revisados y validados por la administración competente.<br/>
-                        <strong>Importante:</strong> Los comercios estarán disponibles para su visualización únicamente después de haber sido aprobados.<br/>
-                        Agradecemos su comprensión y colaboración en este proceso.`
+    let msjWarning = `<div className="mb-3">
+                        <p className="text-muted mb-2">
+                            Le informamos que, una vez que registre el o los comercios en nuestro sistema, estos deberán ser revisados y validados por la administración competente.
+                        </p>
+                        <p className="text-muted">
+                            <strong>Importante:</strong> Los comercios estarán disponibles para su visualización únicamente después de haber sido aprobados.
+                        </p>
+                         <p className="text-muted">
+                             Agradecemos su comprensión y colaboración en este proceso.
+                        </p>
+                    </div>`
     return (
         <>
             <div className="container">

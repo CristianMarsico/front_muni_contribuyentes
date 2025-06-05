@@ -43,11 +43,9 @@ const MyDDJJ = ({ id }) => {
     const [editedRectificar, setEditedRectificar] = useState({});
     const [errorsRectificar, setErrorsRectificar] = useState({});
 
-    const handleRectificar = (ddjj) => {
-        setSelectedRectificar(ddjj);
-        setEditedRectificar({ ...ddjj });
-        setShowModalRectificar(true);
-    };
+    // Desplegable para las rectificaciones
+    const [expandedRows, setExpandedRows] = useState({});
+
 
     useEffect(() => {
         if (!selectedTrade && data?.response?.length > 0) {
@@ -77,6 +75,19 @@ const MyDDJJ = ({ id }) => {
 
         return () => socket.disconnect();
     }, [URL, refetch]);   
+
+    const toggleExpand = (id) => {
+        setExpandedRows((prev) => ({
+            ...prev,
+            [id]: !prev[id],
+        }));
+    };
+
+    const handleRectificar = (ddjj) => {
+        setSelectedRectificar(ddjj);
+        setEditedRectificar({ ...ddjj });
+        setShowModalRectificar(true);
+    };
 
     const handleConfirmChanges = () => {
 
@@ -194,6 +205,7 @@ const MyDDJJ = ({ id }) => {
             });
         }
     };
+
    
     return (
         <>
@@ -212,21 +224,25 @@ const MyDDJJ = ({ id }) => {
                                 value={selectedTrade}
                                 onChange={handleComercioChange}
                             >
-                                {loading ? (
-                                    <option>Cargando...</option>
-                                ) : error ? (
-                                    <option>{error?.message || "Error al cargar los datos"}</option>
-                                ) : data?.response?.length === 0 ? (
-                                    <option>No hay comercios disponibles</option>
-                                ) : (
-                                    data?.response
-                                        .filter(c => c.estado) // Filtra solo los comercios con estado true
-                                        .map(c => (
-                                            <option key={c.cod_comercio} value={c.id_comercio}>
-                                                {c.nombre_comercio} (N° {c.cod_comercio})
-                                            </option>
-                                        ))
-                                )}
+                                    {loading ? (
+                                        <option>Cargando...</option>
+                                    ) : error ? (
+                                        <option>{error?.message || "Error al cargar los datos"}</option>
+                                    ) : data?.response?.length === 0 ? (
+                                        <option>No hay comercios disponibles</option>
+                                    ) : (
+                                        (() => {
+                                            const comerciosHabilitados = data.response.filter(c => c.estado);
+                                            if (comerciosHabilitados.length === 0) {
+                                                return <option>Aún no se ha dado de alta</option>;
+                                            }
+                                            return comerciosHabilitados.map(c => (
+                                                <option key={c.cod_comercio} value={c.id_comercio}>
+                                                    {c.nombre_comercio} (N° {c.cod_comercio})
+                                                </option>
+                                            ));
+                                        })()
+                                    )}
                             </select>
                         </div>
 
@@ -309,51 +325,89 @@ const MyDDJJ = ({ id }) => {
                                                     <th scope="col">Rectificar DDJJ</th>
                                                 </tr>
                                             </thead>
-                                            <tbody>
-                                                {tableData?.map((item, index) => (
-                                                    <tr key={index}>
-                                                        <td>{item?.cuit}</td>
-                                                        <td>{item?.cod_comercio}</td>
-                                                        <td>{new Date(item?.fecha).toLocaleDateString()}</td>
-                                                        {/* <td>$ {item?.monto}</td>
-                                                        <td>$ {item?.tasa_calculada}</td> */}
-                                                        <td>$ <FormattedNumber value={item?.monto} /></td>
-                                                        <td>$ <FormattedNumber value={item?.tasa_calculada} /></td>
-                                                        <td>
-                                                            <>
-                                                                {item?.cargada_en_tiempo ? (
-                                                                    // Si está cargada a tiempo, solo muestra la descripción
-                                                                    <>{item?.descripcion}</>
-                                                                ) : item?.rectificada ? (
-                                                                    // Si NO está cargada a tiempo pero ESTÁ rectificada, muestra con otro icono
+                                                <tbody>
+                                                    {tableData?.map((item, index) => {
+                                                        const ddjj = item; // Asegurarse de que `ddjj` esté definido
+
+                                                        return (
+                                                            <React.Fragment key={index}>
+                                                                <tr>
+                                                                    <td>{ddjj?.cuit}</td>
+                                                                    <td>{ddjj?.cod_comercio}</td>
+                                                                    <td>{new Date(ddjj?.fecha).toLocaleDateString()}</td>
+                                                                    <td>$ <FormattedNumber value={ddjj?.monto_ddjj} /></td>
+                                                                    <td>$ <FormattedNumber value={ddjj?.tasa_calculada} /></td>
+                                                                    <td>
+                                                                        {ddjj?.cargada_en_tiempo ? (
+                                                                            <>{ddjj?.descripcion_ddjj}</>
+                                                                        ) : ddjj?.rectificada ? (
+                                                                            <>
+                                                                                <i className="bi bi-check-circle text-success"></i> {ddjj?.descripcion_ddjj}
+                                                                            </>
+                                                                        ) : (
+                                                                            <>
+                                                                                <i className="bi bi-exclamation-triangle text-warning"></i> {ddjj?.descripcion_ddjj}
+                                                                            </>
+                                                                        )}
+                                                                    </td>
+                                                                    <td>
+                                                                        {ddjj?.cargada_en_tiempo ? (
+                                                                            <i className="bi bi-check-circle text-success"> Sí</i>
+                                                                        ) : (
+                                                                            <i className="bi bi-x-circle text-danger"> No</i>
+                                                                        )}
+                                                                    </td>
+                                                                    <td>
+                                                                        <i
+                                                                            className="bi bi-pencil text-primary ms-2"
+                                                                            role="button"
+                                                                            onClick={() => handleRectificar(ddjj)}
+                                                                        ></i>
+                                                                    </td>
+                                                                </tr>
+
+                                                                {ddjj.rectificaciones?.length > 0 && (
                                                                     <>
-                                                                        <i className="bi bi-check-circle text-success"></i> {item?.descripcion}
-                                                                    </>
-                                                                ) : (
-                                                                    // Si NO está cargada a tiempo y NO está rectificada, muestra el icono de advertencia
-                                                                    <>
-                                                                        <i className="bi bi-exclamation-triangle text-warning"></i> {item?.descripcion}
+                                                                        <tr>
+                                                                            <td colSpan="11" className="text-center position-relative py-2">
+                                                                                <div
+                                                                                    className="fw-bold btn btn-sm btn-outline-primary"
+                                                                                    onClick={() => toggleExpand(index)}
+                                                                                >
+                                                                                    {expandedRows[index]
+                                                                                        ? 'Ocultar'
+                                                                                        : `Ver rectificaciones, total: ${ddjj.rectificaciones.length}`}
+                                                                                </div>
+                                                                            </td>
+                                                                        </tr>
+
+                                                                        {expandedRows[index] &&
+                                                                            ddjj.rectificaciones.map((d, i) => {
+                                                                                const partesDescripcion = d.descripcion?.split('.');
+
+                                                                                return (
+                                                                                    <tr key={d.id_rectificacion} className="bg-white border-top border-secondary-subtle">
+                                                                                        <td colSpan="11">
+                                                                                            <div
+                                                                                                className="d-flex justify-content-between align-items-center px-3 py-2 text-secondary small"
+                                                                                                style={{ fontStyle: 'italic', background: "#FFAE69" }}
+                                                                                            >
+                                                                                                <span><strong>Rectificativa n° </strong> {i + 1}</span>
+                                                                                                <span><strong>Monto rectificado:</strong> <FormattedNumber value={d.monto} /></span>
+                                                                                                <span><strong>Tasa a abonar:</strong> <FormattedNumber value={d?.tasa} /></span>
+                                                                                                <span><strong>Rectificado el:</strong> {partesDescripcion?.[1]}</span>
+                                                                                                
+                                                                                            </div>
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                );
+                                                                            })}
                                                                     </>
                                                                 )}
-                                                            </>
-                                                        </td>
-                                                        <td>
-                                                            {item?.cargada_en_tiempo ? (
-                                                                <i className="bi bi-check-circle text-success"> Sí</i>
-                                                            ) : (
-                                                                <i className="bi bi-x-circle text-danger"> No</i>
-                                                            )}
-                                                        </td>
-                                                        <td>
-                                                            <i
-                                                                className="bi bi-pencil text-primary ms-2"
-                                                                role="button"
-                                                                onClick={() => handleRectificar(item)}
-                                                            ></i>
-                                                        </td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
+                                                            </React.Fragment>
+                                                        );
+                                                    })}
+                                                </tbody>
                                         </table>
                                     </div>
                                 </div>

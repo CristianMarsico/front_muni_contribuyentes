@@ -1,5 +1,8 @@
 import React from "react";
 import InputDecimal from "../components/auth/InputDecimal";
+import DiscountDetalis from "../components/DiscountDetalis";
+import FormattedNumber from "../helpers/hooks/FormattedNumber";
+import useFetch from "../helpers/hooks/useFetch";
 
 const FormRectificar = ({
     show,
@@ -11,7 +14,11 @@ const FormRectificar = ({
     setErrors,
     meses
 }) => {
-    if (!show) return null;
+    // const URL = import.meta.env.VITE_API_URL;
+    // const { data } = useFetch(`${URL}/api/configuration`);
+    // let res = data?.response[0];   
+
+    if (!show) return null;   
       
     const handleChange = (e) => {       
         const { name, value } = e.target;
@@ -27,18 +34,15 @@ const FormRectificar = ({
     const mesActualIndex = (fecha.getMonth() - 1 + 12) % 12;
 
     // Cálculos automáticos de tasa
-    const tasaAnual = 0.08;
-    const montoPorDefecto = 9999;
+    // let tasa = res?.tasa_actual;
+    // let montoMinimo = res?.monto_defecto;
     const montoIngresado = parseFloat(editedData?.monto) || 0;
-    const resultadoCalculado = montoIngresado * tasaAnual;
+    
+    // const resultadoCalculado = montoIngresado * tasa;
 
-    const resultadoFinal = resultadoCalculado < montoPorDefecto
-        ? montoPorDefecto
-        : resultadoCalculado;
-
-    const mensajeResultado = resultadoCalculado < montoPorDefecto
-        ? "Ud. deberá abonar la tasa mínima."
-        : "Se aplica el monto calculado con la tasa correspondiente.";
+    // const resultadoFinal = resultadoCalculado < montoMinimo
+    //     ? montoMinimo
+    //     : resultadoCalculado;
 
     return (
         <div className="modal fade show d-block" role="dialog">
@@ -76,17 +80,14 @@ const FormRectificar = ({
                                     className={`form-select text-center ${errors.mes ? "is-invalid border-danger" : ""}`}
                                 >
                                     <option value="">Seleccione un mes</option> {/* Opción predeterminada */}
-                                    <option value={editedData.mes || meses[mesActualIndex]}>{meses[mesActualIndex]}</option> {/* Habilitas solo Enero */}
+                                    <option value={editedData.mes || meses[mesActualIndex]}>{meses[mesActualIndex]}</option>
                                 </select>
                                 {errors.mes && <div className="invalid-feedback">{errors.mes}</div>}
                             </div>
 
                             {/* Mensaje de resultado */}
                             {montoIngresado > 0 && (
-                                <div className="alert alert-info text-center">
-                                    <strong>Monto calculado:</strong> ${resultadoFinal.toFixed(2)}<br />
-                                    {mensajeResultado}
-                                </div>
+                                <DiscountDetalis montoIngresado={montoIngresado} buen_contribuyente={editedData?.es_buen_contribuyente}/>
                             )}
                         </form>
                     </div>

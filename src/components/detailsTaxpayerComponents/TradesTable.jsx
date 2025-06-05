@@ -160,7 +160,7 @@ const TradesTable = ({ id_contribuyente, trades, onTradeStateChange, disabledTra
                                                             <strong className="bi bi-check-circle text-success"> Validado</strong>
                                                         ) : (
                                                             <button
-                                                                className="btn btn-primary fw-bold"
+                                                                    className="btn btn-primary btn-sm p-2 py-1"
                                                                 onClick={() => onTradeStateChange(comercio)}
                                                             >
                                                                 Validar
@@ -169,7 +169,7 @@ const TradesTable = ({ id_contribuyente, trades, onTradeStateChange, disabledTra
                                                     </td>
                                                     <td>
                                                         <button
-                                                            className="btn btn-warning fw-bold"
+                                                            className="btn btn-warning btn-sm p-2 py-1"
                                                             onClick={() =>
                                                                 navigate(
                                                                     `/ddjjContribuyente/${id_contribuyente}/${comercio?.id_comercio}/${comercio?.cod_comercio}`
@@ -182,7 +182,7 @@ const TradesTable = ({ id_contribuyente, trades, onTradeStateChange, disabledTra
                                                     <td>
                                                         {comercio?.estado ? (
                                                             <button
-                                                                className="btn btn-outline-danger flex-grow-1 fw-bold"
+                                                                className="btn btn-outline-danger flex-grow-1 btn-sm p-2 py-1"
                                                                 onClick={() => disabledTrade(comercio)}
                                                             >
                                                                 inhabilitar

@@ -2,6 +2,7 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import InputDecimal from '../components/auth/InputDecimal';
+import DiscountDetalis from '../components/DiscountDetalis';
 import ErrorNotification from '../components/ErrorNotification';
 import ConfirmModal from '../components/modalsComponents/ConfirmModal';
 import RectificacionModal from '../components/modalsComponents/RectificacionModal';
@@ -15,7 +16,6 @@ const FormAddDdjj = () => {
   const URL = import.meta.env.VITE_API_URL;
   const { user, logout } = useAuth();
   const { data, loading, error, refetch } = useFetch(`${URL}/api/trade/${user?.id}`);
-
   const { data: config } = useFetch(`${URL}/api/configuration`);
   const res = config?.response[0]
   const [selectedComercio, setSelectedComercio] = useState("");
@@ -182,6 +182,8 @@ const FormAddDdjj = () => {
   ];
   const mesActual = meses[(new Date().getMonth() - 1 + 12) % 12];
 
+  const montoIngresado = parseFloat(registroDDJJ?.monto) || 0;
+
   return (
     <>
       <div className="container">
@@ -202,7 +204,7 @@ const FormAddDdjj = () => {
 
                 <form onSubmit={handleSubmit}>
                   <div>
-                    <div className="col-md-12 mb-3 fw-semibold">
+                    <div className="col-md-12 mb-3">
                       <label htmlFor="comercio" className="form-label">Seleccione Comercio</label>
                       <select
                         id="comercio"
@@ -226,7 +228,7 @@ const FormAddDdjj = () => {
                             ))
                         )}
                       </select>
-                    </div>                    
+                    </div>
                     <InputDecimal
                       label="Monto (impuesto determinado para los ingresos brutos declarados ante ARBA)"
                       name="monto"
@@ -238,7 +240,7 @@ const FormAddDdjj = () => {
                       step="0.01"
                       min="0"
                     />
-                    <div className="mb-3 position-relative fw-semibold">
+                    <div className="mb-3 position-relative">
                       <label className="form-label">Mes Correspondiente</label>
                       <select
                         name="descripcion"
@@ -262,6 +264,9 @@ const FormAddDdjj = () => {
                         <div className="invalid-feedback">{errorsDDJJ?.descripcion}</div>
                       )}
                     </div>
+                    {montoIngresado > 0 && (
+                      <DiscountDetalis montoIngresado={montoIngresado} buen_contribuyente={user?.buen_contribuyente} />
+                    )}
                   </div>
                   <button type="submit"
                     className="btn btn-primary w-100"

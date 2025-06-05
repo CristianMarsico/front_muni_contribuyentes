@@ -21,6 +21,7 @@ const DdjjToRafam = () => {
     const { data, loading, error, refetch } = useFetch(`${URL}/api/ddjj`);
     const { logout } = useAuth();
 
+    
     // Estados principales
     const [ddjj, setDdjj] = useState([]);
     const [modalConfig, setModalConfig] = useState({ isVisible: false, message: "", onConfirm: null });
@@ -43,7 +44,6 @@ const DdjjToRafam = () => {
 
      // Desplegable para las rectificaciones
     const [expandedRows, setExpandedRows] = useState({});
-
 
     // Actualizar la lista con los datos de la API
     useEffect(() => {
@@ -381,20 +381,6 @@ const DdjjToRafam = () => {
                                                             {/* Si no está rectificada, agregamos una fila debajo */}
                                                             {ddjj.rectificaciones?.length > 0 && (
                                                                 <>
-                                                                    {/* <tr className="bg-light border-top border-secondary-subtle">
-                                                                        <td colSpan="11" className="px-3 py-2 text-secondary small d-flex justify-content-between align-items-center" style={{ fontStyle: 'italic' }}>
-                                                                            <div>
-                                                                                <strong>Total de rectificaciones:</strong> {ddjj.rectificaciones.length}
-                                                                            </div>
-                                                                            <button
-                                                                                className="btn btn-sm btn-outline-secondary"
-                                                                                onClick={() => toggleExpand(ddjj.id_comercio)}
-                                                                            >
-                                                                                {expandedRows[ddjj.id_comercio] ? 'Ocultar' : 'Ver detalles'}
-                                                                            </button>
-                                                                        </td>
-                                                                    </tr> */}
-
                                                                     <tr>
                                                                         <td colSpan="11" className="text-center position-relative py-2">
                                                                             <div className="fw-bold btn btn-sm btn-outline-primary" onClick={() => toggleExpand(index)}>

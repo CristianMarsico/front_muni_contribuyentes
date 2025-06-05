@@ -19,7 +19,8 @@ const FormValuesMunicipal = () => {
     const [configuracionGeneral, setConfiguracionGeneral] = useState({
         fecha_limite_ddjj: '',
         monto_ddjj_defecto: '',
-        tasa_actual: ''      
+        tasa_actual: '',
+        porcentaje_buen_contribuyente: ''
     });
     // Estado que almacena los valores iniciales de configuración para comparar con los actuales
     const [initialConfig, setInitialConfig] = useState(null);
@@ -61,7 +62,8 @@ const FormValuesMunicipal = () => {
     const errorMessages = {
         fecha_limite_ddjj: "*Especifique el día límite para cargar DDJJ.",
         tasa_actual: "*La tasa actual es obligatoria y debe ser un número decimal válido.",
-        monto_ddjj_defecto: "*El monto por defecto es obligatorio y debe ser un número decimal válido."
+        monto_ddjj_defecto: "*El monto por defecto es obligatorio y debe ser un número decimal válido.",
+        porcentaje_buen_contribuyente:"*Determine el porcentaje para el buen contribuyente."
     };
 
     // Este useEffect establece la configuración inicial cuando los datos de la API se cargan
@@ -70,7 +72,8 @@ const FormValuesMunicipal = () => {
             const initialData = {
                 fecha_limite_ddjj: data.response[0].fecha_limite_ddjj || '',
                 tasa_actual: data.response[0].tasa_actual || '',
-                monto_ddjj_defecto: data.response[0].monto_defecto || ''
+                monto_ddjj_defecto: data.response[0].monto_defecto || '',
+                porcentaje_buen_contribuyente: data.response[0].porcentaje_buen_contribuyente || '',
             };
             setConfiguracionGeneral(initialData);// Actualiza el estado con la configuración obtenida
             setInitialConfig(initialData); // Guarda los valores iniciales para comparar más tarde
@@ -177,7 +180,7 @@ const FormValuesMunicipal = () => {
                                         error={errorsConfig.fecha_limite_ddjj}
                                     />
                                     <InputDecimal
-                                        label="Monto DDJJ por Defecto"
+                                        label="Monto mínimo establecido"
                                         name="monto_ddjj_defecto"
                                         value={configuracionGeneral.monto_ddjj_defecto}
                                         type="number"
@@ -185,7 +188,17 @@ const FormValuesMunicipal = () => {
                                         error={errorsConfig.monto_ddjj_defecto}
                                         step="0.01"
                                         min="0"
-                                    />                                    
+                                    />
+                                    <InputDecimal
+                                        label="Porcentaje al buen contribuyente"
+                                        name="porcentaje_buen_contribuyente"
+                                        value={configuracionGeneral.porcentaje_buen_contribuyente}
+                                        type="number"
+                                        onChange={handleConfigChange}
+                                        error={errorsConfig.porcentaje_buen_contribuyente}
+                                        step="0.01"
+                                        min="0"
+                                    />
                                 </form>
                                 {/* Botón para confirmar cambios */}
                                 <button

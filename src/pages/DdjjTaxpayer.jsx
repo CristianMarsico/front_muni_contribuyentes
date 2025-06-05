@@ -146,22 +146,22 @@ const DdjjTaxpayer = () => {
                                                 <tr key={index}>
                                                     <td>{new Date(item?.fecha).toLocaleDateString()}</td>
                                                     <td>{item?.cuit}</td>
-                                                    <td>$ <FormattedNumber value={item?.monto} /></td>
+                                                    <td>$ <FormattedNumber value={item?.monto_ddjj} /></td>
                                                     <td>$ <FormattedNumber value={item?.tasa_calculada} /></td>
                                                     <td>
                                                         <>
                                                             {item?.cargada_en_tiempo ? (
                                                                 // Si está cargada a tiempo, solo muestra la descripción
-                                                                <>{item?.descripcion}</>
+                                                                <>{item?.descripcion_ddjj}</>
                                                             ) : item?.rectificada ? (
                                                                 // Si NO está cargada a tiempo pero ESTÁ rectificada, muestra con otro icono
                                                                 <>
-                                                                    <i className="bi bi-check-circle text-success"></i> {item?.descripcion}
+                                                                    <i className="bi bi-check-circle text-success"></i> {item?.descripcion_ddjj}
                                                                 </>
                                                             ) : (
                                                                 // Si NO está cargada a tiempo y NO está rectificada, muestra el icono de advertencia
                                                                 <>
-                                                                    <i className="bi bi-exclamation-triangle text-warning"></i> {item?.descripcion}
+                                                                    <i className="bi bi-exclamation-triangle text-warning"></i> {item?.descripcion_ddjj}
                                                                 </>
                                                             )}
                                                         </>

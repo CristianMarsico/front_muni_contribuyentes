@@ -11,25 +11,14 @@ const TutorialRectificar = () => {
         "/img/tutorial5.PNG"       
     ];
 
-
-    // const info = [
-    //     "Seleccione 'MIS DDJJS'",
-    //     "pUTO",
-    //     "HACETE LA PAJA",
-    //     "TE LA COMES"
-    // ];
-
     const [currentIndex, setCurrentIndex] = useState(0);
-    // const [currentInfo, setCurrentInfo] = useState(0);
 
     const nextImage = () => {
         setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
-        // setCurrentInfo((prevIndex) => (prevIndex + 1) % info.length);
     };
 
     const prevImage = () => {
         setCurrentIndex((prevIndex) => (prevIndex - 1 + images.length) % images.length);
-        // setCurrentInfo((prevIndex) => (prevIndex - 1 + info.length) % info.length);
     };
 
   return (
@@ -45,7 +34,7 @@ const TutorialRectificar = () => {
                           aria-expanded="true"
                           aria-controls="collapseOne"
                       >
-                          Guía de instrucción de cómo rectificar
+                          Guía interactiva de cómo rectificar
                       </button>
                   </h2>
                   <div
@@ -60,9 +49,6 @@ const TutorialRectificar = () => {
                               alt={`Imagen ${currentIndex + 1}`}
                               className="img-fluid rounded mb-3"
                           />
-                          {/* <div className="btn-group mb-2" role="group">
-                              {info[currentInfo]}
-                          </div> */}
                           <div className="btn-group mb-2" role="group">
                               <button className="btn btn-primary" onClick={prevImage}>Anterior</button>
                               <button className="btn btn-primary" onClick={nextImage}>Siguiente</button>
