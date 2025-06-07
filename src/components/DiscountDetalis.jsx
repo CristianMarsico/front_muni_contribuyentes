@@ -8,10 +8,10 @@ const DiscountDetalis = ({ montoIngresado, buen_contribuyente}) => {
     const { data } = useFetch(`${URL}/api/configuration`);
     let res = data?.response[0];  
 
+    let porcentajeBuenContribuyente = res?.porcentaje_buen_contribuyente
     let tasa = res?.tasa_actual;
     let montoMinimo = res?.monto_defecto;
-    // const montoIngresado = parseFloat(editedData?.monto) || 0;
-
+    
     const resultadoCalculado = montoIngresado * tasa;
 
     const resultadoFinal = resultadoCalculado < montoMinimo
@@ -21,11 +21,11 @@ const DiscountDetalis = ({ montoIngresado, buen_contribuyente}) => {
       <div className="alert alert-info text-center">
           {buen_contribuyente ?
               <>
-                  <h5>Accede al {tasa * 100}% por buen Contribuyente</h5>
+                  <h5>Accede al beneficio del {porcentajeBuenContribuyente * 100}% por buen Contribuyente</h5>
                   <p>
-                      Valor de la tasa: $<FormattedNumber value={resultadoFinal} /> y se aplicará el {tasa * 100}% de descuento
+                      Valor de la tasa: $<FormattedNumber value={resultadoFinal} /> y se aplicará el {porcentajeBuenContribuyente * 100}% de descuento
                   </p>
-                  <strong>Deberá abonar:</strong> $<FormattedNumber value={(resultadoFinal - (resultadoFinal * tasa))} /><br />
+                  <strong>Deberá abonar:</strong> $<FormattedNumber value={(resultadoFinal - (resultadoFinal * porcentajeBuenContribuyente))} /><br />
               </>
               :
               <>

@@ -7,7 +7,6 @@ import ErrorResponse from "../components/ErrorResponse";
 import useFetch from "../helpers/hooks/useFetch";
 import { handleError } from "../helpers/hooks/handleError";
 import FormattedNumber from '../helpers/hooks/FormattedNumber';
-// import InputDecimal from "../components/auth/InputDecimal";
 import ConfirmModal from "../components/modalsComponents/ConfirmModal";
 import SuccessModal from "../components/modalsComponents/SuccessModal";
 import ErrorNotification from "../components/ErrorNotification";
@@ -142,8 +141,7 @@ const MyDDJJ = ({ id }) => {
                 setMsjModalExito(res?.data.message);
                 setShowModal(false);
                 setTimeout(() => setShowModal(true), 100);
-                await handleButtonClick();
-                // handleButtonClick();
+                await handleButtonClick();                
             }
         } catch (error) {
             handleError(error, {

@@ -135,7 +135,8 @@ const FormAddDdjj = () => {
       id_contribuyente: user.id,
       id_comercio: selectedComercio,
       monto: parseFloat(registroDDJJ?.monto).toFixed(2),
-      descripcion: `ddjj perteneciente al mes de ${registroDDJJ?.descripcion}` || null
+      descripcion: `ddjj perteneciente al mes de ${registroDDJJ?.descripcion}` || null,
+      buen_contribuyente: user?.buen_contribuyente
     };   
     try {
       const response = await axios.post(`${URL}/api/ddjj`, data, { withCredentials: true });

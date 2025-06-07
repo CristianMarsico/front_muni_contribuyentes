@@ -1,8 +1,6 @@
 import React from "react";
 import InputDecimal from "../components/auth/InputDecimal";
 import DiscountDetalis from "../components/DiscountDetalis";
-import FormattedNumber from "../helpers/hooks/FormattedNumber";
-import useFetch from "../helpers/hooks/useFetch";
 
 const FormRectificar = ({
     show,
@@ -14,10 +12,6 @@ const FormRectificar = ({
     setErrors,
     meses
 }) => {
-    // const URL = import.meta.env.VITE_API_URL;
-    // const { data } = useFetch(`${URL}/api/configuration`);
-    // let res = data?.response[0];   
-
     if (!show) return null;   
       
     const handleChange = (e) => {       
@@ -33,16 +27,7 @@ const FormRectificar = ({
     const fecha = new Date(editedData?.fecha);
     const mesActualIndex = (fecha.getMonth() - 1 + 12) % 12;
 
-    // Cálculos automáticos de tasa
-    // let tasa = res?.tasa_actual;
-    // let montoMinimo = res?.monto_defecto;
     const montoIngresado = parseFloat(editedData?.monto) || 0;
-    
-    // const resultadoCalculado = montoIngresado * tasa;
-
-    // const resultadoFinal = resultadoCalculado < montoMinimo
-    //     ? montoMinimo
-    //     : resultadoCalculado;
 
     return (
         <div className="modal fade show d-block" role="dialog">

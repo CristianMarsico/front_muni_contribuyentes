@@ -220,7 +220,7 @@ const DdjjToRafam = () => {
     };
 
     // Enviar datos de ddjj a RECTIFICAR
-    const confirmRectificarChanges = async () => {
+    const confirmRectificarChanges = async () => {        
         try {
             const res = await axios.put(
                 `${URL}/api/rectificar/${selectedRectificar.id_contribuyente}/${selectedRectificar.id_comercio}/${selectedRectificar.fecha}`,
